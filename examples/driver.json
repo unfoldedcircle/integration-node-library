@@ -1,0 +1,17 @@
+{
+	"id": "uc_node_driver",
+	"version": "1.0.0",
+	"min_core_api": "1.0.0",
+	"name": { "en": "My Driver" },
+	"icon": "custom:my_driver_icon",
+	"description": { "en": "Adds support for driver devices." },
+	"driver_url": "ws://localhost:9988",
+	"port": "9988",
+	"developer": {
+		"name": "John Doe",
+		"email": "john@doe.com",
+		"url": "https://www.unfoldedcircle.com"
+	},
+	"home_page": "https://www.unfoldedcircle.com",
+	"release_date": "2023-03-03"
+}
