@@ -22,6 +22,8 @@ Before the `remote-core` can talk to the integration, it needs to be registered.
 You can do it via the REST or WebSocket API, by sending the following requests.
 Make sure to use the same information as you've defined in `driver.json`.
 
+Edit the curl commands to add your preferred authentication. You can find the documentation here: [https://github.com/unfoldedcircle/core-simulator](https://github.com/unfoldedcircle/core-simulator)
+
 ### Register the driver
 
 Rest:
