@@ -39,7 +39,7 @@ class IntegrationAPI extends EventEmitter {
 					attributes: attributes,
 				};
 
-				this.#sendEvent(uc.EVENTS.ENTITY_CHANGE, data, uc.EVENT_CATEGORY.ENTITY);
+				await this.#sendEvent(uc.EVENTS.ENTITY_CHANGE, data, uc.EVENT_CATEGORY.ENTITY);
 			}
 		);
 	}
@@ -75,7 +75,7 @@ class IntegrationAPI extends EventEmitter {
 			this.#authentication(true);
 
 			connection.on("message", async (message) => {
-				this.#messageReceived(message);
+				await this.#messageReceived(message);
 			});
 
 			connection.on("close", () => {
@@ -84,7 +84,7 @@ class IntegrationAPI extends EventEmitter {
 			});
 
 			connection.on("error", () => {
-				log("WS: Connectio error");
+				log("WS: Connection error");
 				this.connection = null;
 			});
 		});
@@ -141,7 +141,7 @@ class IntegrationAPI extends EventEmitter {
 		const msg = json.msg;
 		const msgData = json.msg_data;
 
-		if (kind == "req") {
+		if (kind === "req") {
 			switch (msg) {
 				case uc.MESSAGES.GET_DRIVER_VERSION:
 					await this.#sendResponse(
@@ -169,12 +169,12 @@ class IntegrationAPI extends EventEmitter {
 					await this.#sendResponse(
 						id,
 						uc.EVENTS.ENTITY_STATES,
-						this.#getEntityStates() ? uc.STATUS_CODES.OK : uc.STATUS_CODES.NOT_FOUND
+						this.#getEntityStates()
 					);
 					break;
 
 				case uc.MESSAGES.ENTITY_COMMAND:
-					this.#entityCommand(id, msgData);
+					await this.#entityCommand(id, msgData);
 					break;
 
 				case uc.MESSAGES.SUBSCRIBE_EVENTS:
@@ -199,7 +199,7 @@ class IntegrationAPI extends EventEmitter {
 				default:
 					break;
 			}
-		} else if (kind == "event") {
+		} else if (kind === "event") {
 			switch (msg) {
 				case uc.EVENTS.CONNECT:
 					this.emit(uc.EVENTS.CONNECT);
@@ -221,6 +221,7 @@ class IntegrationAPI extends EventEmitter {
 		this.#sendResponse(
 			0,
 			uc.MESSAGES.AUTHENTICATION,
+			null,
 			success ? uc.STATUS_CODES.OK : uc.STATUS_CODES.UNAUTHORIZED
 		);
 	}
