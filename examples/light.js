@@ -6,11 +6,11 @@ const uc = require("../index");
 uc.init("driver.json");
 
 uc.on(uc.EVENTS.CONNECT, async () => {
-    uc.setDeviceState(uc.DEVICE_STATES.CONNECTED);
+    await uc.setDeviceState(uc.DEVICE_STATES.CONNECTED);
 });
 
 uc.on(uc.EVENTS.DISCONNECT, async () => {
-    uc.setDeviceState(uc.DEVICE_STATES.DISCONNECTED);
+    await uc.setDeviceState(uc.DEVICE_STATES.DISCONNECTED);
 });
 
 uc.on(uc.EVENTS.SUBSCRIBE_ENTITIES, async (entities) => {
@@ -19,7 +19,7 @@ uc.on(uc.EVENTS.SUBSCRIBE_ENTITIES, async (entities) => {
     // from available to configured
     // you can act on this event if you need for your device handling
     entities.forEach(entity => {
-        console.log(`Subsribed entity: ${JSON.stringify(entity, null, 4)}`);
+        console.log(`Subscribed entity: ${JSON.stringify(entity, null, 4)}`);
     });
 });
 
@@ -29,7 +29,7 @@ uc.on(uc.EVENTS.UNSUBSCRIBE_ENTITIES, async (entities) => {
     // from configured
     // you can act on this event if you need for your device handling
     entities.forEach(entity => {
-        console.log(`Unsubsribed entity: ${JSON.stringify(entity, null, 4)}`);
+        console.log(`Unsubscribed entity: ${JSON.stringify(entity, null, 4)}`);
     });
 });
 
@@ -55,7 +55,7 @@ uc.availableEntities.addEntity(lightEntity);
 
 // when a command request arrives from the core, handle the command
 // in this example we just update the entity, but in reality, you'd turn on the light with your integration
-// and handle the events separatly for updating the configured entities
+// and handle the events separately for updating the configured entities
 uc.on(
     uc.EVENTS.ENTITY_COMMAND,
     async (id, entity_id, entity_type, cmd_id, params) => {
@@ -68,19 +68,19 @@ uc.on(
 
         if (entity == null) {
             console.log("Entity not found");
-            uc.acknowledgeCommand(id, uc.STATUS_CODES.NOT_FOUND);
+            await uc.acknowledgeCommand(id, uc.STATUS_CODES.NOT_FOUND);
             return;
         }
 
         switch (cmd_id) {
             case uc.Entities.Light.COMMANDS.TOGGLE:
-                if (entity.attributes.state == uc.Entities.Light.STATES.OFF) {
+                if (entity.attributes.state === uc.Entities.Light.STATES.OFF) {
                     uc.configuredEntities.updateEntityAttributes(
                         entity.id,
                         [uc.Entities.Light.ATTRIBUTES.STATE, uc.Entities.Light.ATTRIBUTES.BRIGHTNESS],
                         [uc.Entities.Light.STATES.ON, 255]
                     );
-                } else if (entity.attributes.state == uc.Entities.Light.STATES.ON) {
+                } else if (entity.attributes.state === uc.Entities.Light.STATES.ON) {
                     uc.configuredEntities.updateEntityAttributes(
                         entity.id,
                         [uc.Entities.Light.ATTRIBUTES.STATE, uc.Entities.Light.ATTRIBUTES.BRIGHTNESS],
@@ -112,9 +112,9 @@ uc.on(
                 break;
         }
 
-        // you need to acknoledge if the command was successfully executed
+        // you need to acknowledge if the command was successfully executed
         // we just say OK there, but you need to add logic if the command is 
         // really successfully executed on the device
-        uc.acknowledgeCommand(id);
+        await uc.acknowledgeCommand(id);
     }
 );
