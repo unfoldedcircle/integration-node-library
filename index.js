@@ -1,13 +1,13 @@
-"use strict";
+'use strict';
 
-const WebSocket = require("ws");
-const EventEmitter = require("events");
-const fs = require("fs");
+const WebSocket = require('ws');
+const EventEmitter = require('events');
+const fs = require('fs');
 
-const uc = require("./lib/api_definitions");
-const Entities = require("./lib/entities/entities");
+const uc = require('./lib/api_definitions');
+const Entities = require('./lib/entities/entities');
 
-function log(message) {
+function log (message) {
     console.log(`[UC Integration API] ${message}`);
 }
 
@@ -17,26 +17,26 @@ class IntegrationAPI extends EventEmitter {
     #state;
     #server;
 
-    constructor() {
+    constructor () {
         super();
 
-        this.#driverPath = "driver.json";
+        this.#driverPath = 'driver.json';
 
         // set default state to connected
         this.#state = uc.DEVICE_STATES.DISCONNECTED;
 
         // create storage for available and configured entities
-        this.availableEntities = new Entities("available");
-        this.configuredEntities = new Entities("configured");
+        this.availableEntities = new Entities('available');
+        this.configuredEntities = new Entities('configured');
 
         // connect to update events for entity attributes
         this.configuredEntities.on(
             uc.EVENTS.ENTITY_ATTRIBUTES_UPDATED,
             async (entity_id, entity_type, attributes) => {
                 const data = {
-                    entity_id: entity_id,
-                    entity_type: entity_type,
-                    attributes: attributes,
+                    entity_id,
+                    entity_type,
+                    attributes
                 };
 
                 await this.#sendEvent(uc.EVENTS.ENTITY_CHANGE, data, uc.EVENT_CATEGORY.ENTITY);
@@ -44,69 +44,68 @@ class IntegrationAPI extends EventEmitter {
         );
     }
 
-    init(driverPath) {
-        // load driver information from driver.json
+    init (driverPath) {
+    // load driver information from driver.json
         this.#driverPath = driverPath;
         let raw;
 
         try {
             raw = fs.readFileSync(driverPath);
         } catch (e) {
-            throw Error(`Cannot load driver.json: ${e}`)
+            throw Error(`Cannot load driver.json: ${e}`);
         }
 
         try {
             this.#driverInfo = JSON.parse(raw);
-            log("Driver info loaded");
+            log('Driver info loaded');
         } catch (e) {
             log(`Error parsing driver info: ${e}`);
-            throw Error("Error parsing driver info")
-
+            throw Error('Error parsing driver info');
         }
 
         // setup websocket server - remote-core will connect to this
-        this.#server = new WebSocket.Server({port: this.#driverInfo.port});
+        this.#server = new WebSocket.Server({ port: this.#driverInfo.port });
         this.connection = null;
 
-        this.#server.on("connection", (connection, req) => {
-            log("WS: New connection");
+        this.#server.on('connection', (connection, req) => {
+            log('WS: New connection');
             this.connection = connection;
 
             this.#authentication(true);
 
-            connection.on("message", async (message) => {
+            connection.on('message', async (message) => {
                 await this.#messageReceived(message);
             });
 
-            connection.on("close", () => {
-                log("WS: Connection closed");
+            connection.on('close', () => {
+                log('WS: Connection closed');
                 this.connection = null;
             });
 
-            connection.on("error", () => {
-                log("WS: Connection error");
+            connection.on('error', () => {
+                log('WS: Connection error');
                 this.connection = null;
             });
         });
     }
 
     /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-    async #sendOkResult(id, msgData = null) {
-        await this.#sendResponse(id, "result", msgData, 200);
+    async #sendOkResult (id, msgData = null) {
+        await this.#sendResponse(id, 'result', msgData, 200);
     }
 
-    async #sendErrorResult(id, statusCode = 500, msgData = null) {
-        await this.#sendResponse(id, "result", msgData, statusCode);
+    async #sendErrorResult (id, statusCode = 500, msgData = null) {
+        await this.#sendResponse(id, 'result', msgData, statusCode);
     }
 
     // send a response to a request
-    async #sendResponse(id, msg, msgData, statusCode = uc.STATUS_CODES.OK) {
+    async #sendResponse (id, msg, msgData, statusCode = uc.STATUS_CODES.OK) {
         const json = {
-            kind: "resp",
+            kind: 'resp',
             req_id: id,
             code: statusCode,
             msg,
-            msg_data: msgData,
+            msg_data: msgData
         };
 
         if (this.connection != null) {
@@ -114,17 +113,17 @@ class IntegrationAPI extends EventEmitter {
             log(`Sending response: ${response}`);
             this.connection.send(response);
         } else {
-            log("Error sending response: connection not established");
+            log('Error sending response: connection not established');
         }
     }
 
     // send an event
-    async #sendEvent(msg, msgData, cat) {
+    async #sendEvent (msg, msgData, cat) {
         const json = {
-            kind: "event",
+            kind: 'event',
             msg,
             msg_data: msgData,
-            cat: cat,
+            cat
         };
 
         if (this.connection != null) {
@@ -135,7 +134,7 @@ class IntegrationAPI extends EventEmitter {
     }
 
     // process incoming websocket messages
-    async #messageReceived(message) {
+    async #messageReceived (message) {
         let json;
         try {
             json = JSON.parse(message);
@@ -151,71 +150,71 @@ class IntegrationAPI extends EventEmitter {
         const msg = json.msg;
         const msgData = json.msg_data;
 
-        if (kind === "req") {
+        if (kind === 'req') {
             switch (msg) {
-                case uc.MESSAGES.GET_DRIVER_VERSION:
-                    await this.#sendResponse(
-                        id,
-                        uc.EVENTS.DRIVER_VERSION,
-                        this.getDriverVersion()
-                    );
-                    break;
+            case uc.MESSAGES.GET_DRIVER_VERSION:
+                await this.#sendResponse(
+                    id,
+                    uc.EVENTS.DRIVER_VERSION,
+                    this.getDriverVersion()
+                );
+                break;
 
-                case uc.MESSAGES.GET_DEVICE_STATE:
-                    await this.#sendResponse(
-                        id,
-                        uc.EVENTS.DEVICE_STATE,
-                        this.#getDeviceState()
-                    );
-                    break;
+            case uc.MESSAGES.GET_DEVICE_STATE:
+                await this.#sendResponse(
+                    id,
+                    uc.EVENTS.DEVICE_STATE,
+                    this.#getDeviceState()
+                );
+                break;
 
-                case uc.MESSAGES.GET_AVAILABLE_ENTITIES:
-                    await this.#sendResponse(id, uc.EVENTS.AVAILABLE_ENTITIES, {
-                        available_entities: this.#getAvailableEntities(),
-                    });
-                    break;
+            case uc.MESSAGES.GET_AVAILABLE_ENTITIES:
+                await this.#sendResponse(id, uc.EVENTS.AVAILABLE_ENTITIES, {
+                    available_entities: this.#getAvailableEntities()
+                });
+                break;
 
-                case uc.MESSAGES.GET_ENTITY_STATES:
-                    await this.#sendResponse(
-                        id,
-                        uc.EVENTS.ENTITY_STATES,
-                        this.#getEntityStates()
-                    );
-                    break;
+            case uc.MESSAGES.GET_ENTITY_STATES:
+                await this.#sendResponse(
+                    id,
+                    uc.EVENTS.ENTITY_STATES,
+                    this.#getEntityStates()
+                );
+                break;
 
-                case uc.MESSAGES.ENTITY_COMMAND:
-                    await this.#entityCommand(id, msgData);
-                    break;
+            case uc.MESSAGES.ENTITY_COMMAND:
+                await this.#entityCommand(id, msgData);
+                break;
 
-                case uc.MESSAGES.SUBSCRIBE_EVENTS:
-                    if (await this.#subscribeEvents(msgData)) {
-                        await this.#sendOkResult(id);
-                    } else {
-                        await this.#sendErrorResult(id, uc.STATUS_CODES.NOT_FOUND);
-                    }
-                    break;
-
-                case uc.MESSAGES.UNSUBSCRIBE_EVENTS:
-                    await this.#unSubscribeEvents(msgData);
-
+            case uc.MESSAGES.SUBSCRIBE_EVENTS:
+                if (await this.#subscribeEvents(msgData)) {
                     await this.#sendOkResult(id);
-                    break;
+                } else {
+                    await this.#sendErrorResult(id, uc.STATUS_CODES.NOT_FOUND);
+                }
+                break;
 
-                default:
-                    break;
+            case uc.MESSAGES.UNSUBSCRIBE_EVENTS:
+                await this.#unSubscribeEvents(msgData);
+
+                await this.#sendOkResult(id);
+                break;
+
+            default:
+                break;
             }
-        } else if (kind === "event") {
+        } else if (kind === 'event') {
             switch (msg) {
-                case uc.EVENTS.CONNECT:
-                    this.emit(uc.EVENTS.CONNECT);
-                    break;
+            case uc.EVENTS.CONNECT:
+                this.emit(uc.EVENTS.CONNECT);
+                break;
 
-                case uc.EVENTS.DISCONNECT:
-                    this.emit(uc.EVENTS.DISCONNECT);
-                    break;
+            case uc.EVENTS.DISCONNECT:
+                this.emit(uc.EVENTS.DISCONNECT);
+                break;
 
-                default:
-                    break;
+            default:
+                break;
             }
         }
     }
@@ -223,7 +222,7 @@ class IntegrationAPI extends EventEmitter {
     /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
     // private methods
-    #authentication(success) {
+    #authentication (success) {
         this.#sendResponse(
             0,
             uc.MESSAGES.AUTHENTICATION,
@@ -232,19 +231,19 @@ class IntegrationAPI extends EventEmitter {
         );
     }
 
-    #getDeviceState() {
+    #getDeviceState () {
         return {
-            state: this.#state,
+            state: this.#state
         };
     }
 
-    #getAvailableEntities() {
-        // return list of entities
+    #getAvailableEntities () {
+    // return list of entities
         return this.availableEntities.getEntities();
     }
 
-    async #subscribeEvents(entities) {
-        // copy available entities to registered entities
+    async #subscribeEvents (entities) {
+    // copy available entities to registered entities
         let res = true;
 
         entities.entity_ids.forEach((entityId) => {
@@ -263,8 +262,8 @@ class IntegrationAPI extends EventEmitter {
         return res;
     }
 
-    async #unSubscribeEvents(entities) {
-        // remove entities from registered entities
+    async #unSubscribeEvents (entities) {
+    // remove entities from registered entities
         let res = true;
 
         entities.entity_ids.forEach((entityId) => {
@@ -280,13 +279,13 @@ class IntegrationAPI extends EventEmitter {
         return res;
     }
 
-    #getEntityStates() {
-        // simply return entity states from configured entities
+    #getEntityStates () {
+    // simply return entity states from configured entities
         return this.configuredEntities.getStates();
     }
 
-    async #entityCommand(id, data) {
-        // emit event, so the driver can act on it
+    async #entityCommand (id, data) {
+    // emit event, so the driver can act on it
         this.emit(
             uc.MESSAGES.ENTITY_COMMAND,
             id,
@@ -298,30 +297,30 @@ class IntegrationAPI extends EventEmitter {
     }
 
     /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-    getDriverVersion() {
+    getDriverVersion () {
         return {
             name: this.#driverInfo.name.en,
             version: {
                 api: this.#driverInfo.min_core_api,
-                driver: this.#driverInfo.version,
-            },
+                driver: this.#driverInfo.version
+            }
         };
     }
 
-    async setDeviceState(state) {
+    async setDeviceState (state) {
         this.#state = state;
 
         await this.#sendEvent(
             uc.EVENTS.DEVICE_STATE,
             {
-                state: this.#state,
+                state: this.#state
             },
             uc.EVENT_CATEGORY.DEVICE
         );
     }
 
-    async acknowledgeCommand(id, statusCode = uc.STATUS_CODES.OK) {
-        await this.#sendResponse(id, "result", null, statusCode);
+    async acknowledgeCommand (id, statusCode = uc.STATUS_CODES.OK) {
+        await this.#sendResponse(id, 'result', null, statusCode);
     }
 }
 

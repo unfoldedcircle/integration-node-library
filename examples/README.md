@@ -13,7 +13,10 @@ The `icon` needs to be uploaded to the `remote-core` (via the Web Configurator o
 
 ### Running the app
 
-`node light.js`
+```shell
+npm install
+node light.js
+```
 
 ### Registering the integration
 

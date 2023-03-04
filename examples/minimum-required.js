@@ -1,7 +1,7 @@
-"use strict";
+'use strict';
 
-const uc = require("uc-integration-api");
-uc.init("driver.json");
+const uc = require('uc-integration-api');
+uc.init('driver.json');
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 // Handling events
@@ -71,7 +71,7 @@ const entity = new uc.Entities.MediaPlayer(
     {
         [uc.Entities.MediaPlayer.ATTRIBUTES.STATE]:
         uc.Entities.MediaPlayer.STATES.OFF,
-        [uc.Entities.MediaPlayer.ATTRIBUTES.VOLUME]: 0,
+        [uc.Entities.MediaPlayer.ATTRIBUTES.VOLUME]: 0
     }
 );
 
@@ -97,7 +97,7 @@ uc.configuredEntities.updateEntityAttributes(
     entity_id,
     [
         uc.Entities.MediaPlayer.ATTRIBUTES.STATE,
-        uc.Entities.MediaPlayer.ATTRIBUTES.MEDIA_ARTIST,
+        uc.Entities.MediaPlayer.ATTRIBUTES.MEDIA_ARTIST
     ],
-    [uc.Entities.MediaPlayer.STATES.PLAYING, "Massive Attack"]
+    [uc.Entities.MediaPlayer.STATES.PLAYING, 'Massive Attack']
 );

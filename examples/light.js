@@ -1,9 +1,9 @@
-"use strict";
+'use strict';
 
 // use package in production
 // const uc = require("uc-integration-api");
-const uc = require("../index");
-uc.init("driver.json");
+const uc = require('../index');
+uc.init('driver.json');
 
 uc.on(uc.EVENTS.CONNECT, async () => {
     await uc.setDeviceState(uc.DEVICE_STATES.CONNECTED);
@@ -36,18 +36,18 @@ uc.on(uc.EVENTS.UNSUBSCRIBE_ENTITIES, async (entities) => {
 // create a light entity
 // normally you'd create this where your driver exposed the available entities
 const lightEntity = new uc.Entities.Light(
-    "my_unique_light_id",
-    "My favorite light",
+    'my_unique_light_id',
+    'My favorite light',
     uc.getDriverVersion().id,
     [
         uc.Entities.Light.FEATURES.ON_OFF,
-        uc.Entities.Light.FEATURES.DIM,
+        uc.Entities.Light.FEATURES.DIM
     ],
     {
         [uc.Entities.Light.ATTRIBUTES.STATE]: uc.Entities.Light.STATES.OFF,
-        [uc.Entities.Light.ATTRIBUTES.BRIGHTNESS]: 0,
+        [uc.Entities.Light.ATTRIBUTES.BRIGHTNESS]: 0
     }
-)
+);
 
 // add entity as available
 // this is important, so the core knows what entities are available
@@ -67,53 +67,53 @@ uc.on(
         const entity = uc.configuredEntities.getEntity(entity_id);
 
         if (entity == null) {
-            console.log("Entity not found");
+            console.log('Entity not found');
             await uc.acknowledgeCommand(id, uc.STATUS_CODES.NOT_FOUND);
             return;
         }
 
         switch (cmd_id) {
-            case uc.Entities.Light.COMMANDS.TOGGLE:
-                if (entity.attributes.state === uc.Entities.Light.STATES.OFF) {
-                    uc.configuredEntities.updateEntityAttributes(
-                        entity.id,
-                        [uc.Entities.Light.ATTRIBUTES.STATE, uc.Entities.Light.ATTRIBUTES.BRIGHTNESS],
-                        [uc.Entities.Light.STATES.ON, 255]
-                    );
-                } else if (entity.attributes.state === uc.Entities.Light.STATES.ON) {
-                    uc.configuredEntities.updateEntityAttributes(
-                        entity.id,
-                        [uc.Entities.Light.ATTRIBUTES.STATE, uc.Entities.Light.ATTRIBUTES.BRIGHTNESS],
-                        [uc.Entities.Light.STATES.OFF, 0]
-                    );
-                }
-                break;
-            case uc.Entities.Light.COMMANDS.ON:
-                if (params.brightness) {
-                    uc.configuredEntities.updateEntityAttributes(
-                        entity.id,
-                        [uc.Entities.Light.ATTRIBUTES.STATE, uc.Entities.Light.ATTRIBUTES.BRIGHTNESS],
-                        [uc.Entities.Light.STATES.ON, params.brightness]
-                    );
-                } else {
-                    uc.configuredEntities.updateEntityAttributes(
-                        entity.id,
-                        [uc.Entities.Light.ATTRIBUTES.STATE, uc.Entities.Light.ATTRIBUTES.BRIGHTNESS],
-                        [uc.Entities.Light.STATES.OFF, 0]
-                    );
-                }
-                break;
-            case uc.Entities.Light.COMMANDS.OFF:
+        case uc.Entities.Light.COMMANDS.TOGGLE:
+            if (entity.attributes.state === uc.Entities.Light.STATES.OFF) {
+                uc.configuredEntities.updateEntityAttributes(
+                    entity.id,
+                    [uc.Entities.Light.ATTRIBUTES.STATE, uc.Entities.Light.ATTRIBUTES.BRIGHTNESS],
+                    [uc.Entities.Light.STATES.ON, 255]
+                );
+            } else if (entity.attributes.state === uc.Entities.Light.STATES.ON) {
                 uc.configuredEntities.updateEntityAttributes(
                     entity.id,
                     [uc.Entities.Light.ATTRIBUTES.STATE, uc.Entities.Light.ATTRIBUTES.BRIGHTNESS],
                     [uc.Entities.Light.STATES.OFF, 0]
                 );
-                break;
+            }
+            break;
+        case uc.Entities.Light.COMMANDS.ON:
+            if (params.brightness) {
+                uc.configuredEntities.updateEntityAttributes(
+                    entity.id,
+                    [uc.Entities.Light.ATTRIBUTES.STATE, uc.Entities.Light.ATTRIBUTES.BRIGHTNESS],
+                    [uc.Entities.Light.STATES.ON, params.brightness]
+                );
+            } else {
+                uc.configuredEntities.updateEntityAttributes(
+                    entity.id,
+                    [uc.Entities.Light.ATTRIBUTES.STATE, uc.Entities.Light.ATTRIBUTES.BRIGHTNESS],
+                    [uc.Entities.Light.STATES.OFF, 0]
+                );
+            }
+            break;
+        case uc.Entities.Light.COMMANDS.OFF:
+            uc.configuredEntities.updateEntityAttributes(
+                entity.id,
+                [uc.Entities.Light.ATTRIBUTES.STATE, uc.Entities.Light.ATTRIBUTES.BRIGHTNESS],
+                [uc.Entities.Light.STATES.OFF, 0]
+            );
+            break;
         }
 
         // you need to acknowledge if the command was successfully executed
-        // we just say OK there, but you need to add logic if the command is 
+        // we just say OK there, but you need to add logic if the command is
         // really successfully executed on the device
         await uc.acknowledgeCommand(id);
     }
