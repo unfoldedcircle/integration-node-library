@@ -1,11 +1,11 @@
 {
-	"id": "uc_node_driver",
+	"driver_id": "uc_node_driver",
 	"version": "1.0.0",
 	"min_core_api": "1.0.0",
-	"name": { "en": "My Driver" },
+	"name": { "fr": "Mon driveur", "en": "My Driver", "de": "Mein Treiber", "de-CH": "Min Triber"},
 	"icon": "custom:my_driver_icon",
 	"description": { "en": "Adds support for driver devices." },
-	"driver_url": "ws://localhost:9988",
+	"driver_url": "OPTIONAL: taken from mDNS by the remote if missing, untouched if starting with `ws://` or `wss://`, otherwise dynamically set from determined os hostname and port setting below",
 	"port": "9988",
 	"developer": {
 		"name": "John Doe",

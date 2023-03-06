@@ -1,5 +1,10 @@
 'use strict';
 
+const os = require('os');
+
+const { Bonjour } = require('bonjour-service');
+const bonjour = new Bonjour();
+
 const WebSocket = require('ws');
 const EventEmitter = require('events');
 const fs = require('fs');
@@ -57,16 +62,26 @@ class IntegrationAPI extends EventEmitter {
 
     try {
       this.#driverInfo = JSON.parse(raw);
+      this.#driverInfo.driver_url = this.#getDriverUrl(this.#driverInfo.driver_url, this.#driverInfo.port);
       log('Driver info loaded');
     } catch (e) {
       log(`Error parsing driver info: ${e}`);
       throw Error('Error parsing driver info');
     }
 
+    bonjour.publish({
+      name: this.#driverInfo.driver_id,
+      type: 'uc-integration',
+      port: this.#driverInfo.port,
+      txt: { name: this.#getDefaultLanguageString(this.#driverInfo.name), ver: this.#driverInfo.version, developer: this.#driverInfo.developer.name }
+    });
+
+    // TODO #5 handle startup errors if e.g. port is already in use
     // setup websocket server - remote-core will connect to this
     this.#server = new WebSocket.Server({ port: this.#driverInfo.port });
     this.connection = null;
 
+    // FIXME #6 client connection handling! Don't overwrite the connection of another client :-(
     this.#server.on('connection', (connection, req) => {
       log('WS: New connection');
       this.connection = connection;
@@ -87,6 +102,54 @@ class IntegrationAPI extends EventEmitter {
         this.connection = null;
       });
     });
+  }
+
+  /**
+   * Rewrite WebSocket server URL to include in the `driver_metadata` response.
+   *
+   * - If null or empty: null is returned and propagated to the metadata. The remote uses the mDNS information.
+   * - If starting with `ws://` or `wss://` the url is returned as defined.
+   * - Otherwise: build URL from OS hostname and given port number.
+   *
+   * @param {String} url The WebSocket url. Usually defined in the driver.json file. May be null or empty.
+   * @param {Number} port The WebSocket server port number.
+   * @returns {*|null|string} The WebSocket server url which should be returned in `driver_metadata`.
+   */
+  #getDriverUrl (url, port) {
+    if (url) {
+      if (url.startsWith('ws://') || url.startsWith('wss://')) {
+        return url;
+      }
+      return `ws://${os.hostname()}:${port}`;
+    }
+
+    // Remote will use mDNS information
+    return null;
+  }
+
+  /**
+   * Get the default text from a language text map.
+   *
+   * If english `en` is not defined, the first entry is returned.
+   *
+   * @param {object} text The language text map, key is the language identifier, value the language specific text.
+   * @returns {string} The default text.
+   */
+  #getDefaultLanguageString (text) {
+    if (!text) {
+      return 'Driver without a name';
+    }
+
+    if (text.en) {
+      return text.en;
+    }
+
+    // eslint-disable-next-line no-unreachable-loop
+    for (const key in text) {
+      return text[key];
+    }
+
+    return 'Driver without a name';
   }
 
   /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -200,7 +263,17 @@ class IntegrationAPI extends EventEmitter {
           await this.#sendOkResult(id);
           break;
 
+        case uc.MESSAGES.GET_DRIVER_METADATA:
+          await this.#sendResponse(
+            id,
+            uc.EVENTS.DRIVER_METADATA,
+            this.#driverInfo
+          );
+          break;
+
         default:
+          log(`Unhandled request: ${msg}`);
+          await this.#sendErrorResult(id);
           break;
       }
     } else if (kind === 'event') {
