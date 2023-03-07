@@ -89,19 +89,13 @@ uc.on(
         }
         break;
       case uc.Entities.Light.COMMANDS.ON:
-        if (params.brightness) {
-          uc.configuredEntities.updateEntityAttributes(
-            entity.id,
-            [uc.Entities.Light.ATTRIBUTES.STATE, uc.Entities.Light.ATTRIBUTES.BRIGHTNESS],
-            [uc.Entities.Light.STATES.ON, params.brightness]
-          );
-        } else {
-          uc.configuredEntities.updateEntityAttributes(
-            entity.id,
-            [uc.Entities.Light.ATTRIBUTES.STATE, uc.Entities.Light.ATTRIBUTES.BRIGHTNESS],
-            [uc.Entities.Light.STATES.OFF, 0]
-          );
-        }
+        // params is optional! Use a default if not provided.
+        // A real lamp might store the last brightness value, otherwise the integration could also keep track of the last value.
+        uc.configuredEntities.updateEntityAttributes(
+          entity.id,
+          [uc.Entities.Light.ATTRIBUTES.STATE, uc.Entities.Light.ATTRIBUTES.BRIGHTNESS],
+          [uc.Entities.Light.STATES.ON, (params && params.brightness) ? params.brightness : 127]
+        );
         break;
       case uc.Entities.Light.COMMANDS.OFF:
         uc.configuredEntities.updateEntityAttributes(
