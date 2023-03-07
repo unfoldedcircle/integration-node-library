@@ -13,41 +13,38 @@ uc.on(uc.EVENTS.DISCONNECT, async () => {
   await uc.setDeviceState(uc.DEVICE_STATES.DISCONNECTED);
 });
 
-uc.on(uc.EVENTS.SUBSCRIBE_ENTITIES, async (entities) => {
+uc.on(uc.EVENTS.SUBSCRIBE_ENTITIES, async (entityIds) => {
   // the integration will configure entities and subscribe for entity update events
   // the UC library automatically adds the subscribed entities
   // from available to configured
   // you can act on this event if you need for your device handling
-  entities.forEach(entity => {
-    console.log(`Subscribed entity: ${JSON.stringify(entity, null, 4)}`);
+  entityIds.forEach(entityId => {
+    console.log(`Subscribed entity: ${entityId}`);
   });
 });
 
-uc.on(uc.EVENTS.UNSUBSCRIBE_ENTITIES, async (entities) => {
+uc.on(uc.EVENTS.UNSUBSCRIBE_ENTITIES, async (entityIds) => {
   // when the integration unsubscribed from certain entity updates,
   // the UC library automatically remove the unsubscribed entities
   // from configured
   // you can act on this event if you need for your device handling
-  entities.forEach(entity => {
-    console.log(`Unsubscribed entity: ${JSON.stringify(entity, null, 4)}`);
+  entityIds.forEach(entityId => {
+    console.log(`Unsubscribed entity: ${entityId}`);
   });
 });
 
 // create a light entity
 // normally you'd create this where your driver exposed the available entities
+// The entity name can either be string (which will be mapped to english), or a Map with multiple language entries.
+const name = new Map([['de', 'Mein Lieblingslicht'], ['en', 'My favorite light']]);
 const lightEntity = new uc.Entities.Light(
   'my_unique_light_id',
-  // FIXME name needs to be a proper language string
-  'My favorite light',
-  uc.getDriverVersion().id,
-  [
-    uc.Entities.Light.FEATURES.ON_OFF,
-    uc.Entities.Light.FEATURES.DIM
-  ],
-  {
-    [uc.Entities.Light.ATTRIBUTES.STATE]: uc.Entities.Light.STATES.OFF,
-    [uc.Entities.Light.ATTRIBUTES.BRIGHTNESS]: 0
-  }
+  name,
+  [uc.Entities.Light.FEATURES.ON_OFF, uc.Entities.Light.FEATURES.DIM],
+  new Map([
+    [uc.Entities.Light.ATTRIBUTES.STATE, uc.Entities.Light.STATES.OFF],
+    [uc.Entities.Light.ATTRIBUTES.BRIGHTNESS, 0]
+  ])
 );
 
 // add entity as available
@@ -61,7 +58,7 @@ uc.on(
   uc.EVENTS.ENTITY_COMMAND,
   async (wsHandle, entityId, entityType, cmdId, params) => {
     console.log(
-            `ENTITY COMMAND: ${entityId} ${entityType} ${cmdId} ${params ? JSON.stringify(params, null, 4) : ''}`
+            `ENTITY COMMAND: ${entityId} ${entityType} ${cmdId} ${params ? JSON.stringify(params) : ''}`
     );
 
     // get the entity from the configured ones

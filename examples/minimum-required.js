@@ -18,7 +18,7 @@ uc.on(uc.EVENTS.DISCONNECT, async () => {
   await uc.setDeviceState(uc.DEVICE_STATES.DISCONNECTED);
 });
 
-uc.on(uc.EVENTS.SUBSCRIBE_ENTITIES, async (entities) => {
+uc.on(uc.EVENTS.SUBSCRIBE_ENTITIES, async (entityIds) => {
   // the integration will configure entities and subscribe for entity update events
   // the UC library automatically adds the subscribed entities
   // from available to configured
@@ -27,7 +27,7 @@ uc.on(uc.EVENTS.SUBSCRIBE_ENTITIES, async (entities) => {
   // ...
 });
 
-uc.on(uc.EVENTS.UNSUBSCRIBE_ENTITIES, async (entities) => {
+uc.on(uc.EVENTS.UNSUBSCRIBE_ENTITIES, async (entityIds) => {
   // when the integration unsubscribed from certain entity updates,
   // the UC library automatically remove the unsubscribed entities
   // from configured
@@ -65,6 +65,7 @@ uc.on(
 // your integration should make entities available for the core
 // 1. create an entity
 const entityId = 'unique-id-inside-integration';
+// The entity name can either be string (which will be mapped to english), or a Map with multiple language entries.
 const entityName = 'My entity';
 
 const entity = new uc.Entities.MediaPlayer(
@@ -72,17 +73,13 @@ const entity = new uc.Entities.MediaPlayer(
   entityId,
   // name of the entity
   entityName,
-  // id of the integration driver
-  uc.getDriverVersion().id,
   // define features in an array. Use the pre-defined object to choose features from
-  [uc.Entities.MediaPlayer.FEATURES.ON_OFF,
-    uc.Entities.MediaPlayer.FEATURES.VOLUME],
+  [uc.Entities.MediaPlayer.FEATURES.ON_OFF, uc.Entities.MediaPlayer.FEATURES.VOLUME],
   // define default attributes for the entity. Use the pre-defined object to choose attributes from
-  {
-    [uc.Entities.MediaPlayer.ATTRIBUTES.STATE]:
-        uc.Entities.MediaPlayer.STATES.OFF,
-    [uc.Entities.MediaPlayer.ATTRIBUTES.VOLUME]: 0
-  }
+  new Map([
+    [uc.Entities.MediaPlayer.ATTRIBUTES.STATE, uc.Entities.MediaPlayer.STATES.OFF],
+    [uc.Entities.MediaPlayer.ATTRIBUTES.VOLUME, 0]
+  ])
 );
 
 // 2. add available entity to the core
