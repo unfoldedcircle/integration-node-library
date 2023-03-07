@@ -13,40 +13,38 @@ uc.on(uc.EVENTS.DISCONNECT, async () => {
   await uc.setDeviceState(uc.DEVICE_STATES.DISCONNECTED);
 });
 
-uc.on(uc.EVENTS.SUBSCRIBE_ENTITIES, async (entities) => {
+uc.on(uc.EVENTS.SUBSCRIBE_ENTITIES, async (entityIds) => {
   // the integration will configure entities and subscribe for entity update events
   // the UC library automatically adds the subscribed entities
   // from available to configured
   // you can act on this event if you need for your device handling
-  entities.forEach(entity => {
-    console.log(`Subscribed entity: ${JSON.stringify(entity, null, 4)}`);
+  entityIds.forEach(entityId => {
+    console.log(`Subscribed entity: ${entityId}`);
   });
 });
 
-uc.on(uc.EVENTS.UNSUBSCRIBE_ENTITIES, async (entities) => {
+uc.on(uc.EVENTS.UNSUBSCRIBE_ENTITIES, async (entityIds) => {
   // when the integration unsubscribed from certain entity updates,
   // the UC library automatically remove the unsubscribed entities
   // from configured
   // you can act on this event if you need for your device handling
-  entities.forEach(entity => {
-    console.log(`Unsubscribed entity: ${JSON.stringify(entity, null, 4)}`);
+  entityIds.forEach(entityId => {
+    console.log(`Unsubscribed entity: ${entityId}`);
   });
 });
 
 // create a light entity
 // normally you'd create this where your driver exposed the available entities
+// The entity name can either be string (which will be mapped to english), or a Map with multiple language entries.
+const name = new Map([['de', 'Mein Lieblingslicht'], ['en', 'My favorite light']]);
 const lightEntity = new uc.Entities.Light(
   'my_unique_light_id',
-  'My favorite light',
-  uc.getDriverVersion().id,
-  [
-    uc.Entities.Light.FEATURES.ON_OFF,
-    uc.Entities.Light.FEATURES.DIM
-  ],
-  {
-    [uc.Entities.Light.ATTRIBUTES.STATE]: uc.Entities.Light.STATES.OFF,
-    [uc.Entities.Light.ATTRIBUTES.BRIGHTNESS]: 0
-  }
+  name,
+  [uc.Entities.Light.FEATURES.ON_OFF, uc.Entities.Light.FEATURES.DIM],
+  new Map([
+    [uc.Entities.Light.ATTRIBUTES.STATE, uc.Entities.Light.STATES.OFF],
+    [uc.Entities.Light.ATTRIBUTES.BRIGHTNESS, 0]
+  ])
 );
 
 // add entity as available
@@ -58,9 +56,9 @@ uc.availableEntities.addEntity(lightEntity);
 // and handle the events separately for updating the configured entities
 uc.on(
   uc.EVENTS.ENTITY_COMMAND,
-  async (id, entityId, entityType, cmdId, params) => {
+  async (wsHandle, entityId, entityType, cmdId, params) => {
     console.log(
-            `ENTITY COMMAND: ${id} ${entityId} ${entityType} ${cmdId} ${JSON.stringify(params, null, 4)}`
+            `ENTITY COMMAND: ${entityId} ${entityType} ${cmdId} ${params ? JSON.stringify(params) : ''}`
     );
 
     // get the entity from the configured ones
@@ -68,7 +66,7 @@ uc.on(
 
     if (entity == null) {
       console.log('Entity not found');
-      await uc.acknowledgeCommand(id, uc.STATUS_CODES.NOT_FOUND);
+      await uc.acknowledgeCommand(wsHandle, uc.STATUS_CODES.NOT_FOUND);
       return;
     }
 
@@ -77,37 +75,35 @@ uc.on(
         if (entity.attributes.state === uc.Entities.Light.STATES.OFF) {
           uc.configuredEntities.updateEntityAttributes(
             entity.id,
-            [uc.Entities.Light.ATTRIBUTES.STATE, uc.Entities.Light.ATTRIBUTES.BRIGHTNESS],
-            [uc.Entities.Light.STATES.ON, 255]
+            new Map([
+              [uc.Entities.Light.ATTRIBUTES.STATE, uc.Entities.Light.STATES.ON],
+              [uc.Entities.Light.ATTRIBUTES.BRIGHTNESS, 255]])
           );
         } else if (entity.attributes.state === uc.Entities.Light.STATES.ON) {
           uc.configuredEntities.updateEntityAttributes(
             entity.id,
-            [uc.Entities.Light.ATTRIBUTES.STATE, uc.Entities.Light.ATTRIBUTES.BRIGHTNESS],
-            [uc.Entities.Light.STATES.OFF, 0]
+            new Map([
+              [uc.Entities.Light.ATTRIBUTES.STATE, uc.Entities.Light.STATES.OFF],
+              [uc.Entities.Light.ATTRIBUTES.BRIGHTNESS, 0]])
           );
         }
         break;
       case uc.Entities.Light.COMMANDS.ON:
-        if (params.brightness) {
-          uc.configuredEntities.updateEntityAttributes(
-            entity.id,
-            [uc.Entities.Light.ATTRIBUTES.STATE, uc.Entities.Light.ATTRIBUTES.BRIGHTNESS],
-            [uc.Entities.Light.STATES.ON, params.brightness]
-          );
-        } else {
-          uc.configuredEntities.updateEntityAttributes(
-            entity.id,
-            [uc.Entities.Light.ATTRIBUTES.STATE, uc.Entities.Light.ATTRIBUTES.BRIGHTNESS],
-            [uc.Entities.Light.STATES.OFF, 0]
-          );
-        }
+        // params is optional! Use a default if not provided.
+        // A real lamp might store the last brightness value, otherwise the integration could also keep track of the last value.
+        uc.configuredEntities.updateEntityAttributes(
+          entity.id,
+          new Map([
+            [uc.Entities.Light.ATTRIBUTES.STATE, uc.Entities.Light.STATES.ON],
+            [uc.Entities.Light.ATTRIBUTES.BRIGHTNESS, (params && params.brightness) ? params.brightness : 127]])
+        );
         break;
       case uc.Entities.Light.COMMANDS.OFF:
         uc.configuredEntities.updateEntityAttributes(
           entity.id,
-          [uc.Entities.Light.ATTRIBUTES.STATE, uc.Entities.Light.ATTRIBUTES.BRIGHTNESS],
-          [uc.Entities.Light.STATES.OFF, 0]
+          new Map([
+            [uc.Entities.Light.ATTRIBUTES.STATE, uc.Entities.Light.STATES.OFF],
+            [uc.Entities.Light.ATTRIBUTES.BRIGHTNESS, 0]])
         );
         break;
     }
@@ -115,6 +111,6 @@ uc.on(
     // you need to acknowledge if the command was successfully executed
     // we just say OK there, but you need to add logic if the command is
     // really successfully executed on the device
-    await uc.acknowledgeCommand(id);
+    await uc.acknowledgeCommand(wsHandle);
   }
 );
