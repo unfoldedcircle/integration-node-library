@@ -35,9 +35,9 @@ uc.on(uc.EVENTS.UNSUBSCRIBE_ENTITIES, async (entities) => {
 // handle commands coming from the core
 uc.on(
   uc.EVENTS.ENTITY_COMMAND,
-  async (id, entityId, entityType, cmdId, params) => {
+  async (wsHandle, entityId, entityType, cmdId, params) => {
     console.log(
-            `ENTITY COMMAND: ${id} ${entityId} ${entityType} ${cmdId} ${JSON.stringify(params, null, 4)}`
+            `ENTITY COMMAND: ${entityId} ${entityType} ${cmdId} ${JSON.stringify(params, null, 4)}`
     );
 
     // handle entity commands here
@@ -48,7 +48,7 @@ uc.on(
     // you need to acknowledge if the command was successfully executed
     // default is uc.STATUS_CODES.OK
     const statusCode = uc.STATUS_CODES.NOT_FOUND;
-    uc.acknowledgeCommand(id, statusCode);
+    uc.acknowledgeCommand(wsHandle, statusCode);
   }
 );
 

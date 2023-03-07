@@ -58,9 +58,9 @@ uc.availableEntities.addEntity(lightEntity);
 // and handle the events separately for updating the configured entities
 uc.on(
   uc.EVENTS.ENTITY_COMMAND,
-  async (id, entityId, entityType, cmdId, params) => {
+  async (wsHandle, entityId, entityType, cmdId, params) => {
     console.log(
-            `ENTITY COMMAND: ${id} ${entityId} ${entityType} ${cmdId} ${JSON.stringify(params, null, 4)}`
+            `ENTITY COMMAND: ${entityId} ${entityType} ${cmdId} ${JSON.stringify(params, null, 4)}`
     );
 
     // get the entity from the configured ones
@@ -68,7 +68,7 @@ uc.on(
 
     if (entity == null) {
       console.log('Entity not found');
-      await uc.acknowledgeCommand(id, uc.STATUS_CODES.NOT_FOUND);
+      await uc.acknowledgeCommand(wsHandle, uc.STATUS_CODES.NOT_FOUND);
       return;
     }
 
@@ -115,6 +115,6 @@ uc.on(
     // you need to acknowledge if the command was successfully executed
     // we just say OK there, but you need to add logic if the command is
     // really successfully executed on the device
-    await uc.acknowledgeCommand(id);
+    await uc.acknowledgeCommand(wsHandle);
   }
 );

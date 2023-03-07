@@ -4,7 +4,7 @@
 	"min_core_api": "1.0.0",
 	"name": { "fr": "Mon driveur", "en": "My Driver", "de": "Mein Treiber", "de-CH": "Min Triber"},
 	"icon": "custom:my_driver_icon",
-	"description": { "en": "Adds support for driver devices." },
+	"description": { "en": "A simple demo integration with a simulated light entity." },
 	"driver_url": "OPTIONAL: taken from mDNS by the remote if missing, untouched if starting with `ws://` or `wss://`, otherwise dynamically set from determined os hostname and port setting below",
 	"port": "9988",
 	"developer": {
