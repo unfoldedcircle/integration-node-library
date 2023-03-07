@@ -23,6 +23,8 @@ uc.on(uc.EVENTS.SUBSCRIBE_ENTITIES, async (entities) => {
   // the UC library automatically adds the subscribed entities
   // from available to configured
   // you can act on this event if you need for your device handling
+
+  // ...
 });
 
 uc.on(uc.EVENTS.UNSUBSCRIBE_ENTITIES, async (entities) => {
@@ -30,6 +32,8 @@ uc.on(uc.EVENTS.UNSUBSCRIBE_ENTITIES, async (entities) => {
   // the UC library automatically remove the unsubscribed entities
   // from configured
   // you can act on this event if you need for your device handling
+
+  // ...
 });
 
 // handle commands coming from the core
@@ -45,10 +49,12 @@ uc.on(
     // for example start playing a song or change volume
     // Note: you might need to convert values for your desired range and format
 
+    // ...
+
     // you need to acknowledge if the command was successfully executed
     // default is uc.STATUS_CODES.OK
     const statusCode = uc.STATUS_CODES.NOT_FOUND;
-    uc.acknowledgeCommand(wsHandle, statusCode);
+    await uc.acknowledgeCommand(wsHandle, statusCode);
   }
 );
 
@@ -58,6 +64,9 @@ uc.on(
 
 // your integration should make entities available for the core
 // 1. create an entity
+const entityId = 'unique-id-inside-integration';
+const entityName = 'My entity';
+
 const entity = new uc.Entities.MediaPlayer(
   // entity id has to be unique, you can provide it or use uc.Entities.generateId()
   entityId,
@@ -84,20 +93,15 @@ uc.availableEntities.addEntity(entity);
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 // when your integration driver needs to update an entity based on a device change
 // keys and values are attribute key and value pairs
-uc.configuredEntities.updateEntityAttributes(entityId, keys, values);
+const attributes = new Map([]);
+uc.configuredEntities.updateEntityAttributes(entityId, attributes);
 
 // for example to update a state fo a media player:
 uc.configuredEntities.updateEntityAttributes(entityId,
-  [uc.Entities.MediaPlayer.ATTRIBUTES.STATE],
-  [uc.Entities.MediaPlayer.STATES.PLAYING]
-);
+  new Map([[uc.Entities.MediaPlayer.ATTRIBUTES.STATE, uc.Entities.MediaPlayer.STATES.PLAYING]]));
 
 // or multiple attributes at the same time
 uc.configuredEntities.updateEntityAttributes(
   entityId,
-  [
-    uc.Entities.MediaPlayer.ATTRIBUTES.STATE,
-    uc.Entities.MediaPlayer.ATTRIBUTES.MEDIA_ARTIST
-  ],
-  [uc.Entities.MediaPlayer.STATES.PLAYING, 'Massive Attack']
-);
+  new Map([[uc.Entities.MediaPlayer.ATTRIBUTES.STATE, uc.Entities.MediaPlayer.STATES.PLAYING],
+    [uc.Entities.MediaPlayer.ATTRIBUTES.MEDIA_ARTIST, 'Massive Attack']]));

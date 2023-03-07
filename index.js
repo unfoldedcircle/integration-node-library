@@ -44,7 +44,7 @@ class IntegrationAPI extends EventEmitter {
         const data = {
           entity_id: entityId,
           entity_type: entityType,
-          attributes
+          attributes: Object.fromEntries(attributes)
         };
 
         await this.#sendEvent(uc.EVENTS.ENTITY_CHANGE, data, uc.EVENT_CATEGORY.ENTITY);

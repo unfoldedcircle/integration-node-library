@@ -37,6 +37,7 @@ uc.on(uc.EVENTS.UNSUBSCRIBE_ENTITIES, async (entities) => {
 // normally you'd create this where your driver exposed the available entities
 const lightEntity = new uc.Entities.Light(
   'my_unique_light_id',
+  // FIXME name needs to be a proper language string
   'My favorite light',
   uc.getDriverVersion().id,
   [
@@ -60,7 +61,7 @@ uc.on(
   uc.EVENTS.ENTITY_COMMAND,
   async (wsHandle, entityId, entityType, cmdId, params) => {
     console.log(
-            `ENTITY COMMAND: ${entityId} ${entityType} ${cmdId} ${JSON.stringify(params, null, 4)}`
+            `ENTITY COMMAND: ${entityId} ${entityType} ${cmdId} ${params ? JSON.stringify(params, null, 4) : ''}`
     );
 
     // get the entity from the configured ones
@@ -77,14 +78,16 @@ uc.on(
         if (entity.attributes.state === uc.Entities.Light.STATES.OFF) {
           uc.configuredEntities.updateEntityAttributes(
             entity.id,
-            [uc.Entities.Light.ATTRIBUTES.STATE, uc.Entities.Light.ATTRIBUTES.BRIGHTNESS],
-            [uc.Entities.Light.STATES.ON, 255]
+            new Map([
+              [uc.Entities.Light.ATTRIBUTES.STATE, uc.Entities.Light.STATES.ON],
+              [uc.Entities.Light.ATTRIBUTES.BRIGHTNESS, 255]])
           );
         } else if (entity.attributes.state === uc.Entities.Light.STATES.ON) {
           uc.configuredEntities.updateEntityAttributes(
             entity.id,
-            [uc.Entities.Light.ATTRIBUTES.STATE, uc.Entities.Light.ATTRIBUTES.BRIGHTNESS],
-            [uc.Entities.Light.STATES.OFF, 0]
+            new Map([
+              [uc.Entities.Light.ATTRIBUTES.STATE, uc.Entities.Light.STATES.OFF],
+              [uc.Entities.Light.ATTRIBUTES.BRIGHTNESS, 0]])
           );
         }
         break;
@@ -93,15 +96,17 @@ uc.on(
         // A real lamp might store the last brightness value, otherwise the integration could also keep track of the last value.
         uc.configuredEntities.updateEntityAttributes(
           entity.id,
-          [uc.Entities.Light.ATTRIBUTES.STATE, uc.Entities.Light.ATTRIBUTES.BRIGHTNESS],
-          [uc.Entities.Light.STATES.ON, (params && params.brightness) ? params.brightness : 127]
+          new Map([
+            [uc.Entities.Light.ATTRIBUTES.STATE, uc.Entities.Light.STATES.ON],
+            [uc.Entities.Light.ATTRIBUTES.BRIGHTNESS, (params && params.brightness) ? params.brightness : 127]])
         );
         break;
       case uc.Entities.Light.COMMANDS.OFF:
         uc.configuredEntities.updateEntityAttributes(
           entity.id,
-          [uc.Entities.Light.ATTRIBUTES.STATE, uc.Entities.Light.ATTRIBUTES.BRIGHTNESS],
-          [uc.Entities.Light.STATES.OFF, 0]
+          new Map([
+            [uc.Entities.Light.ATTRIBUTES.STATE, uc.Entities.Light.STATES.OFF],
+            [uc.Entities.Light.ATTRIBUTES.BRIGHTNESS, 0]])
         );
         break;
     }
