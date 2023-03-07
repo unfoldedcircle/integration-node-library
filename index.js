@@ -195,7 +195,7 @@ class IntegrationAPI extends EventEmitter {
     const connection = this.#getWsConnection(wsId);
     if (connection != null) {
       const response = JSON.stringify(json);
-      log(`[${wsId}] Sending response: ${response}`);
+      log(`[${wsId}] <- ${response}`);
       connection.send(response);
     } else {
       log(`[${wsId}] Error sending response: connection no longer established`);
@@ -212,7 +212,7 @@ class IntegrationAPI extends EventEmitter {
     };
 
     const response = JSON.stringify(json);
-    log(`Sending event: ${response}`);
+    log(`<- ${response}`);
     [...this.#clients.keys()].forEach((client) => {
       client.send(response);
     });
@@ -228,7 +228,7 @@ class IntegrationAPI extends EventEmitter {
       return;
     }
 
-    log(`[${wsId}] Incoming: ${JSON.stringify(json)}`);
+    log(`[${wsId}] -> ${JSON.stringify(json)}`);
 
     const kind = json.kind;
     const id = json.id;
@@ -275,16 +275,12 @@ class IntegrationAPI extends EventEmitter {
           break;
 
         case uc.MESSAGES.SUBSCRIBE_EVENTS:
-          if (await this.#subscribeEvents(msgData)) {
-            await this.#sendOkResult(wsId, id);
-          } else {
-            await this.#sendErrorResult(wsId, id, uc.STATUS_CODES.NOT_FOUND);
-          }
+          await this.#subscribeEvents(msgData);
+          await this.#sendOkResult(wsId, id);
           break;
 
         case uc.MESSAGES.UNSUBSCRIBE_EVENTS:
           await this.#unSubscribeEvents(msgData);
-
           await this.#sendOkResult(wsId, id);
           break;
 
@@ -343,23 +339,18 @@ class IntegrationAPI extends EventEmitter {
   }
 
   async #subscribeEvents (entities) {
-    // copy available entities to registered entities
-    let res = true;
-
     entities.entity_ids.forEach((entityId) => {
       const entity = this.availableEntities.getEntity(entityId);
-      if (entity != null) {
-        if (!this.configuredEntities.addEntity(entity)) {
-          res = false;
-        }
+      if (entity) {
+        this.configuredEntities.addEntity(entity);
+      } else {
+        console.log(`WARN: cannot subscribe entity '${entityId}': entity is not available`);
       }
     });
 
     this.configuredEntities.saveData();
 
     this.emit(uc.EVENTS.SUBSCRIBE_ENTITIES, entities.entity_ids);
-
-    return res;
   }
 
   async #unSubscribeEvents (entities) {
