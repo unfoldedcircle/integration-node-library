@@ -33,6 +33,56 @@ uc.on(uc.EVENTS.UNSUBSCRIBE_ENTITIES, async (entityIds) => {
   });
 });
 
+uc.on(uc.EVENTS.SETUP_DRIVER, async (wsHandle, setupData) => {
+  console.log(`Setting up driver. Setup data: ${setupData}`);
+  // do any initial checks here
+  // ...
+  await new Promise(resolve => setTimeout(resolve, 300));
+
+  // all good: confirm request. This will start the setup flow
+  await uc.acknowledgeCommand(wsHandle);
+  console.log('Acknowledged driver setup');
+
+  // implement interactive setup flow, this is just a simulated example
+  // ...
+  await new Promise(resolve => setTimeout(resolve, 1000));
+
+  console.log('Sending setup progress that we are still busy...');
+  await uc.driverSetupProgress(wsHandle);
+
+  await new Promise(resolve => setTimeout(resolve, 1000));
+
+  console.log('Requesting user confirmation to finish setup...');
+  await uc.requestDriverSetupUserConfirmation(wsHandle, 'Please confirm driver setup');
+});
+
+uc.on(uc.EVENTS.SETUP_DRIVER_USER_DATA, async (wsHandle, userData) => {
+  console.log(`Received user input for driver setup: ${userData}`);
+
+  // implement interactive setup flow, this is just a simulated example
+  // ...
+
+  // Not expected, send error response
+  await uc.acknowledgeCommand(wsHandle, uc.STATUS_CODES.BAD_REQUEST);
+});
+
+uc.on(uc.EVENTS.SETUP_DRIVER_USER_CONFIRMATION, async (wsHandle) => {
+  console.log('Received user confirmation for driver setup: sending OK');
+  await uc.acknowledgeCommand(wsHandle);
+
+  // implement interactive setup flow, this is just a simulated example
+  // ...
+  await new Promise(resolve => setTimeout(resolve, 700));
+
+  console.log('Sending setup progress that we are still busy...');
+  await uc.driverSetupProgress(wsHandle);
+
+  await new Promise(resolve => setTimeout(resolve, 700));
+
+  console.log('Driver setup completed!');
+  await uc.driverSetupComplete(wsHandle);
+});
+
 // create a light entity
 // normally you'd create this where your driver exposed the available entities
 // The entity name can either be string (which will be mapped to english), or a Map with multiple language entries.
