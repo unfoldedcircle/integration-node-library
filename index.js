@@ -357,7 +357,12 @@ class IntegrationAPI extends EventEmitter {
           this.emit(uc.EVENTS.DISCONNECT);
           break;
 
+        case uc.MSG_EVENTS.ABORT_DRIVER_SETUP:
+          this.emit(uc.EVENTS.SETUP_DRIVER_ABORT);
+          break;
+
         default:
+          log(`[${wsId}] Unhandled event: ${msg}`);
           break;
       }
     }
