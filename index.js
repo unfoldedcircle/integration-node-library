@@ -543,6 +543,27 @@ class IntegrationAPI extends EventEmitter {
   }
 
   /**
+   * Request user input during the driver setup flow.
+   *
+   * @param {Object} wsHandle The WebSocket handle received in the `EVENTS.SETUP_DRIVER` event.
+   * @param {string|Map} title A human-readable title of the request screen. Either a string, which will be mapped to english, or a Map containing multiple language strings.
+   * @param {Array<object>} settings Array of input field definition objects. See Integration-API specification.
+   */
+  async requestDriverSetupUserInput (wsHandle, title, settings) {
+    const msgData = {
+      event_type: 'SETUP',
+      state: 'WAIT_USER_ACTION',
+      require_user_action: {
+        input: {
+          title: this.#toLanguageObject(title),
+          settings
+        }
+      }
+    };
+    await this.#sendEvent(wsHandle.wsId, uc.MSG_EVENTS.DRIVER_SETUP_CHANGE, msgData, uc.EVENT_CATEGORY.DEVICE);
+  }
+
+  /**
    * Confirm successful setup flow completion.
    *
    * Further setup flow messages will be ignored by the Remote.

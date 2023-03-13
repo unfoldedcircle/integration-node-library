@@ -1,0 +1,48 @@
+{
+	"driver_id": "uc_node_driver",
+	"version": "1.0.0",
+	"min_core_api": "1.0.0",
+	"name": { "fr": "Mon driveur", "en": "My Driver", "de": "Mein Treiber", "de-CH": "Min Triber"},
+	"icon": "custom:my_driver_icon",
+	"description": { "en": "A simple demo integration with a simulated light entity." },
+	"#driver_url": "OPTIONAL: the remote uses the driver URL from mDNS if `driver_url` is missing, untouched if starting with `ws://` or `wss://`, otherwise dynamically set from determined os hostname and port setting below",
+	"port": "9988",
+	"developer": {
+		"name": "John Doe",
+		"email": "john@doe.com",
+		"url": "https://www.unfoldedcircle.com"
+	},
+	"home_page": "https://www.unfoldedcircle.com",
+	"setup_data_schema": {
+		"title": {
+			"en": "Simulated integration setup"
+		},
+		"settings": [
+			{
+				"id": "info",
+				"label": {
+					"en": "Demo driver settings page"
+				},
+				"field": {
+					"label": {
+						"value": {
+							"en": "This is some [Markdown](https://en.wikipedia.org/wiki/Markdown) text just for testing.\n\n## Header\n\nMore formatted text, e.g. in _italic_ or **bold**\n\n### Sub header\n\nThe quick brown fox jumps over the lazy dog."
+						}
+					}
+				}
+			},
+			{
+				"id": "confirm",
+				"label": {
+					"en": "I agree"
+				},
+				"field": {
+					"checkbox": {
+						"value": true
+					}
+				}
+			}
+		]
+	},
+	"release_date": "2023-03-03"
+}

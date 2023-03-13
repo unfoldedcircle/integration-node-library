@@ -2,8 +2,8 @@
 
 // use package in production
 // const uc = require("uc-integration-api");
-const uc = require('../index');
-uc.init('driver.json');
+const uc = require('../../index');
+uc.init('light-driver.json');
 
 uc.on(uc.EVENTS.CONNECT, async () => {
   await uc.setDeviceState(uc.DEVICE_STATES.CONNECTED);
@@ -53,17 +53,19 @@ uc.on(uc.EVENTS.SETUP_DRIVER, async (wsHandle, setupData) => {
   await new Promise(resolve => setTimeout(resolve, 1000));
 
   console.log('Requesting user confirmation to finish setup...');
-  await uc.requestDriverSetupUserConfirmation(wsHandle, 'Please confirm driver setup');
+  await uc.requestDriverSetupUserConfirmation(wsHandle, 'Please click next to continue driver setup');
 });
 
 uc.on(uc.EVENTS.SETUP_DRIVER_USER_DATA, async (wsHandle, userData) => {
-  console.log(`Received user input for driver setup: ${userData}`);
+  console.log('Received user input for driver setup');
+  await uc.acknowledgeCommand(wsHandle);
 
   // implement interactive setup flow, this is just a simulated example
   // ...
+  await new Promise(resolve => setTimeout(resolve, 700));
 
-  // Not expected, send error response
-  await uc.acknowledgeCommand(wsHandle, uc.STATUS_CODES.BAD_REQUEST);
+  console.log('Driver setup completed!');
+  await uc.driverSetupComplete(wsHandle);
 });
 
 uc.on(uc.EVENTS.SETUP_DRIVER_USER_CONFIRMATION, async (wsHandle) => {
@@ -79,8 +81,13 @@ uc.on(uc.EVENTS.SETUP_DRIVER_USER_CONFIRMATION, async (wsHandle) => {
 
   await new Promise(resolve => setTimeout(resolve, 700));
 
-  console.log('Driver setup completed!');
-  await uc.driverSetupComplete(wsHandle);
+  await uc.requestDriverSetupUserInput(wsHandle, 'Data required',
+    [
+      { field: { text: { value: '192.168.100.30' } }, id: 'address', label: { en: 'Hostname or IP address' } },
+      { field: { password: {} }, id: 'token', label: { en: 'Access token' } },
+      { field: { number: { max: 65535, min: 1, value: 1000 } }, id: 'port', label: { en: 'Port' } },
+      { field: { checkbox: { value: false } }, id: 'ssl', label: { en: 'Use SSL' } }
+    ]);
 });
 
 // create a light entity
