@@ -191,11 +191,11 @@ class IntegrationAPI extends EventEmitter {
   }
 
   /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-  async #sendOkResult (wsId, id, msgData = null) {
+  async #sendOkResult (wsId, id, msgData = {}) {
     await this.#sendResponse(wsId, id, 'result', msgData, 200);
   }
 
-  async #sendErrorResult (wsId, id, statusCode = 500, msgData = null) {
+  async #sendErrorResult (wsId, id, statusCode = 500, msgData = {}) {
     await this.#sendResponse(wsId, id, 'result', msgData, statusCode);
   }
 
@@ -385,7 +385,7 @@ class IntegrationAPI extends EventEmitter {
       wsId,
       0,
       uc.MESSAGES.AUTHENTICATION,
-      null,
+      {},
       success ? uc.STATUS_CODES.OK : uc.STATUS_CODES.UNAUTHORIZED
     );
   }
@@ -510,7 +510,7 @@ class IntegrationAPI extends EventEmitter {
    * @param {Number} statusCode The status code. Defaults to OK 200.
    */
   async acknowledgeCommand (wsHandle, statusCode = uc.STATUS_CODES.OK) {
-    await this.#sendResponse(wsHandle.wsId, wsHandle.reqId, 'result', null, statusCode);
+    await this.#sendResponse(wsHandle.wsId, wsHandle.reqId, 'result', {}, statusCode);
   }
 
   /**
