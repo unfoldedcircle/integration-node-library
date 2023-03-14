@@ -1,17 +1,9 @@
 {
-	"driver_id": "uc_node_driver",
-	"version": "1.0.0",
-	"min_core_api": "1.0.0",
-	"name": { "fr": "Mon driveur", "en": "My Driver", "de": "Mein Treiber", "de-CH": "Min Triber"},
-	"icon": "custom:my_driver_icon",
-	"description": { "en": "A simple demo integration with a simulated light entity." },
-	"driver_url": "OPTIONAL: taken from mDNS by the remote if missing, untouched if starting with `ws://` or `wss://`, otherwise dynamically set from determined os hostname and port setting below",
-	"port": "9988",
+	"driver_id": "minimal_driver",
+	"version": "0.0.1",
+	"name": { "en": "Minimal driver" },
+	"port": "1946",
 	"developer": {
-		"name": "John Doe",
-		"email": "john@doe.com",
-		"url": "https://www.unfoldedcircle.com"
-	},
-	"home_page": "https://www.unfoldedcircle.com",
-	"release_date": "2023-03-03"
+		"name": "Jane Doe"
+	}
 }

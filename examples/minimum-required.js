@@ -1,6 +1,8 @@
 'use strict';
 
-const uc = require('uc-integration-api');
+// use package in production
+// const uc = require("uc-integration-api");
+const uc = require('../index');
 uc.init('driver.json');
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */

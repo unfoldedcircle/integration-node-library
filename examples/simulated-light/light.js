@@ -2,8 +2,8 @@
 
 // use package in production
 // const uc = require("uc-integration-api");
-const uc = require('../index');
-uc.init('driver.json');
+const uc = require('../../index');
+uc.init('light-driver.json');
 
 uc.on(uc.EVENTS.CONNECT, async () => {
   await uc.setDeviceState(uc.DEVICE_STATES.CONNECTED);
@@ -31,6 +31,63 @@ uc.on(uc.EVENTS.UNSUBSCRIBE_ENTITIES, async (entityIds) => {
   entityIds.forEach(entityId => {
     console.log(`Unsubscribed entity: ${entityId}`);
   });
+});
+
+uc.on(uc.EVENTS.SETUP_DRIVER, async (wsHandle, setupData) => {
+  console.log(`Setting up driver. Setup data: ${setupData}`);
+  // do any initial checks here
+  // ...
+  await new Promise(resolve => setTimeout(resolve, 300));
+
+  // all good: confirm request. This will start the setup flow
+  await uc.acknowledgeCommand(wsHandle);
+  console.log('Acknowledged driver setup');
+
+  // implement interactive setup flow, this is just a simulated example
+  // ...
+  await new Promise(resolve => setTimeout(resolve, 1000));
+
+  console.log('Sending setup progress that we are still busy...');
+  await uc.driverSetupProgress(wsHandle);
+
+  await new Promise(resolve => setTimeout(resolve, 1000));
+
+  console.log('Requesting user confirmation to finish setup...');
+  await uc.requestDriverSetupUserConfirmation(wsHandle, 'Please click next to continue driver setup');
+});
+
+uc.on(uc.EVENTS.SETUP_DRIVER_USER_DATA, async (wsHandle, userData) => {
+  console.log('Received user input for driver setup');
+  await uc.acknowledgeCommand(wsHandle);
+
+  // implement interactive setup flow, this is just a simulated example
+  // ...
+  await new Promise(resolve => setTimeout(resolve, 700));
+
+  console.log('Driver setup completed!');
+  await uc.driverSetupComplete(wsHandle);
+});
+
+uc.on(uc.EVENTS.SETUP_DRIVER_USER_CONFIRMATION, async (wsHandle) => {
+  console.log('Received user confirmation for driver setup: sending OK');
+  await uc.acknowledgeCommand(wsHandle);
+
+  // implement interactive setup flow, this is just a simulated example
+  // ...
+  await new Promise(resolve => setTimeout(resolve, 700));
+
+  console.log('Sending setup progress that we are still busy...');
+  await uc.driverSetupProgress(wsHandle);
+
+  await new Promise(resolve => setTimeout(resolve, 700));
+
+  await uc.requestDriverSetupUserInput(wsHandle, 'Data required',
+    [
+      { field: { text: { value: '192.168.100.30' } }, id: 'address', label: { en: 'Hostname or IP address' } },
+      { field: { password: {} }, id: 'token', label: { en: 'Access token' } },
+      { field: { number: { max: 65535, min: 1, value: 1000 } }, id: 'port', label: { en: 'Port' } },
+      { field: { checkbox: { value: false } }, id: 'ssl', label: { en: 'Use SSL' } }
+    ]);
 });
 
 // create a light entity

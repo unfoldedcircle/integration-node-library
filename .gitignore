@@ -104,4 +104,4 @@ dist
 .tern-port
 lib/.DS_Store
 .DS_Store
-examples/configured.json
+configured.json
