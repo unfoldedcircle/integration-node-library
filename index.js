@@ -76,7 +76,11 @@ class IntegrationAPI extends EventEmitter {
       name: this.#driverInfo.driver_id,
       type: 'uc-integration',
       port: this.#driverInfo.port,
-      txt: { name: this.#getDefaultLanguageString(this.#driverInfo.name), ver: this.#driverInfo.version, developer: this.#driverInfo.developer.name }
+      txt: {
+        name: this.#getDefaultLanguageString(this.#driverInfo.name, 'Unknown driver'),
+        ver: this.#driverInfo.version,
+        developer: this.#driverInfo.developer.name
+      }
     });
 
     // TODO #5 handle startup errors if e.g. port is already in use
@@ -137,26 +141,31 @@ class IntegrationAPI extends EventEmitter {
   /**
    * Get the default text from a language text map.
    *
-   * If english `en` is not defined, the first entry is returned.
+   * If english `en` or any `en-##` is not defined, the first entry is returned.
    *
    * @param {object} text The language text map, key is the language identifier, value the language specific text.
+   * @param {string} defaultText The text to return if `text` is empty.
    * @returns {string} The default text.
    */
-  #getDefaultLanguageString (text) {
+  #getDefaultLanguageString (text, defaultText = 'Undefined') {
     if (!text) {
-      return 'Driver without a name';
+      return defaultText;
     }
 
     if (text.en) {
       return text.en;
     }
 
-    // eslint-disable-next-line no-unreachable-loop
-    for (const key in text) {
-      return text[key];
+    for (const [index, [key, value]] of Object.entries(text).entries()) {
+      if (index === 0) {
+        defaultText = value;
+      }
+      if (key.startsWith('en-')) {
+        return text[key];
+      }
     }
 
-    return 'Driver without a name';
+    return defaultText;
   }
 
   #toLanguageObject (text) {
