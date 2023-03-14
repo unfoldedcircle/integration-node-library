@@ -55,7 +55,7 @@ web-configurator or manually through the Core-API.
 
 ### mDNS advertisement & auto-discovery
 
-The integration library advertises the driver over mDNS. See [mDNS advertisement](https://github.com/unfoldedcircle/core-api/blob/driver-discovery/doc/integration-driver/driver-advertisement.md)
+The integration library advertises the driver over mDNS. See [mDNS advertisement](https://github.com/unfoldedcircle/core-api/blob/main/doc/integration-driver/driver-advertisement.md)
 in the Core-API documentation.
 
 - The `driver_id` value in `driver.json` is used as instance name and must be unique.
