@@ -34,7 +34,7 @@ uc.on(uc.EVENTS.UNSUBSCRIBE_ENTITIES, async (entityIds) => {
 });
 
 uc.on(uc.EVENTS.SETUP_DRIVER, async (wsHandle, setupData) => {
-  console.log(`Setting up driver. Setup data: ${setupData}`);
+  console.log('Setting up driver. Setup data: ' + JSON.stringify(setupData));
   // do any initial checks here
   // ...
   await new Promise(resolve => setTimeout(resolve, 300));
@@ -57,7 +57,7 @@ uc.on(uc.EVENTS.SETUP_DRIVER, async (wsHandle, setupData) => {
 });
 
 uc.on(uc.EVENTS.SETUP_DRIVER_USER_DATA, async (wsHandle, userData) => {
-  console.log('Received user input for driver setup');
+  console.log('Received user input for driver setup: ' + JSON.stringify(userData));
   await uc.acknowledgeCommand(wsHandle);
 
   // implement interactive setup flow, this is just a simulated example
@@ -108,6 +108,9 @@ const lightEntity = new uc.Entities.Light(
 // this is important, so the core knows what entities are available
 uc.availableEntities.addEntity(lightEntity);
 
+const buttonEntity = new uc.Entities.Button('my_button', 'Push the button!');
+uc.availableEntities.addEntity(buttonEntity);
+
 // when a command request arrives from the core, handle the command
 // in this example we just update the entity, but in reality, you'd turn on the light with your integration
 // and handle the events separately for updating the configured entities
@@ -119,14 +122,25 @@ uc.on(
     );
 
     // get the entity from the configured ones
-    const entity = uc.configuredEntities.getEntity(entityId);
-
+    let entity = uc.configuredEntities.getEntity(entityId);
     if (entity == null) {
       console.log('Entity not found');
       await uc.acknowledgeCommand(wsHandle, uc.STATUS_CODES.NOT_FOUND);
       return;
     }
 
+    // let's add some hacky action to the button!
+    if (entityId === 'my_button' && cmdId === uc.Entities.Button.COMMANDS.PUSH) {
+      cmdId = uc.Entities.Light.COMMANDS.TOGGLE;
+      // switch personality
+      const light = uc.configuredEntities.getEntity('my_unique_light_id');
+      if (light) {
+        entity = light;
+      }
+    }
+
+    // this is just a **very simple and naive** command handler.
+    // A real driver should also check the entityType since a command name is not unique among entity types.
     switch (cmdId) {
       case uc.Entities.Light.COMMANDS.TOGGLE:
         if (entity.attributes.state === uc.Entities.Light.STATES.OFF) {
