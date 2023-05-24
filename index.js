@@ -52,23 +52,36 @@ class IntegrationAPI extends EventEmitter {
     );
   }
 
-  init (driverPath) {
-    // load driver information from driver.json
-    this.#driverPath = driverPath;
-    let raw;
+  init (driverConfig) {
+    // load driver information from either a file path or object.
 
-    try {
-      raw = fs.readFileSync(driverPath);
-    } catch (e) {
-      throw Error(`Cannot load driver.json: ${e}`);
+    if (typeof driverConfig === "string"){
+      this.#driverPath = driverConfig;
+
+      let raw;
+      try {
+        raw = fs.readFileSync(this.#driverPath);
+      } catch (e) {
+        throw Error(`Cannot load ${this.#driverPath}: ${e}`);
+      }
+
+      try {
+        this.#driverInfo = JSON.parse(raw);
+      } catch (e) {
+        log(`Error parsing driver info: ${e}`);
+        throw Error('Error parsing driver info');
+      }
+    } else if (typeof driverConfig === "object"){
+      this.#driverInfo  = driverConfig;
+    } else {
+      throw Error('Unsupported driverConfig');
     }
 
-    try {
-      this.#driverInfo = JSON.parse(raw);
+    try{
       this.#driverInfo.driver_url = this.#getDriverUrl(this.#driverInfo.driver_url, this.#driverInfo.port);
       log('Driver info loaded');
     } catch (e) {
-      log(`Error parsing driver info: ${e}`);
+      log(`Error getting driver url: ${e}`);
       throw Error('Error parsing driver info');
     }
 
