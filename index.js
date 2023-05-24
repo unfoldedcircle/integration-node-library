@@ -52,7 +52,7 @@ class IntegrationAPI extends EventEmitter {
   init(driverConfig) {
     // load driver information from either a file path or object.
 
-    if (typeof driverConfig === 'string') {
+    if (typeof driverConfig === 'string'){
       this.#driverPath = driverConfig;
 
       let raw;
@@ -68,13 +68,13 @@ class IntegrationAPI extends EventEmitter {
         log(`Error parsing driver info: ${e}`);
         throw Error('Error parsing driver info');
       }
-    } else if (typeof driverConfig === 'object') {
-      this.#driverInfo = driverConfig;
+    } else if (typeof driverConfig === 'object'){
+      this.#driverInfo  = driverConfig;
     } else {
       throw Error('Unsupported driverConfig');
     }
 
-    try {
+    try{
       this.#driverInfo.driver_url = this.#getDriverUrl(this.#driverInfo.driver_url, this.#driverInfo.port);
       log('Driver info loaded');
     } catch (e) {
