@@ -20,6 +20,14 @@ uc.on(uc.EVENTS.DISCONNECT, async () => {
   await uc.setDeviceState(uc.DEVICE_STATES.DISCONNECTED);
 });
 
+uc.on(uc.EVENTS.ENTER_STANDBY, async () => {
+  // act on when the remote goes to standby
+});
+
+uc.on(uc.EVENTS.EXIT_STANDBY, async () => {
+  // act on when the remote leaves standby
+});
+
 uc.on(uc.EVENTS.SUBSCRIBE_ENTITIES, async (entityIds) => {
   // the integration will configure entities and subscribe for entity update events
   // the UC library automatically adds the subscribed entities
@@ -43,7 +51,7 @@ uc.on(
   uc.EVENTS.ENTITY_COMMAND,
   async (wsHandle, entityId, entityType, cmdId, params) => {
     console.log(
-            `ENTITY COMMAND: ${entityId} ${entityType} ${cmdId} ${JSON.stringify(params, null, 4)}`
+      `ENTITY COMMAND: ${entityId} ${entityType} ${cmdId} ${JSON.stringify(params, null, 4)}`
     );
 
     // handle entity commands here

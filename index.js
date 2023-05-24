@@ -358,6 +358,14 @@ class IntegrationAPI extends EventEmitter {
           this.emit(uc.EVENTS.DISCONNECT);
           break;
 
+        case uc.MSG_EVENTS.ENTER_STANDBY:
+          this.emit(uc.EVENTS.ENTER_STANDBY);
+          break;
+
+        case uc.MSG_EVENTS.EXIT_STANDBY:
+          this.emit(uc.EVENTS.EXIT_STANDBY);
+          break;
+
         case uc.MSG_EVENTS.ABORT_DRIVER_SETUP:
           this.emit(uc.EVENTS.SETUP_DRIVER_ABORT);
           break;
