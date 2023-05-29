@@ -1,6 +1,6 @@
 {
 	"name": "uc-integration-api",
-	"version": "0.0.6",
+	"version": "0.0.7",
 	"description": "NodeJS wrapper for the Unfolded Circle Integration API",
 	"main": "index.js",
 	"directories": {
@@ -13,14 +13,14 @@
 	},
 	"devDependencies": {
 		"eslint": "^8.35.0",
+		"eslint-config-prettier": "8.8.0",
 		"eslint-config-semistandard": "^17.0.0",
 		"eslint-config-standard": "^17.0.0",
 		"eslint-plugin-import": "^2.27.5",
 		"eslint-plugin-n": "^15.6.1",
-		"eslint-config-prettier": "8.8.0",
 		"eslint-plugin-prettier": "4.2.1",
 		"eslint-plugin-promise": "^6.1.1",
-		"prettier": "2.8.8"
+		"prettier": "^2.8.8"
 	},
 	"scripts": {
 		"format": "prettier --write lib examples index.js",

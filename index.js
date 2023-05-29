@@ -3,7 +3,6 @@
 const os = require("os");
 
 const { Bonjour } = require("bonjour-service");
-const bonjour = new Bonjour();
 
 const WebSocket = require("ws");
 const EventEmitter = require("events");
@@ -27,6 +26,9 @@ class IntegrationAPI extends EventEmitter {
     super();
 
     this.#driverPath = "driver.json";
+
+    // directory to store configuration files
+    this.configDirPath = process.env.UC_CONFIG_HOME;
 
     // set default state to connected
     this.#state = uc.DEVICE_STATES.DISCONNECTED;
@@ -54,6 +56,12 @@ class IntegrationAPI extends EventEmitter {
     this.#driverPath = driverPath;
     let raw;
 
+    const integrationInterface = process.env.UC_INTEGRATION_INTERFACE;
+    const integrationPort = process.env.UC_INTEGRATION_HTTP_PORT;
+    // TODO: implement wss
+    // const integrationHttpsEnabled = process.env.UC_INTEGRATION_HTTPS_ENABLED === "true";
+    const disableMdnsPublish = process.env.UC_DISABLE_MDNS_PUBLISH === "true";
+
     try {
       raw = fs.readFileSync(driverPath);
     } catch (e) {
@@ -62,6 +70,7 @@ class IntegrationAPI extends EventEmitter {
 
     try {
       this.#driverInfo = JSON.parse(raw);
+
       this.#driverInfo.driver_url = this.#getDriverUrl(this.#driverInfo.driver_url, this.#driverInfo.port);
       log("Driver info loaded");
     } catch (e) {
@@ -69,20 +78,40 @@ class IntegrationAPI extends EventEmitter {
       throw Error("Error parsing driver info");
     }
 
-    bonjour.publish({
-      name: this.#driverInfo.driver_id,
-      type: "uc-integration",
-      port: this.#driverInfo.port,
-      txt: {
-        name: this.#getDefaultLanguageString(this.#driverInfo.name, "Unknown driver"),
-        ver: this.#driverInfo.version,
-        developer: this.#driverInfo.developer.name
+    if (!disableMdnsPublish) {
+      let bonjour;
+      if (integrationInterface) {
+        bonjour = new Bonjour({ interface: integrationInterface });
+      } else {
+        bonjour = new Bonjour();
       }
-    });
+
+      log("Starting mdns advertising");
+
+      bonjour.publish({
+        name: this.#driverInfo.driver_id,
+        type: "uc-integration",
+        port: integrationPort || this.#driverInfo.port,
+        txt: {
+          name: this.#getDefaultLanguageString(this.#driverInfo.name, "Unknown driver"),
+          ver: this.#driverInfo.version,
+          developer: this.#driverInfo.developer.name
+        }
+      });
+    }
 
     // TODO #5 handle startup errors if e.g. port is already in use
     // setup websocket server - remote-core will connect to this
-    this.#server = new WebSocket.Server({ port: this.#driverInfo.port });
+    if (integrationInterface) {
+      this.#server = new WebSocket.Server({
+        host: integrationInterface,
+        port: integrationPort || this.#driverInfo.port
+      });
+    } else {
+      this.#server = new WebSocket.Server({
+        port: integrationPort || this.#driverInfo.port
+      });
+    }
 
     this.#server.on("connection", (connection, req) => {
       const wsId = `${req.socket.remoteAddress}:${req.socket.remotePort}`;
