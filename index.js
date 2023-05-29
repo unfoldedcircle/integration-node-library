@@ -2,7 +2,7 @@
 
 const os = require("os");
 
-const { Bonjour } = require('bonjour-service');
+const { Bonjour } = require("bonjour-service");
 
 const WebSocket = require("ws");
 const EventEmitter = require("events");
@@ -36,8 +36,8 @@ class IntegrationAPI extends EventEmitter {
 
     this.#integrationInterface = process.env.UC_INTEGRATION_INTERFACE;
     this.#integrationPort = process.env.UC_INTEGRATION_HTTP_PORT;
-    this.#integrationHttpsEnabled = process.env.UC_INTEGRATION_HTTPS_ENABLED === 'true';
-    this.#disableMdnsPublish = process.env.UC_DISABLE_MDNS_PUBLISH === 'true';
+    this.#integrationHttpsEnabled = process.env.UC_INTEGRATION_HTTPS_ENABLED === "true";
+    this.#disableMdnsPublish = process.env.UC_DISABLE_MDNS_PUBLISH === "true";
 
     // set default state to connected
     this.#state = uc.DEVICE_STATES.DISCONNECTED;
@@ -84,19 +84,19 @@ class IntegrationAPI extends EventEmitter {
     if (!this.#disableMdnsPublish) {
       let bonjour;
       if (this.#integrationInterface) {
-        bonjour =  new Bonjour({interface: this.#integrationInterface});
+        bonjour = new Bonjour({ interface: this.#integrationInterface });
       } else {
-        bonjour =  new Bonjour();
+        bonjour = new Bonjour();
       }
 
-      log('Starting mdns advertising');
+      log("Starting mdns advertising");
 
       bonjour.publish({
         name: this.#driverInfo.driver_id,
-        type: 'uc-integration',
+        type: "uc-integration",
         port: this.#integrationPort ? this.#integrationPort : this.#driverInfo.port,
         txt: {
-          name: this.#getDefaultLanguageString(this.#driverInfo.name, 'Unknown driver'),
+          name: this.#getDefaultLanguageString(this.#driverInfo.name, "Unknown driver"),
           ver: this.#driverInfo.version,
           developer: this.#driverInfo.developer.name
         }
@@ -106,9 +106,14 @@ class IntegrationAPI extends EventEmitter {
     // TODO #5 handle startup errors if e.g. port is already in use
     // setup websocket server - remote-core will connect to this
     if (this.#integrationInterface) {
-      this.#server = new WebSocket.Server({ host: this.#integrationInterface, port: this.#integrationPort ? this.#integrationPort : this.#driverInfo.port });
+      this.#server = new WebSocket.Server({
+        host: this.#integrationInterface,
+        port: this.#integrationPort ? this.#integrationPort : this.#driverInfo.port
+      });
     } else {
-      this.#server = new WebSocket.Server({ port: this.#integrationPort ? this.#integrationPort : this.#driverInfo.port });
+      this.#server = new WebSocket.Server({
+        port: this.#integrationPort ? this.#integrationPort : this.#driverInfo.port
+      });
     }
 
     this.#server.on("connection", (connection, req) => {
