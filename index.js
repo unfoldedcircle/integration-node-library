@@ -3,7 +3,6 @@
 const os = require('os');
 
 const { Bonjour } = require('bonjour-service');
-const bonjour = new Bonjour();
 
 const WebSocket = require('ws');
 const EventEmitter = require('events');
@@ -78,13 +77,6 @@ class IntegrationAPI extends EventEmitter {
     try {
       this.#driverInfo = JSON.parse(raw);
 
-      // if we have environment variable set for interface and port, we use that
-      if (this.#integrationInterface) {
-        this.#driverInfo.driver_url = this.#integrationInterface;
-      }
-      if (this.#integrationPort) {
-        this.#driverInfo.port = this.#integrationPort;
-      }
       this.#driverInfo.driver_url = this.#getDriverUrl(this.#driverInfo.driver_url, this.#driverInfo.port);
       log('Driver info loaded');
     } catch (e) {
@@ -93,12 +85,19 @@ class IntegrationAPI extends EventEmitter {
     }
 
     if (!this.#disableMdnsPublish) {
+      let bonjour;
+      if (this.#integrationInterface) {
+        bonjour =  new Bonjour({interface: this.#integrationInterface});
+      } else {
+        bonjour =  new Bonjour();
+      }
+
       log('Starting mdns advertising');
 
       bonjour.publish({
         name: this.#driverInfo.driver_id,
         type: 'uc-integration',
-        port: this.#driverInfo.port,
+        port: this.#integrationPort ? this.#integrationPort : this.#driverInfo.port,
         txt: {
           name: this.#getDefaultLanguageString(this.#driverInfo.name, 'Unknown driver'),
           ver: this.#driverInfo.version,
@@ -109,7 +108,11 @@ class IntegrationAPI extends EventEmitter {
 
     // TODO #5 handle startup errors if e.g. port is already in use
     // setup websocket server - remote-core will connect to this
-    this.#server = new WebSocket.Server({ port: this.#driverInfo.port });
+    if (this.#integrationInterface) {
+      this.#server = new WebSocket.Server({ host: this.#integrationInterface, port: this.#integrationPort ? this.#integrationPort : this.#driverInfo.port });
+    } else {
+      this.#server = new WebSocket.Server({ port: this.#integrationPort ? this.#integrationPort : this.#driverInfo.port });
+    }
 
     this.#server.on('connection', (connection, req) => {
       const wsId = `${req.socket.remoteAddress}:${req.socket.remotePort}`;
