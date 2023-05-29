@@ -18,6 +18,10 @@ function log (message) {
 
 class IntegrationAPI extends EventEmitter {
   #driverPath;
+  #integrationInterface;
+  #integrationPort;
+  #integrationHttpsEnabled;
+  #disableMdnsPublish;
   #driverInfo;
   #state;
   #server;
@@ -27,6 +31,14 @@ class IntegrationAPI extends EventEmitter {
     super();
 
     this.#driverPath = 'driver.json';
+
+    // directory to store configuration files
+    this.configDirPath = process.env.UC_CONFIG_HOME;
+
+    this.#integrationInterface = process.env.UC_INTEGRATION_INTERFACE;
+    this.#integrationPort = process.env.UC_INTEGRATION_HTTP_PORT;
+    this.#integrationHttpsEnabled = process.env.UC_INTEGRATION_HTTPS_ENABLED === 'true';
+    this.#disableMdnsPublish = process.env.UC_DISABLE_MDNS_PUBLISH === 'true';
 
     // set default state to connected
     this.#state = uc.DEVICE_STATES.DISCONNECTED;
@@ -65,6 +77,14 @@ class IntegrationAPI extends EventEmitter {
 
     try {
       this.#driverInfo = JSON.parse(raw);
+
+      // if we have environment variable set for interface and port, we use that
+      if (this.#integrationInterface) {
+        this.#driverInfo.driver_url = this.#integrationInterface;
+      }
+      if (this.#integrationPort) {
+        this.#driverInfo.port = this.#integrationPort;
+      }
       this.#driverInfo.driver_url = this.#getDriverUrl(this.#driverInfo.driver_url, this.#driverInfo.port);
       log('Driver info loaded');
     } catch (e) {
@@ -72,16 +92,20 @@ class IntegrationAPI extends EventEmitter {
       throw Error('Error parsing driver info');
     }
 
-    bonjour.publish({
-      name: this.#driverInfo.driver_id,
-      type: 'uc-integration',
-      port: this.#driverInfo.port,
-      txt: {
-        name: this.#getDefaultLanguageString(this.#driverInfo.name, 'Unknown driver'),
-        ver: this.#driverInfo.version,
-        developer: this.#driverInfo.developer.name
-      }
-    });
+    if (!this.#disableMdnsPublish) {
+      log('Starting mdns advertising');
+
+      bonjour.publish({
+        name: this.#driverInfo.driver_id,
+        type: 'uc-integration',
+        port: this.#driverInfo.port,
+        txt: {
+          name: this.#getDefaultLanguageString(this.#driverInfo.name, 'Unknown driver'),
+          ver: this.#driverInfo.version,
+          developer: this.#driverInfo.developer.name
+        }
+      });
+    }
 
     // TODO #5 handle startup errors if e.g. port is already in use
     // setup websocket server - remote-core will connect to this
