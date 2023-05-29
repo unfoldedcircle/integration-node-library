@@ -1,9 +1,9 @@
-'use strict';
+"use strict";
 
 // use package in production
 // const uc = require("uc-integration-api");
-const uc = require('../index');
-uc.init('driver.json');
+const uc = require("../index");
+uc.init("driver.json");
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 // Handling events
@@ -33,7 +33,6 @@ uc.on(uc.EVENTS.SUBSCRIBE_ENTITIES, async (entityIds) => {
   // the UC library automatically adds the subscribed entities
   // from available to configured
   // you can act on this event if you need for your device handling
-
   // ...
 });
 
@@ -42,31 +41,25 @@ uc.on(uc.EVENTS.UNSUBSCRIBE_ENTITIES, async (entityIds) => {
   // the UC library automatically remove the unsubscribed entities
   // from configured
   // you can act on this event if you need for your device handling
-
   // ...
 });
 
 // handle commands coming from the core
-uc.on(
-  uc.EVENTS.ENTITY_COMMAND,
-  async (wsHandle, entityId, entityType, cmdId, params) => {
-    console.log(
-      `ENTITY COMMAND: ${entityId} ${entityType} ${cmdId} ${JSON.stringify(params, null, 4)}`
-    );
+uc.on(uc.EVENTS.ENTITY_COMMAND, async (wsHandle, entityId, entityType, cmdId, params) => {
+  console.log(`ENTITY COMMAND: ${entityId} ${entityType} ${cmdId} ${JSON.stringify(params, null, 4)}`);
 
-    // handle entity commands here
-    // execute commands on your integration devices
-    // for example start playing a song or change volume
-    // Note: you might need to convert values for your desired range and format
+  // handle entity commands here
+  // execute commands on your integration devices
+  // for example start playing a song or change volume
+  // Note: you might need to convert values for your desired range and format
 
-    // ...
+  // ...
 
-    // you need to acknowledge if the command was successfully executed
-    // default is uc.STATUS_CODES.OK
-    const statusCode = uc.STATUS_CODES.NOT_FOUND;
-    await uc.acknowledgeCommand(wsHandle, statusCode);
-  }
-);
+  // you need to acknowledge if the command was successfully executed
+  // default is uc.STATUS_CODES.OK
+  const statusCode = uc.STATUS_CODES.NOT_FOUND;
+  await uc.acknowledgeCommand(wsHandle, statusCode);
+});
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 // Providing Available entities
@@ -74,9 +67,9 @@ uc.on(
 
 // your integration should make entities available for the core
 // 1. create an entity
-const entityId = 'unique-id-inside-integration';
+const entityId = "unique-id-inside-integration";
 // The entity name can either be string (which will be mapped to english), or a Map with multiple language entries.
-const entityName = 'My entity';
+const entityName = "My entity";
 
 const entity = new uc.Entities.MediaPlayer(
   // entity id has to be unique, you can provide it or use uc.Entities.generateId()
@@ -104,11 +97,16 @@ const attributes = new Map([]);
 uc.configuredEntities.updateEntityAttributes(entityId, attributes);
 
 // for example to update a state fo a media player:
-uc.configuredEntities.updateEntityAttributes(entityId,
-  new Map([[uc.Entities.MediaPlayer.ATTRIBUTES.STATE, uc.Entities.MediaPlayer.STATES.PLAYING]]));
+uc.configuredEntities.updateEntityAttributes(
+  entityId,
+  new Map([[uc.Entities.MediaPlayer.ATTRIBUTES.STATE, uc.Entities.MediaPlayer.STATES.PLAYING]])
+);
 
 // or multiple attributes at the same time
 uc.configuredEntities.updateEntityAttributes(
   entityId,
-  new Map([[uc.Entities.MediaPlayer.ATTRIBUTES.STATE, uc.Entities.MediaPlayer.STATES.PLAYING],
-    [uc.Entities.MediaPlayer.ATTRIBUTES.MEDIA_ARTIST, 'Massive Attack']]));
+  new Map([
+    [uc.Entities.MediaPlayer.ATTRIBUTES.STATE, uc.Entities.MediaPlayer.STATES.PLAYING],
+    [uc.Entities.MediaPlayer.ATTRIBUTES.MEDIA_ARTIST, "Massive Attack"]
+  ])
+);

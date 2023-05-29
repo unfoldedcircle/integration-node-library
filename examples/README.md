@@ -5,10 +5,9 @@
 The `minimum-required.js` file contains the minimum required methods and events that needs to be handled in an
 integration driver.
 
-- The driver can be discovered and registered in the web-configurator. 
+- The driver can be discovered and registered in the web-configurator.
 - It exposes a media-player entity.
 - There are no implemented entity commands, only a stub handler where the commands have to be implemented.
-
 
 ## simulated-light
 
@@ -29,7 +28,7 @@ Edit `driver.json` if you'd like to change the port or any other information.
 - See `driverMetadata` object in the [Integration-API specification](https://github.com/unfoldedcircle/core-api/tree/main/integration-api)
   for all configuration options.
   - ⚠️ This library requires the additional property `port` to configure the WebSocket server port and is not part of
-       the `driverMetadata` object. 
+    the `driverMetadata` object.
 - If an `icon` is specified in `driver.json`, it needs to be uploaded to the `remote-core` (via the Web Configurator
   or REST Core-API) and referenced by its id.
 - The `driver_url` property is optional and offers different behaviour:
@@ -40,7 +39,7 @@ Edit `driver.json` if you'd like to change the port or any other information.
   - if missing, the remote determines the driver URL by the published mDNS data.
     - If the machine running the integration driver has multiple network interfaces, the first address is used, which
       could be random!
-  - While configuring an integration driver, the user can also override the driver address. 
+  - While configuring an integration driver, the user can also override the driver address.
 - The `setup_data_schema` property enables the driver setup flow to configure the driver during registration.
   - The first request sent is `setup_driver` containing the provided input values (if there are input fields).  
     This triggers the `uc.EVENTS.SETUP_DRIVER` event in the library which the integration driver has to acknowledge.
@@ -62,7 +61,6 @@ in the Core-API documentation.
 - Use the web-configurator to discover the driver in "Integration & docks"
 
 ### Manual registration with Core-API
-
 
 You can do it via the REST or WebSocket API, by sending the following requests.
 Make sure to use the same information as you've defined in `driver.json`.
@@ -173,4 +171,4 @@ Easiest way to do this is to use the Web Configurator.
 
 If the integration has been configured, the first delete operation in the "Integrations & dock" view will remove the
 integration instance (which provides the available entities), the second delete will also remove the driver
-configuration. 
+configuration.
