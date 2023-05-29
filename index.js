@@ -17,10 +17,6 @@ function log(message) {
 
 class IntegrationAPI extends EventEmitter {
   #driverPath;
-  #integrationInterface;
-  #integrationPort;
-  #integrationHttpsEnabled;
-  #disableMdnsPublish;
   #driverInfo;
   #state;
   #server;
@@ -33,11 +29,6 @@ class IntegrationAPI extends EventEmitter {
 
     // directory to store configuration files
     this.configDirPath = process.env.UC_CONFIG_HOME;
-
-    this.#integrationInterface = process.env.UC_INTEGRATION_INTERFACE;
-    this.#integrationPort = process.env.UC_INTEGRATION_HTTP_PORT;
-    this.#integrationHttpsEnabled = process.env.UC_INTEGRATION_HTTPS_ENABLED === "true";
-    this.#disableMdnsPublish = process.env.UC_DISABLE_MDNS_PUBLISH === "true";
 
     // set default state to connected
     this.#state = uc.DEVICE_STATES.DISCONNECTED;
@@ -65,6 +56,12 @@ class IntegrationAPI extends EventEmitter {
     this.#driverPath = driverPath;
     let raw;
 
+    const integrationInterface = process.env.UC_INTEGRATION_INTERFACE;
+    const integrationPort = process.env.UC_INTEGRATION_HTTP_PORT;
+    // TODO: implement wss
+    // const integrationHttpsEnabled = process.env.UC_INTEGRATION_HTTPS_ENABLED === "true";
+    const disableMdnsPublish = process.env.UC_DISABLE_MDNS_PUBLISH === "true";
+
     try {
       raw = fs.readFileSync(driverPath);
     } catch (e) {
@@ -81,10 +78,10 @@ class IntegrationAPI extends EventEmitter {
       throw Error("Error parsing driver info");
     }
 
-    if (!this.#disableMdnsPublish) {
+    if (!disableMdnsPublish) {
       let bonjour;
-      if (this.#integrationInterface) {
-        bonjour = new Bonjour({ interface: this.#integrationInterface });
+      if (integrationInterface) {
+        bonjour = new Bonjour({ interface: integrationInterface });
       } else {
         bonjour = new Bonjour();
       }
@@ -94,7 +91,7 @@ class IntegrationAPI extends EventEmitter {
       bonjour.publish({
         name: this.#driverInfo.driver_id,
         type: "uc-integration",
-        port: this.#integrationPort ? this.#integrationPort : this.#driverInfo.port,
+        port: integrationPort || this.#driverInfo.port,
         txt: {
           name: this.#getDefaultLanguageString(this.#driverInfo.name, "Unknown driver"),
           ver: this.#driverInfo.version,
@@ -105,14 +102,14 @@ class IntegrationAPI extends EventEmitter {
 
     // TODO #5 handle startup errors if e.g. port is already in use
     // setup websocket server - remote-core will connect to this
-    if (this.#integrationInterface) {
+    if (integrationInterface) {
       this.#server = new WebSocket.Server({
-        host: this.#integrationInterface,
-        port: this.#integrationPort ? this.#integrationPort : this.#driverInfo.port
+        host: integrationInterface,
+        port: integrationPort || this.#driverInfo.port
       });
     } else {
       this.#server = new WebSocket.Server({
-        port: this.#integrationPort ? this.#integrationPort : this.#driverInfo.port
+        port: integrationPort || this.#driverInfo.port
       });
     }
 
