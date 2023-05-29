@@ -23,8 +23,8 @@
 		"prettier": "2.8.8"
 	},
 	"scripts": {
-		"format": "prettier --write lib examples",
-		"lint": "prettier --check lib && eslint . --ext .js,.jsx,.ts,.tsx",
+		"format": "prettier --write lib examples index.js",
+		"lint": "prettier --check lib examples index.js && eslint . --ext .js,.jsx,.ts,.tsx",
 		"test": "echo \"Error: no test specified\" && exit 1"
 	},
 	"repository": {
