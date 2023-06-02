@@ -98,8 +98,14 @@ class IntegrationAPI extends EventEmitter {
 
       log("Starting mdns advertising");
 
+      // Make sure to advertise a .local hostname. It seems that bonjour just blindly takes the hostname, short or FQDN.
+      // The remote only supports multicast DNS resolution in the .local domain.
+      // Test with: avahi-browse -d local _uc-integration._tcp --resolve -t
+      const hostname = os.hostname().split(".")[0] + ".local.";
+
       bonjour.publish({
         name: this.#driverInfo.driver_id,
+        host: hostname,
         type: "uc-integration",
         port: integrationPort || this.#driverInfo.port,
         txt: {
