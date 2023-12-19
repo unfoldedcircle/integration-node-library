@@ -257,7 +257,8 @@ class IntegrationAPI extends EventEmitter {
     const connection = this.#getWsConnection(wsId);
     if (connection != null) {
       const response = JSON.stringify(json);
-      log(`[${wsId}] <- ${response}`);
+      this.#log_json_message(json, `[${wsId}] <- `);
+
       connection.send(response);
     } else {
       log(`[${wsId}] Error sending response: connection no longer established`);
@@ -280,7 +281,8 @@ class IntegrationAPI extends EventEmitter {
     };
 
     const response = JSON.stringify(json);
-    log(`<<- ${response}`);
+    this.#log_json_message(json, "<<- ");
+
     [...this.#clients.keys()].forEach((client) => {
       client.send(response);
     });
@@ -305,7 +307,8 @@ class IntegrationAPI extends EventEmitter {
     const connection = this.#getWsConnection(wsId);
     if (connection != null) {
       const response = JSON.stringify(json);
-      log(`[${wsId}] <- ${response}`);
+      this.#log_json_message(json, `[${wsId}] <- `);
+
       connection.send(response);
     } else {
       log(`[${wsId}] Error sending event: connection no longer established`);
@@ -407,6 +410,37 @@ class IntegrationAPI extends EventEmitter {
           break;
       }
     }
+  }
+
+  /**
+   * Log a JSON message with a prefix text.
+   *
+   * Base64 encoded images starting with `data:` are removed in `msg_data.attributes.media_image_url`
+   * fields to limit log output.
+   * The `msg_data` object may either be a single object or an array of objects.
+   *
+   * @param {Object} json The JSON message to log.
+   * @param {string} prefix Prefix text to add before the JSON message.
+   */
+  #log_json_message(json, prefix) {
+    // filter out base64 encoded images
+    if (json.msg_data) {
+      if (Array.isArray(json.msg_data)) {
+        json.msg_data.forEach((o) => {
+          if (o.attributes && o.attributes.media_image_url && o.attributes.media_image_url.startsWith("data:")) {
+            o.attributes.media_image_url = "data:...";
+          }
+        });
+      } else if (
+        json.msg_data.attributes &&
+        json.msg_data.attributes.media_image_url &&
+        json.msg_data.attributes.media_image_url.startsWith("data:")
+      ) {
+        json.msg_data.attributes.media_image_url = "data:...";
+      }
+    }
+
+    log(`${prefix} ${JSON.stringify(json)}`);
   }
 
   /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
