@@ -1,6 +1,6 @@
 {
 	"name": "uc-integration-api",
-	"version": "0.0.7",
+	"version": "0.0.8",
 	"description": "NodeJS wrapper for the Unfolded Circle Integration API",
 	"main": "index.js",
 	"directories": {
