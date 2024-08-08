@@ -113,6 +113,27 @@ uc.availableEntities.addEntity(lightEntity);
 const buttonEntity = new uc.Entities.Button("my_button", "Push the button!");
 uc.availableEntities.addEntity(buttonEntity);
 
+const mediaPlayerEntity = new uc.Entities.MediaPlayer(
+  "test_mediaplayer",
+  new Map([["en", "Foobar MediaPlayer"]]),
+  [
+    uc.Entities.MediaPlayer.FEATURES.ON_OFF,
+    uc.Entities.MediaPlayer.FEATURES.DPAD,
+    uc.Entities.MediaPlayer.FEATURES.HOME,
+    uc.Entities.MediaPlayer.FEATURES.MENU,
+    uc.Entities.MediaPlayer.FEATURES.CHANNEL_SWITCHER,
+    uc.Entities.MediaPlayer.FEATURES.SELECT_SOURCE,
+    uc.Entities.MediaPlayer.FEATURES.COLOR_BUTTONS,
+    uc.Entities.MediaPlayer.FEATURES.PLAY_PAUSE
+  ],
+  new Map([
+    [uc.Entities.MediaPlayer.ATTRIBUTES.STATE, uc.Entities.MediaPlayer.STATES.OFF],
+    [uc.Entities.MediaPlayer.ATTRIBUTES.SOURCE_LIST, ["Radio", "Streaming", "Favorite 1", "Favorite 2", "Favorite 3"]]
+  ]),
+  uc.Entities.MediaPlayer.DEVICECLASSES.STREAMING_BOX
+);
+uc.availableEntities.addEntity(mediaPlayerEntity);
+
 // when a command request arrives from the core, handle the command
 // in this example we just update the entity, but in reality, you'd turn on the light with your integration
 // and handle the events separately for updating the configured entities
@@ -168,6 +189,10 @@ uc.on(uc.EVENTS.ENTITY_COMMAND, async (wsHandle, entityId, entityType, cmdId, pa
           [uc.Entities.Light.ATTRIBUTES.STATE, uc.Entities.Light.STATES.ON],
           [uc.Entities.Light.ATTRIBUTES.BRIGHTNESS, params && params.brightness ? params.brightness : 127]
         ])
+      );
+      uc.configuredEntities.updateEntityAttributes(
+        "test_mediaplayer",
+        new Map([[uc.Entities.MediaPlayer.ATTRIBUTES.VOLUME, 24]])
       );
       break;
     case uc.Entities.Light.COMMANDS.OFF:
