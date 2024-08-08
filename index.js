@@ -377,11 +377,15 @@ class IntegrationAPI extends EventEmitter {
           break;
 
         case uc.MESSAGES.SETUP_DRIVER:
-          await this.#setupDriver(wsId, id, msgData);
+          if (!(await this.#setupDriver(wsId, id, msgData))) {
+            await this.driverSetupError({ wsId, id });
+          }
           break;
 
         case uc.MESSAGES.SET_DRIVER_USER_DATA:
-          await this.#setDriverUserData(wsId, id, msgData);
+          if (!(await this.#setDriverUserData(wsId, id, msgData))) {
+            await this.driverSetupError({ wsId, id });
+          }
           break;
 
         default:
@@ -479,7 +483,7 @@ class IntegrationAPI extends EventEmitter {
       if (entity) {
         this.configuredEntities.addEntity(entity);
       } else {
-        console.log(`WARN: cannot subscribe entity '${entityId}': entity is not available`);
+        console.warn(`WARN: cannot subscribe entity '${entityId}': entity is not available`);
       }
     });
 
@@ -514,20 +518,32 @@ class IntegrationAPI extends EventEmitter {
 
   async #setupDriver(wsId, reqId, data) {
     const wsHandle = { wsId, reqId };
+    if (!data || !data.setup_data) {
+      console.error("Aborting setup_driver: called with empty msg_data");
+      return false;
+    }
+    // TODO replace with setupHandler and action response object as in Python library
     // emit event, so the driver can act on it
-    this.emit(uc.EVENTS.SETUP_DRIVER, wsHandle, data.setup_data);
+    const reconfigure = data.reconfigure && typeof data.reconfigure === "boolean" ? data.reconfigure : false;
+    this.emit(uc.EVENTS.SETUP_DRIVER, wsHandle, data.setup_data, reconfigure);
+    return true;
   }
 
   async #setDriverUserData(wsId, reqId, data) {
     const wsHandle = { wsId, reqId };
+    // TODO replace with setupHandler and action response object as in Python library
     // emit event, so the driver can act on it
     if (data.input_values) {
       this.emit(uc.EVENTS.SETUP_DRIVER_USER_DATA, wsHandle, data.input_values);
+      return true;
     } else if (data.confirm) {
       this.emit(uc.EVENTS.SETUP_DRIVER_USER_CONFIRMATION, wsHandle);
+      return true;
     } else {
-      console.log("Unsupported set_driver_user_data payload received");
+      console.warn("Unsupported set_driver_user_data payload received");
     }
+
+    return false;
   }
 
   /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */

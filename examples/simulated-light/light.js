@@ -33,8 +33,8 @@ uc.on(uc.EVENTS.UNSUBSCRIBE_ENTITIES, async (entityIds) => {
   });
 });
 
-uc.on(uc.EVENTS.SETUP_DRIVER, async (wsHandle, setupData) => {
-  console.log("Setting up driver. Setup data: " + JSON.stringify(setupData));
+uc.on(uc.EVENTS.SETUP_DRIVER, async (wsHandle, setupData, reconfigure) => {
+  console.log("Setting up driver (reconfigure: %s). Setup data: ", reconfigure, JSON.stringify(setupData));
   // do any initial checks here
   // ...
   await new Promise((resolve) => setTimeout(resolve, 300));
