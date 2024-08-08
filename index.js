@@ -1,3 +1,9 @@
+/**
+ * Integration driver API for Unfolded Circle Remote devices.
+ *
+ * @copyright (c) 2024 by Unfolded Circle ApS.
+ * @license Apache License 2.0, see LICENSE for more details.
+ */
 "use strict";
 
 const os = require("os");
