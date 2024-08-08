@@ -107,7 +107,7 @@ class IntegrationAPI extends EventEmitter {
         name: this.#driverInfo.driver_id,
         host: hostname,
         type: "uc-integration",
-        port: integrationPort || this.#driverInfo.port,
+        port: integrationPort || this.#driverInfo.port || 9090,
         txt: {
           name: this.#getDefaultLanguageString(this.#driverInfo.name, "Unknown driver"),
           ver: this.#driverInfo.version,
@@ -121,11 +121,11 @@ class IntegrationAPI extends EventEmitter {
     if (integrationInterface) {
       this.#server = new WebSocket.Server({
         host: integrationInterface,
-        port: integrationPort || this.#driverInfo.port
+        port: integrationPort || this.#driverInfo.port || 9090
       });
     } else {
       this.#server = new WebSocket.Server({
-        port: integrationPort || this.#driverInfo.port
+        port: integrationPort || this.#driverInfo.port || 9090
       });
     }
 
