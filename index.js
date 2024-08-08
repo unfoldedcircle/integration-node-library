@@ -53,7 +53,7 @@ class IntegrationAPI extends EventEmitter {
 
   /**
    * Initialize the library
-   * @param {string|object} either a string to specify the driver configuration file path, or an object holding the configuration
+   * @param {string|object} driverConfig either a string to specify the driver configuration file path, or an object holding the configuration
    */
   init(driverConfig) {
     const integrationInterface = process.env.UC_INTEGRATION_INTERFACE;
@@ -477,8 +477,6 @@ class IntegrationAPI extends EventEmitter {
       }
     });
 
-    this.configuredEntities.saveData();
-
     this.emit(uc.EVENTS.SUBSCRIBE_ENTITIES, entities.entity_ids);
   }
 
@@ -491,8 +489,6 @@ class IntegrationAPI extends EventEmitter {
         res = false;
       }
     });
-
-    this.configuredEntities.saveData();
 
     this.emit(uc.EVENTS.UNSUBSCRIBE_ENTITIES, entities.entity_ids);
 

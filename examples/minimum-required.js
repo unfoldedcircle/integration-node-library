@@ -29,18 +29,18 @@ uc.on(uc.EVENTS.EXIT_STANDBY, async () => {
 });
 
 uc.on(uc.EVENTS.SUBSCRIBE_ENTITIES, async (entityIds) => {
-  // the integration will configure entities and subscribe for entity update events
-  // the UC library automatically adds the subscribed entities
-  // from available to configured
-  // you can act on this event if you need for your device handling
+  // The integration will configure entities and subscribe for entity update events.
+  // The UC library automatically adds the subscribed entities
+  // from the available to the configured pool.
+  // You can act on this event if you need for your device handling.
   // ...
 });
 
 uc.on(uc.EVENTS.UNSUBSCRIBE_ENTITIES, async (entityIds) => {
-  // when the integration unsubscribed from certain entity updates,
-  // the UC library automatically remove the unsubscribed entities
-  // from configured
-  // you can act on this event if you need for your device handling
+  // When the integration unsubscribed from certain entity updates,
+  // the UC library automatically removes the unsubscribed entities
+  // from the configured pool.
+  // You can act on this event if you need for your device handling.
   // ...
 });
 
