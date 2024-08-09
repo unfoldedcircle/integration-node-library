@@ -16,7 +16,9 @@ const fs = require("fs");
 
 const uc = require("./lib/api_definitions");
 const Entities = require("./lib/entities/entities");
+const { toLanguageObject, getDefaultLanguageString } = require("./lib/utils");
 
+// FIXME replace with debug module or similar
 function log(message) {
   console.log(`[UC Integration API] ${message}`);
 }
@@ -27,6 +29,7 @@ class IntegrationAPI extends EventEmitter {
   #state;
   #server;
   #clients;
+  #setupHandler;
 
   constructor() {
     super();
@@ -60,8 +63,10 @@ class IntegrationAPI extends EventEmitter {
   /**
    * Initialize the library
    * @param {string|object} driverConfig either a string to specify the driver configuration file path, or an object holding the configuration
+   * @param setupHandler optional driver setup handler if the driver metadata contains a setup_data_schema object
    */
-  init(driverConfig) {
+  init(driverConfig, setupHandler = undefined) {
+    this.#setupHandler = setupHandler;
     const integrationInterface = process.env.UC_INTEGRATION_INTERFACE;
     const integrationPort = process.env.UC_INTEGRATION_HTTP_PORT;
     // TODO: implement wss
@@ -115,7 +120,7 @@ class IntegrationAPI extends EventEmitter {
         type: "uc-integration",
         port: integrationPort || this.#driverInfo.port || 9090,
         txt: {
-          name: this.#getDefaultLanguageString(this.#driverInfo.name, "Unknown driver"),
+          name: getDefaultLanguageString(this.#driverInfo.name, "Unknown driver"),
           ver: this.#driverInfo.version,
           developer: this.#driverInfo.developer.name
         }
@@ -184,44 +189,6 @@ class IntegrationAPI extends EventEmitter {
 
     // Remote will use mDNS information
     return null;
-  }
-
-  /**
-   * Get the default text from a language text map.
-   *
-   * If english `en` or any `en-##` is not defined, the first entry is returned.
-   *
-   * @param {object} text The language text map, key is the language identifier, value the language specific text.
-   * @param {string} defaultText The text to return if `text` is empty.
-   * @returns {string} The default text.
-   */
-  #getDefaultLanguageString(text, defaultText = "Undefined") {
-    if (!text) {
-      return defaultText;
-    }
-
-    if (text.en) {
-      return text.en;
-    }
-
-    for (const [index, [key, value]] of Object.entries(text).entries()) {
-      if (index === 0) {
-        defaultText = value;
-      }
-      if (key.startsWith("en-")) {
-        return text[key];
-      }
-    }
-
-    return defaultText;
-  }
-
-  #toLanguageObject(text) {
-    if (text) {
-      return typeof text === "string" || text instanceof String ? { en: text } : Object.fromEntries(text);
-    } else {
-      return null;
-    }
   }
 
   /**
@@ -512,38 +479,162 @@ class IntegrationAPI extends EventEmitter {
 
   async #entityCommand(wsId, reqId, data) {
     const wsHandle = { wsId, reqId };
-    // emit event, so the driver can act on it
-    this.emit(uc.EVENTS.ENTITY_COMMAND, wsHandle, data.entity_id, data.entity_type, data.cmd_id, data.params);
+
+    if (!data) {
+      console.warn("Ignoring entity command: called with empty msg_data");
+      await this.acknowledgeCommand(wsHandle, uc.STATUS_CODES.BAD_REQUEST);
+      return;
+    }
+
+    const entityId = data.entity_id; // "entity_id" in data ? data.entity_id : undefined;
+    const cmdId = data.cmd_id; // "cmd_id" in data ? data.cmd_id : undefined;
+    if (!entityId || !cmdId) {
+      console.warn("Ignoring command: missing entity_id or cmd_id");
+      await this.acknowledgeCommand(wsHandle, uc.STATUS_CODES.BAD_REQUEST);
+      return;
+    }
+
+    const entity = this.configuredEntities.getEntity(entityId);
+    if (!entity) {
+      console.warn("Cannot execute command '%s' for '%s': no configured entity found", cmdId, entityId);
+      await this.acknowledgeCommand(wsHandle, uc.STATUS_CODES.NOT_FOUND);
+      return;
+    }
+
+    if (!entity.hasCmdHandler) {
+      // legacy: emit event, so the driver can act on it
+      log(
+        `DEPRECATED no entity command handler provided for ${data.entity_id} by the driver: please migrate the integration driver, the legacy ENTITY_COMMAND event will be removed in a future release!`
+      );
+      this.emit(uc.EVENTS.ENTITY_COMMAND, wsHandle, data.entity_id, data.entity_type, data.cmd_id, data.params);
+    } else {
+      const result = await entity.command(cmdId, "params" in data ? data.params : undefined);
+      await this.acknowledgeCommand(wsHandle, result);
+    }
   }
 
   async #setupDriver(wsId, reqId, data) {
     const wsHandle = { wsId, reqId };
+
+    if (this.#setupHandler) {
+      await this.acknowledgeCommand(wsHandle);
+    }
+
     if (!data || !data.setup_data) {
       console.error("Aborting setup_driver: called with empty msg_data");
       return false;
     }
-    // TODO replace with setupHandler and action response object as in Python library
-    // emit event, so the driver can act on it
     const reconfigure = data.reconfigure && typeof data.reconfigure === "boolean" ? data.reconfigure : false;
-    this.emit(uc.EVENTS.SETUP_DRIVER, wsHandle, data.setup_data, reconfigure);
-    return true;
+
+    // legacy: emit event, so the driver can act on it
+    if (!this.#setupHandler) {
+      log(
+        "DEPRECATED no setup handler provided by the driver: please migrate the integration driver, the legacy SETUP_DRIVER, SETUP_DRIVER_USER_DATA, SETUP_DRIVER_USER_CONFIRMATION events will be removed in a future release!"
+      );
+      this.emit(uc.EVENTS.SETUP_DRIVER, wsHandle, data.setup_data, reconfigure);
+      return true;
+    }
+
+    // new setupHandler logic as in Python integration library
+    let result = false;
+    try {
+      const action = await this.#setupHandler(new uc.setup.DriverSetupRequest(reconfigure, data.setup_data));
+
+      if (action instanceof uc.setup.RequestUserInput) {
+        await this.driverSetupProgress(wsHandle);
+        await this.requestDriverSetupUserInput(wsHandle, action.title, action.settings);
+        result = true;
+      } else if (action instanceof uc.setup.RequestUserConfirmation) {
+        await this.driverSetupProgress(wsHandle);
+        await this.requestDriverSetupUserConfirmation(
+          wsHandle,
+          action.title,
+          action.header,
+          action.image,
+          action.footer
+        );
+        result = true;
+      } else if (action instanceof uc.setup.SetupComplete) {
+        await this.driverSetupComplete(wsHandle);
+        result = true;
+      } else if (action instanceof uc.setup.SetupError) {
+        await this.driverSetupError(wsHandle, action.errorType);
+        result = true;
+      }
+      // TODO define custom exceptions?
+    } catch (ex) {
+      console.error("Exception in setup handler, aborting setup!", ex);
+    }
+
+    return result;
   }
 
   async #setDriverUserData(wsId, reqId, data) {
     const wsHandle = { wsId, reqId };
-    // TODO replace with setupHandler and action response object as in Python library
-    // emit event, so the driver can act on it
-    if (data.input_values) {
-      this.emit(uc.EVENTS.SETUP_DRIVER_USER_DATA, wsHandle, data.input_values);
-      return true;
-    } else if (data.confirm) {
-      this.emit(uc.EVENTS.SETUP_DRIVER_USER_CONFIRMATION, wsHandle);
-      return true;
-    } else {
-      console.warn("Unsupported set_driver_user_data payload received");
+
+    if (this.#setupHandler) {
+      await this.acknowledgeCommand(wsHandle);
     }
 
-    return false;
+    if (!data || !(data.input_values || data.confirm)) {
+      console.error("Unsupported set_driver_user_data payload received: %s", data);
+      return false;
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    await this.driverSetupProgress(wsHandle);
+
+    // legacy: emit event, so the driver can act on it
+    if (!this.#setupHandler) {
+      if (data.input_values) {
+        this.emit(uc.EVENTS.SETUP_DRIVER_USER_DATA, wsHandle, data.input_values);
+        return true;
+      } else if (data.confirm) {
+        this.emit(uc.EVENTS.SETUP_DRIVER_USER_CONFIRMATION, wsHandle);
+        return true;
+      } else {
+        console.warn("Unsupported set_driver_user_data payload received");
+      }
+
+      return false;
+    }
+
+    // new setupHandler logic as in Python integration library
+    let result = false;
+    try {
+      let action = new uc.setup.SetupError();
+      if (data.input_values) {
+        action = await this.#setupHandler(new uc.setup.UserDataResponse(data.input_values));
+      } else if (data.confirm) {
+        action = await this.#setupHandler(new uc.setup.UserConfirmationResponse(data.confirm));
+      }
+
+      if (action instanceof uc.setup.RequestUserInput) {
+        await this.requestDriverSetupUserInput(wsHandle, action.title, action.settings);
+        result = true;
+      } else if (action instanceof uc.setup.RequestUserConfirmation) {
+        await this.requestDriverSetupUserConfirmation(
+          wsHandle,
+          action.title,
+          action.header,
+          action.image,
+          action.footer
+        );
+        result = true;
+      } else if (action instanceof uc.setup.SetupComplete) {
+        await this.driverSetupComplete(wsHandle);
+        result = true;
+      } else if (action instanceof uc.setup.SetupError) {
+        await this.driverSetupError(wsHandle, action.errorType);
+        result = true;
+      }
+
+      // TODO define custom exceptions?
+    } catch (ex) {
+      console.error("Exception in setup handler, aborting setup!", ex);
+    }
+
+    return result;
   }
 
   /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -607,10 +698,10 @@ class IntegrationAPI extends EventEmitter {
       state: "WAIT_USER_ACTION",
       require_user_action: {
         confirmation: {
-          title: this.#toLanguageObject(title),
-          message1: this.#toLanguageObject(msg1),
+          title: toLanguageObject(title),
+          message1: toLanguageObject(msg1),
           image,
-          message2: this.#toLanguageObject(msg2)
+          message2: toLanguageObject(msg2)
         }
       }
     };
@@ -621,7 +712,7 @@ class IntegrationAPI extends EventEmitter {
    * Request user input during the driver setup flow.
    *
    * @param {Object} wsHandle The WebSocket handle received in the `EVENTS.SETUP_DRIVER` event.
-   * @param {string|Map} title A human-readable title of the request screen. Either a string, which will be mapped to english, or a Map containing multiple language strings.
+   * @param {string|Map<string, string>|Object<string, string>} title A human-readable title of the request screen. Either a string, which will be mapped to english, or a Map / Object containing multiple language strings.
    * @param {Array<object>} settings Array of input field definition objects. See Integration-API specification.
    */
   async requestDriverSetupUserInput(wsHandle, title, settings) {
@@ -630,7 +721,7 @@ class IntegrationAPI extends EventEmitter {
       state: "WAIT_USER_ACTION",
       require_user_action: {
         input: {
-          title: this.#toLanguageObject(title),
+          title: toLanguageObject(title),
           settings
         }
       }
@@ -676,3 +767,4 @@ module.exports.DEVICE_STATES = uc.DEVICE_STATES;
 module.exports.EVENTS = uc.EVENTS;
 module.exports.STATUS_CODES = uc.STATUS_CODES;
 module.exports.Entities = Entities;
+module.exports.setup = uc.setup;
