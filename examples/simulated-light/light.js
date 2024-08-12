@@ -33,133 +33,54 @@ uc.on(uc.EVENTS.UNSUBSCRIBE_ENTITIES, async (entityIds) => {
   });
 });
 
-uc.on(uc.EVENTS.SETUP_DRIVER, async (wsHandle, setupData, reconfigure) => {
-  console.log("Setting up driver (reconfigure: %s). Setup data: ", reconfigure, JSON.stringify(setupData));
-  // do any initial checks here
-  // ...
-  await new Promise((resolve) => setTimeout(resolve, 300));
-
-  // all good: confirm request. This will start the setup flow
-  await uc.acknowledgeCommand(wsHandle);
-  console.log("Acknowledged driver setup");
-
-  // implement interactive setup flow, this is just a simulated example
-  // ...
-  await new Promise((resolve) => setTimeout(resolve, 1000));
-
-  console.log("Sending setup progress that we are still busy...");
-  await uc.driverSetupProgress(wsHandle);
-
-  await new Promise((resolve) => setTimeout(resolve, 1000));
-
-  console.log("Requesting user confirmation to finish setup...");
-  await uc.requestDriverSetupUserConfirmation(wsHandle, "Please click next to continue driver setup");
-});
-
-uc.on(uc.EVENTS.SETUP_DRIVER_USER_DATA, async (wsHandle, userData) => {
-  console.log("Received user input for driver setup: " + JSON.stringify(userData));
-  await uc.acknowledgeCommand(wsHandle);
-
-  // implement interactive setup flow, this is just a simulated example
-  // ...
-  await new Promise((resolve) => setTimeout(resolve, 700));
-
-  console.log("Driver setup completed!");
-  await uc.driverSetupComplete(wsHandle);
-});
-
-uc.on(uc.EVENTS.SETUP_DRIVER_USER_CONFIRMATION, async (wsHandle) => {
-  console.log("Received user confirmation for driver setup: sending OK");
-  await uc.acknowledgeCommand(wsHandle);
-
-  // implement interactive setup flow, this is just a simulated example
-  // ...
-  await new Promise((resolve) => setTimeout(resolve, 700));
-
-  console.log("Sending setup progress that we are still busy...");
-  await uc.driverSetupProgress(wsHandle);
-
-  await new Promise((resolve) => setTimeout(resolve, 700));
-
-  await uc.requestDriverSetupUserInput(wsHandle, "Data required", [
-    { field: { text: { value: "192.168.100.30" } }, id: "address", label: { en: "Hostname or IP address" } },
-    { field: { password: {} }, id: "token", label: { en: "Access token" } },
-    { field: { number: { max: 65535, min: 1, value: 1000 } }, id: "port", label: { en: "Port" } },
-    { field: { checkbox: { value: false } }, id: "ssl", label: { en: "Use SSL" } }
-  ]);
-});
-
-// create a light entity
-// normally you'd create this where your driver exposed the available entities
-// The entity name can either be string (which will be mapped to english), or a Map with multiple language entries.
-const name = new Map([
-  ["de", "Mein Lieblingslicht"],
-  ["en", "My favorite light"]
-]);
-const lightEntity = new uc.Entities.Light(
-  "my_unique_light_id",
-  name,
-  [uc.Entities.Light.FEATURES.ON_OFF, uc.Entities.Light.FEATURES.DIM],
-  new Map([
-    [uc.Entities.Light.ATTRIBUTES.STATE, uc.Entities.Light.STATES.OFF],
-    [uc.Entities.Light.ATTRIBUTES.BRIGHTNESS, 0]
-  ])
-);
-
-// add entity as available
-// this is important, so the core knows what entities are available
-uc.availableEntities.addEntity(lightEntity);
-
-const buttonEntity = new uc.Entities.Button("my_button", "Push the button!");
-uc.availableEntities.addEntity(buttonEntity);
-
-const mediaPlayerEntity = new uc.Entities.MediaPlayer(
-  "test_mediaplayer",
-  new Map([["en", "Foobar MediaPlayer"]]),
-  [
-    uc.Entities.MediaPlayer.FEATURES.ON_OFF,
-    uc.Entities.MediaPlayer.FEATURES.DPAD,
-    uc.Entities.MediaPlayer.FEATURES.HOME,
-    uc.Entities.MediaPlayer.FEATURES.MENU,
-    uc.Entities.MediaPlayer.FEATURES.CHANNEL_SWITCHER,
-    uc.Entities.MediaPlayer.FEATURES.SELECT_SOURCE,
-    uc.Entities.MediaPlayer.FEATURES.COLOR_BUTTONS,
-    uc.Entities.MediaPlayer.FEATURES.PLAY_PAUSE
-  ],
-  new Map([
-    [uc.Entities.MediaPlayer.ATTRIBUTES.STATE, uc.Entities.MediaPlayer.STATES.OFF],
-    [uc.Entities.MediaPlayer.ATTRIBUTES.SOURCE_LIST, ["Radio", "Streaming", "Favorite 1", "Favorite 2", "Favorite 3"]]
-  ]),
-  uc.Entities.MediaPlayer.DEVICECLASSES.STREAMING_BOX
-);
-uc.availableEntities.addEntity(mediaPlayerEntity);
-
-// when a command request arrives from the core, handle the command
-// in this example we just update the entity, but in reality, you'd turn on the light with your integration
-// and handle the events separately for updating the configured entities
-uc.on(uc.EVENTS.ENTITY_COMMAND, async (wsHandle, entityId, entityType, cmdId, params) => {
-  console.log(`ENTITY COMMAND: ${entityId} ${entityType} ${cmdId} ${params ? JSON.stringify(params) : ""}`);
-
-  // get the entity from the configured ones
-  let entity = uc.configuredEntities.getEntity(entityId);
-  if (entity == null) {
-    console.log("Entity not found");
-    await uc.acknowledgeCommand(wsHandle, uc.STATUS_CODES.NOT_FOUND);
-    return;
-  }
-
+/**
+ * Shared command handler for different entities.
+ *
+ * Called by the integration-API if a command is sent to a configured entity.
+ *
+ * @param {uc.Entities.Entity} entity button entity
+ * @param {string} cmdId command
+ * @param {Object<string, *>} params optional command parameters
+ * @return {Promise<string>} status of the command
+ */
+async function sharedCmdHandler(entity, cmdId, params) {
   // let's add some hacky action to the button!
-  if (entityId === "my_button" && cmdId === uc.Entities.Button.COMMANDS.PUSH) {
-    cmdId = uc.Entities.Light.COMMANDS.TOGGLE;
-    // switch personality
-    const light = uc.configuredEntities.getEntity("my_unique_light_id");
-    if (light) {
-      entity = light;
+  if (entity.id === "my_button" && cmdId === uc.Entities.Button.COMMANDS.PUSH) {
+    console.log("Got %s push request: toggling light", entity.id);
+    // trigger a light command
+    const lightEntity = uc.configuredEntities.getEntity("my_unique_light_id");
+    if (lightEntity) {
+      await lightCmdHandler(lightEntity, uc.Entities.Light.COMMANDS.TOGGLE, undefined);
     }
+    return uc.STATUS_CODES.OK;
   }
 
-  // this is just a **very simple and naive** command handler.
-  // A real driver should also check the entityType since a command name is not unique among entity types.
+  if (entity.id === "test_mediaplayer") {
+    console.log("Got %s media-player command request: %s", entity.id, cmdId, params || "");
+
+    return uc.STATUS_CODES.OK;
+  }
+
+  console.log("Got %s command request: %s", entity.id, cmdId);
+
+  return uc.STATUS_CODES.OK;
+}
+
+/**
+ * Dedicated light entity command handler.
+ *
+ * Called by the integration-API if a command is sent to a configured light-entity.
+ *
+ * @param {uc.Entities.Entity} entity light entity
+ * @param {string} cmdId command
+ * @param {?Object<string, *>} params optional command parameters
+ * @return {Promise<string>} status of the command
+ */
+async function lightCmdHandler(entity, cmdId, params) {
+  console.log("Got %s command request: %s", entity.id, cmdId);
+
+  // in this example we just update the entity, but in reality, you'd turn on the light with your integration
+  // and handle the events separately for updating the configured entities
   switch (cmdId) {
     case uc.Entities.Light.COMMANDS.TOGGLE:
       if (entity.attributes.state === uc.Entities.Light.STATES.OFF) {
@@ -204,10 +125,57 @@ uc.on(uc.EVENTS.ENTITY_COMMAND, async (wsHandle, entityId, entityType, cmdId, pa
         ])
       );
       break;
+    default:
+      return uc.STATUS_CODES.NOT_IMPLEMENTED;
   }
 
-  // you need to acknowledge if the command was successfully executed
-  // we just say OK there, but you need to add logic if the command is
-  // really successfully executed on the device
-  await uc.acknowledgeCommand(wsHandle);
-});
+  return uc.STATUS_CODES.OK;
+}
+
+// create a light entity
+// normally you'd create this where your driver exposed the available entities
+// The entity name can either be string (which will be mapped to english), or a Map with multiple language entries.
+const name = new Map([
+  ["de", "Mein Lieblingslicht"],
+  ["en", "My favorite light"]
+]);
+const lightEntity = new uc.Entities.Light(
+  "my_unique_light_id",
+  name,
+  [uc.Entities.Light.FEATURES.ON_OFF, uc.Entities.Light.FEATURES.DIM],
+  new Map([
+    [uc.Entities.Light.ATTRIBUTES.STATE, uc.Entities.Light.STATES.OFF],
+    [uc.Entities.Light.ATTRIBUTES.BRIGHTNESS, 0]
+  ])
+);
+lightEntity.setCmdHandler(lightCmdHandler);
+
+// add entity as available
+// this is important, so the core knows what entities are available
+uc.availableEntities.addEntity(lightEntity);
+
+const buttonEntity = new uc.Entities.Button("my_button", "Push the button!", "test lab", sharedCmdHandler);
+uc.availableEntities.addEntity(buttonEntity);
+
+// add a media-player entity
+const mediaPlayerEntity = new uc.Entities.MediaPlayer(
+  "test_mediaplayer",
+  new Map([["en", "Foobar MediaPlayer"]]),
+  [
+    uc.Entities.MediaPlayer.FEATURES.ON_OFF,
+    uc.Entities.MediaPlayer.FEATURES.DPAD,
+    uc.Entities.MediaPlayer.FEATURES.HOME,
+    uc.Entities.MediaPlayer.FEATURES.MENU,
+    uc.Entities.MediaPlayer.FEATURES.CHANNEL_SWITCHER,
+    uc.Entities.MediaPlayer.FEATURES.SELECT_SOURCE,
+    uc.Entities.MediaPlayer.FEATURES.COLOR_BUTTONS,
+    uc.Entities.MediaPlayer.FEATURES.PLAY_PAUSE
+  ],
+  new Map([
+    [uc.Entities.MediaPlayer.ATTRIBUTES.STATE, uc.Entities.MediaPlayer.STATES.OFF],
+    [uc.Entities.MediaPlayer.ATTRIBUTES.SOURCE_LIST, ["Radio", "Streaming", "Favorite 1", "Favorite 2", "Favorite 3"]]
+  ]),
+  uc.Entities.MediaPlayer.DEVICECLASSES.STREAMING_BOX
+);
+mediaPlayerEntity.setCmdHandler(sharedCmdHandler);
+uc.availableEntities.addEntity(mediaPlayerEntity);

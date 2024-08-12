@@ -44,9 +44,20 @@ uc.on(uc.EVENTS.UNSUBSCRIBE_ENTITIES, async (entityIds) => {
   // ...
 });
 
-// handle commands coming from the core
-uc.on(uc.EVENTS.ENTITY_COMMAND, async (wsHandle, entityId, entityType, cmdId, params) => {
-  console.log(`ENTITY COMMAND: ${entityId} ${entityType} ${cmdId} ${JSON.stringify(params, null, 4)}`);
+// handle commands coming from the core, either with a shared command handler for all entities, or individual handlers
+// per entity or entity type
+/**
+ * Entity command handler.
+ *
+ * Called by the integration-API if a command is sent to a configured entity.
+ *
+ * @param {uc.Entities.Entity} entity button entity
+ * @param {string} cmdId command
+ * @param {Object<string, *>} params optional command parameters
+ * @return {Promise<string>} status of the command
+ */
+async function cmdHandler(entity, cmdId, params) {
+  console.log("Got %s command request: %s", entity.id, cmdId, params || "");
 
   // handle entity commands here
   // execute commands on your integration devices
@@ -55,11 +66,10 @@ uc.on(uc.EVENTS.ENTITY_COMMAND, async (wsHandle, entityId, entityType, cmdId, pa
 
   // ...
 
-  // you need to acknowledge if the command was successfully executed
-  // default is uc.STATUS_CODES.OK
-  const statusCode = uc.STATUS_CODES.NOT_FOUND;
-  await uc.acknowledgeCommand(wsHandle, statusCode);
-});
+  // you need to acknowledge if the command was successfully executed with STATUS_CODES.OK
+  // or an error code
+  return uc.STATUS_CODES.NOT_IMPLEMENTED;
+}
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 // Providing Available entities
@@ -84,6 +94,7 @@ const entity = new uc.Entities.MediaPlayer(
     [uc.Entities.MediaPlayer.ATTRIBUTES.VOLUME, 0]
   ])
 );
+entity.setCmdHandler(cmdHandler);
 
 // 2. add available entity to the core
 uc.availableEntities.addEntity(entity);

@@ -11,7 +11,7 @@ integration driver.
 
 ## simulated-light
 
-Simple one light integration example with a driver setup flow.
+Simple one light integration example with a push-button to toggle the light.
 
 This example creates one simulated light entity and handles basic commands sent from the `remote-core`.
 
@@ -20,6 +20,22 @@ cd simulated-light
 npm install
 node light.js
 ```
+
+## setup-flow
+
+The [setup_flow](setup-flow/setup_flow.js) example shows how to define a dynamic setup flow for the driver setup.
+
+If the user selects the _expert_ option in the main setup screen:
+
+1. An input screen is shown asking to select an item from a dropdown list.
+2. The chosen option will be shown in the next input screen with another setting, on how many button entities to create.
+3. The number of push buttons are created.
+
+The available input settings are defined in the [Integration-API asyncapi.yaml definition](https://github.com/unfoldedcircle/core-api/tree/main/integration-api)
+and are not yet available as classes.
+
+See `Setting` object definition and the referenced SettingTypeNumber, SettingTypeText, SettingTypeTextArea,
+SettingTypePassword, SettingTypeCheckbox, SettingTypeDropdown, SettingTypeLabel.
 
 ## Driver configuration
 
@@ -42,10 +58,10 @@ Edit `driver.json` if you'd like to change the port or any other information.
   - While configuring an integration driver, the user can also override the driver address.
 - The `setup_data_schema` property enables the driver setup flow to configure the driver during registration.
   - The first request sent is `setup_driver` containing the provided input values (if there are input fields).  
-    This triggers the `uc.EVENTS.SETUP_DRIVER` event in the library which the integration driver has to acknowledge.
-  - From there on, the integration driver needs to send `driver_setup_change` messages with the setup status, or user
-    input requests. This is handled with calling `uc.driverSetupProgress` and `uc.requestDriverSetupUserConfirmation`.
-  - See [simulated-light/light.js](simulated-light/light.js) for an example and the [Integration-API documentation](https://github.com/unfoldedcircle/core-api/tree/main/doc/integration-driver).
+    This triggers the (optional) setup handler callback provided in the `init` call.
+  - From there on, the integration driver needs to handle the `SetupDriver` instances and return an appropriate action.
+  - See [setup-flow/setup_flow.js](setup-flow/setup_flow.js) for an example and the [Integration-API documentation](https://github.com/unfoldedcircle/core-api/tree/main/doc/integration-driver).
+  - ⚠️ the `uc.EVENTS.SETUP_DRIVER` event is deprecated and will be removed at the end of 2024!
 
 ## Driver registration
 

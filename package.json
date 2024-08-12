@@ -12,6 +12,7 @@
 		"ws": "^8.18.0"
 	},
 	"devDependencies": {
+		"ava": "^6.1.3",
 		"prettier": "^3.3.3",
 		"eslint": "^8.57.0",
 		"eslint-config-prettier": "9.1.0",
@@ -20,9 +21,9 @@
 		"eslint-plugin-promise": "^6.6.0"
 	},
 	"scripts": {
-		"format": "prettier --write lib examples index.js",
-		"lint": "prettier --check lib examples index.js && eslint . --ext .js,.jsx,.ts,.tsx",
-		"test": "echo \"Error: no test specified\" && exit 1"
+		"format": "prettier --write \"./{examples,lib,test}/**/*.js\" index.js",
+		"lint": "prettier --check \"./{examples,lib,test}/**/*.js\" index.js && eslint . --ext .js,.jsx,.ts,.tsx",
+		"test": "ava"
 	},
 	"repository": {
 		"type": "git",
@@ -42,5 +43,8 @@
 		"url": "https://github.com/unfoldedcircle/integration-node-library/issues"
 	},
 	"homepage": "https://unfoldedcircle.com",
-	"private": true
+	"private": true,
+	"engines": {
+		"node": ">=16.18.0"
+	}
 }

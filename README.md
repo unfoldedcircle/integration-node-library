@@ -12,7 +12,7 @@ Not supported:
 - Token based authentication
 
 Requirements:
-- Node.js v16 or newer (older versions are not tested)
+- Node.js v16.18.0 or newer (older versions are not tested)
 
 ## Installation
 
