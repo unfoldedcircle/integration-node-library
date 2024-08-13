@@ -21,6 +21,13 @@ npm install
 node light.js
 ```
 
+## remote
+
+The [remote-entity example](remote/remote.js) integration shows how to use simple commands, power toggle functionality,
+pre-defined physical button mappings and how to define a user-interface.
+
+The user interface is partially created programmatically, and partially loaded from a json file.  
+
 ## setup-flow
 
 The [setup_flow](setup-flow/setup_flow.js) example shows how to define a dynamic setup flow for the driver setup.

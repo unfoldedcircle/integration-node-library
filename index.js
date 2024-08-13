@@ -53,7 +53,7 @@ class IntegrationAPI extends EventEmitter {
       const data = {
         entity_id: entityId,
         entity_type: entityType,
-        attributes: Object.fromEntries(attributes)
+        attributes: attributes instanceof Map ? Object.fromEntries(attributes) : attributes
       };
 
       await this.#broadcastEvent(uc.MSG_EVENTS.ENTITY_CHANGE, data, uc.EVENT_CATEGORY.ENTITY);
@@ -768,3 +768,4 @@ module.exports.EVENTS = uc.EVENTS;
 module.exports.STATUS_CODES = uc.STATUS_CODES;
 module.exports.Entities = Entities;
 module.exports.setup = uc.setup;
+module.exports.ui = require("./lib/entities/ui");
