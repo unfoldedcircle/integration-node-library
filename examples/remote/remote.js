@@ -113,10 +113,10 @@ const createButtonMappings = () => {
     uc.ui.createBtnMapping(uc.ui.BUTTONS.DPAD_DOWN, "CURSOR_DOWN"),
     uc.ui.createBtnMapping(uc.ui.BUTTONS.DPAD_LEFT, "CURSOR_LEFT"),
     uc.ui.createBtnMapping(uc.ui.BUTTONS.DPAD_RIGHT, "CURSOR_RIGHT"),
-    uc.ui.createBtnMapping(uc.ui.BUTTONS.DPAD_MIDDLE, createSendCmd("CONTEXT_MENU", undefined, undefined, 100)),
+    uc.ui.createBtnMapping(uc.ui.BUTTONS.DPAD_MIDDLE, createSendCmd("CONTEXT_MENU", { hold: 100 })),
     uc.ui.createBtnMapping(
       uc.ui.BUTTONS.BLUE,
-      createSequenceCmd(["CURSOR_UP", "CURSOR_RIGHT", "CURSOR_DOWN", "CURSOR_LEFT"], 200)
+      createSequenceCmd(["CURSOR_UP", "CURSOR_RIGHT", "CURSOR_DOWN", "CURSOR_LEFT"], { delay: 200 })
     ),
     { button: "POWER", short_press: { cmd_id: "remote.toggle" } }
   ];
@@ -144,7 +144,7 @@ const createUi = () => {
       "Test sequence",
       0,
       4,
-      createSequenceCmd(["CURSOR_UP", "CURSOR_RIGHT", "CURSOR_DOWN", "CURSOR_LEFT"], 200),
+      createSequenceCmd(["CURSOR_UP", "CURSOR_RIGHT", "CURSOR_DOWN", "CURSOR_LEFT"], { delay: 200 }),
       new uc.ui.Size(4, 1)
     )
   );
@@ -156,17 +156,14 @@ const createUi = () => {
 
 // -- startup driver
 
-const entity = new uc.Entities.Remote(
-  "remote1",
-  "Demo remote",
-  [uc.Entities.Remote.FEATURES.ON_OFF, uc.Entities.Remote.FEATURES.TOGGLE],
-  new Map([[uc.Entities.MediaPlayer.ATTRIBUTES.STATE, uc.Entities.MediaPlayer.STATES.OFF]]),
-  supportedCommands,
-  createButtonMappings(),
-  createUi(),
-  "test lab",
+const entity = new uc.Entities.Remote("remote1", "Demo remote", {
+  features: [uc.Entities.Remote.FEATURES.ON_OFF, uc.Entities.Remote.FEATURES.TOGGLE],
+  attributes: new Map([[uc.Entities.MediaPlayer.ATTRIBUTES.STATE, uc.Entities.MediaPlayer.STATES.OFF]]),
+  simpleCommands: supportedCommands,
+  buttonMapping: createButtonMappings(),
+  uiPages: createUi(),
   cmdHandler
-);
+});
 
 uc.availableEntities.addEntity(entity);
 
