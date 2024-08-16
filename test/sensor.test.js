@@ -9,7 +9,7 @@ test("Sensor constructor without parameter object creates default Sensor class",
   t.is(entity.entity_type, "sensor");
   t.is(entity.device_id, null);
   t.deepEqual(entity.features, []);
-  t.is(entity.attributes, null);
+  t.deepEqual(entity.attributes, {});
   t.is(entity.device_class, undefined);
   t.is(entity.options, null);
   t.is(entity.area, undefined);
