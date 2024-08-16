@@ -16,6 +16,23 @@ Requirements:
 
 ## Installation
 
+This module is not yet available in the npmjs registry and must be installed from GitHub:
+
+```shell
+npm install https://github.com/unfoldedcircle/integration-node-library
+```
+
+⚠️ This installs the latest, bleeding edge development version from the GitHub repository. This can either be desired
+for development, or have undesired side effects when doing `npm update` (which pulls the latest version from the default
+branch).
+
+A specific Git hash can be added to pin the version:
+
+```shell
+npm install https://github.com/unfoldedcircle/integration-node-library#$HASH
+```
+See npm documentation for all options.
+
 ### Environment Variables
 
 Certain features can be configured by environment variables:
@@ -30,6 +47,31 @@ Certain features can be configured by environment variables:
 ### Usage
 
 Look into [examples](examples) for some pointers.
+
+### Logging
+
+Logging any kind of output is directed to the [debug](https://www.npmjs.com/package/debug) module.
+To let the UC API wrapper output anything, run your integration driver with the `DEBUG` environment variable set like:
+
+```shell
+DEBUG=ucapi:* node driver.js
+```
+
+UC API wrapper exposes the following log-levels:
+
+- `ucapi:msg`: WebSocket message trace
+- `ucapi:debug`: debugging messages
+- `ucapi:info`: informational messages like server up and running, client connected or disconnected.
+- `ucapi:warn`: warnings
+- `ucapi:error`: errors
+
+If you only want to get errors and warnings reported:
+
+```shell
+DEBUG=ucapi:warn,ucapi:error node driver.js
+```
+
+Combine those settings with your existing application if any of you other modules or libs also uses __debug__
 
 ## Versioning
 
