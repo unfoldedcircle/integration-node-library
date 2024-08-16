@@ -139,29 +139,28 @@ const name = new Map([
   ["de", "Mein Lieblingslicht"],
   ["en", "My favorite light"]
 ]);
-const lightEntity = new uc.Entities.Light(
-  "my_unique_light_id",
-  name,
-  [uc.Entities.Light.FEATURES.ON_OFF, uc.Entities.Light.FEATURES.DIM],
-  new Map([
+const lightEntity = new uc.Entities.Light("my_unique_light_id", name, {
+  features: [uc.Entities.Light.FEATURES.ON_OFF, uc.Entities.Light.FEATURES.DIM],
+  attributes: new Map([
     [uc.Entities.Light.ATTRIBUTES.STATE, uc.Entities.Light.STATES.OFF],
     [uc.Entities.Light.ATTRIBUTES.BRIGHTNESS, 0]
   ])
-);
+});
 lightEntity.setCmdHandler(lightCmdHandler);
 
 // add entity as available
 // this is important, so the core knows what entities are available
 uc.availableEntities.addEntity(lightEntity);
 
-const buttonEntity = new uc.Entities.Button("my_button", "Push the button!", "test lab", sharedCmdHandler);
+const buttonEntity = new uc.Entities.Button("my_button", "Push the button!", {
+  area: "test lab",
+  cmdHandler: sharedCmdHandler
+});
 uc.availableEntities.addEntity(buttonEntity);
 
 // add a media-player entity
-const mediaPlayerEntity = new uc.Entities.MediaPlayer(
-  "test_mediaplayer",
-  new Map([["en", "Foobar MediaPlayer"]]),
-  [
+const mediaPlayerEntity = new uc.Entities.MediaPlayer("test_mediaplayer", new Map([["en", "Foobar MediaPlayer"]]), {
+  features: [
     uc.Entities.MediaPlayer.FEATURES.ON_OFF,
     uc.Entities.MediaPlayer.FEATURES.DPAD,
     uc.Entities.MediaPlayer.FEATURES.HOME,
@@ -171,11 +170,11 @@ const mediaPlayerEntity = new uc.Entities.MediaPlayer(
     uc.Entities.MediaPlayer.FEATURES.COLOR_BUTTONS,
     uc.Entities.MediaPlayer.FEATURES.PLAY_PAUSE
   ],
-  new Map([
+  attributes: new Map([
     [uc.Entities.MediaPlayer.ATTRIBUTES.STATE, uc.Entities.MediaPlayer.STATES.OFF],
     [uc.Entities.MediaPlayer.ATTRIBUTES.SOURCE_LIST, ["Radio", "Streaming", "Favorite 1", "Favorite 2", "Favorite 3"]]
   ]),
-  uc.Entities.MediaPlayer.DEVICECLASSES.STREAMING_BOX
-);
+  deviceClass: uc.Entities.MediaPlayer.DEVICECLASSES.STREAMING_BOX
+});
 mediaPlayerEntity.setCmdHandler(sharedCmdHandler);
 uc.availableEntities.addEntity(mediaPlayerEntity);

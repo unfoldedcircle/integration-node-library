@@ -86,15 +86,17 @@ const entity = new uc.Entities.MediaPlayer(
   entityId,
   // name of the entity
   entityName,
-  // define features in an array. Use the pre-defined object to choose features from
-  [uc.Entities.MediaPlayer.FEATURES.ON_OFF, uc.Entities.MediaPlayer.FEATURES.VOLUME],
-  // define default attributes for the entity. Use the pre-defined object to choose attributes from
-  new Map([
-    [uc.Entities.MediaPlayer.ATTRIBUTES.STATE, uc.Entities.MediaPlayer.STATES.OFF],
-    [uc.Entities.MediaPlayer.ATTRIBUTES.VOLUME, 0]
-  ])
+  {
+    // define features in an array. Use the pre-defined object to choose features from
+    features: [uc.Entities.MediaPlayer.FEATURES.ON_OFF, uc.Entities.MediaPlayer.FEATURES.VOLUME],
+    // define default attributes for the entity. Use the pre-defined object to choose attributes from
+    attributes: new Map([
+      [uc.Entities.MediaPlayer.ATTRIBUTES.STATE, uc.Entities.MediaPlayer.STATES.OFF],
+      [uc.Entities.MediaPlayer.ATTRIBUTES.VOLUME, 0]
+    ]),
+    cmdHandler
+  }
 );
-entity.setCmdHandler(cmdHandler);
 
 // 2. add available entity to the core
 uc.availableEntities.addEntity(entity);

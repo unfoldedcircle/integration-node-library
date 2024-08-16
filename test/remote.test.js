@@ -123,3 +123,14 @@ test("Remote constructor with parameter object", (t) => {
   t.is(remote.area, "Test lab");
   t.is(remote.hasCmdHandler, false);
 });
+
+test("Remote constructor with Object attributes", (t) => {
+  const entity = new Remote("test", "Test Remote", {
+    attributes: { state: Remote.STATES.UNAVAILABLE }
+  });
+
+  t.is(entity.id, "test");
+  t.deepEqual(entity.name, { en: "Test Remote" });
+  t.is(entity.entity_type, "remote");
+  t.deepEqual(entity.attributes, { state: "UNAVAILABLE" });
+});
