@@ -12,6 +12,7 @@ Not supported:
 - Token based authentication
 
 Requirements:
+- Install [nvm](https://github.com/nvm-sh/nvm) (Node.js version manager) for local development
 - Node.js v16.18.0 or newer (older versions are not tested)
 
 ## Installation
