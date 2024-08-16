@@ -15,6 +15,7 @@ _Changes in the next release_
 ### Added
 - Remote-entity and UI definitions.
 - Setup-flow and remote examples.
+- Log configuration with the `debug` module.
 
 ### Changed
 - Setup handler & entity command handler instead of events (#35).

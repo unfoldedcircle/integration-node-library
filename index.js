@@ -17,11 +17,7 @@ const fs = require("fs");
 const uc = require("./lib/api_definitions");
 const Entities = require("./lib/entities/entities");
 const { toLanguageObject, getDefaultLanguageString } = require("./lib/utils");
-
-// FIXME replace with debug module or similar
-function log(message) {
-  console.log(`[UC Integration API] ${message}`);
-}
+const { msgTrace, debug, info, warn, error } = require("./lib/loggers");
 
 class IntegrationAPI extends EventEmitter {
   #configDirPath;
@@ -87,9 +83,9 @@ class IntegrationAPI extends EventEmitter {
 
       try {
         this.#driverInfo = JSON.parse(raw);
-        log("Driver info loaded");
+        debug("Driver info loaded");
       } catch (e) {
-        log(`Error parsing driver info: ${e}`);
+        error(`Error parsing driver info: ${e}`);
         throw Error("Error parsing driver info");
       }
     } else if (typeof driverConfig === "object") {
@@ -108,7 +104,7 @@ class IntegrationAPI extends EventEmitter {
         bonjour = new Bonjour();
       }
 
-      log("Starting mdns advertising");
+      debug("Starting mdns advertising");
 
       // Make sure to advertise a .local hostname. It seems that bonjour just blindly takes the hostname, short or FQDN.
       // The remote only supports multicast DNS resolution in the .local domain.
@@ -130,21 +126,22 @@ class IntegrationAPI extends EventEmitter {
 
     // TODO #5 handle startup errors if e.g. port is already in use
     // setup websocket server - remote-core will connect to this
+    const port = integrationPort || this.#driverInfo.port || 9090;
     if (integrationInterface) {
       this.#server = new WebSocket.Server({
         host: integrationInterface,
-        port: integrationPort || this.#driverInfo.port || 9090
+        port
       });
     } else {
       this.#server = new WebSocket.Server({
-        port: integrationPort || this.#driverInfo.port || 9090
+        port
       });
     }
 
     this.#server.on("connection", (connection, req) => {
       const wsId = `${req.socket.remoteAddress}:${req.socket.remotePort}`;
 
-      log(`[${wsId}] WS: New connection`);
+      info(`[${wsId}] WS: New connection`);
 
       // more metadata in the future, e.g. authentication info etc
       const metadata = { id: wsId, authenticated: true };
@@ -158,15 +155,23 @@ class IntegrationAPI extends EventEmitter {
       });
 
       connection.on("close", () => {
-        log(`[${wsId}] WS: Connection closed`);
+        info(`[${wsId}] WS: Connection closed`);
         this.#clients.delete(connection);
       });
 
       connection.on("error", () => {
-        log(`[${wsId}] WS: Connection error`);
+        warn(`[${wsId}] WS: Connection error`);
         this.#clients.delete(connection);
       });
     });
+
+    info(
+      "Driver is up: %s, version: %s, listening on: %s:%d",
+      this.#driverInfo.driver_id,
+      this.#driverInfo.version,
+      integrationInterface || "0.0.0.0",
+      port
+    );
   }
 
   get configDirPath() {
@@ -239,7 +244,7 @@ class IntegrationAPI extends EventEmitter {
 
       connection.send(response);
     } else {
-      log(`[${wsId}] Error sending response: connection no longer established`);
+      warn(`[${wsId}] Error sending response: connection no longer established`);
     }
   }
 
@@ -289,7 +294,7 @@ class IntegrationAPI extends EventEmitter {
 
       connection.send(response);
     } else {
-      log(`[${wsId}] Error sending event: connection no longer established`);
+      warn(`[${wsId}] Error sending event: connection no longer established`);
     }
   }
 
@@ -299,11 +304,13 @@ class IntegrationAPI extends EventEmitter {
     try {
       json = JSON.parse(message);
     } catch (e) {
-      log(`[${wsId}] Json parse error: ${e}`);
+      error(`[${wsId}] Json parse error: ${e}`);
       return;
     }
 
-    log(`[${wsId}] -> ${JSON.stringify(json)}`);
+    if (msgTrace.enabled) {
+      msgTrace(`[${wsId}] -> ${JSON.stringify(json)}`);
+    }
 
     const kind = json.kind;
     const id = json.id;
@@ -361,7 +368,7 @@ class IntegrationAPI extends EventEmitter {
           break;
 
         default:
-          log(`[${wsId}] Unhandled request: ${msg}`);
+          warn(`[${wsId}] Unhandled request: ${msg}`);
           await this.#sendErrorResult(wsId, id);
           break;
       }
@@ -388,7 +395,7 @@ class IntegrationAPI extends EventEmitter {
           break;
 
         default:
-          log(`[${wsId}] Unhandled event: ${msg}`);
+          warn(`[${wsId}] Unhandled event: ${msg}`);
           break;
       }
     }
@@ -405,6 +412,9 @@ class IntegrationAPI extends EventEmitter {
    * @param {string} prefix Prefix text to add before the JSON message.
    */
   #log_json_message(json, prefix) {
+    if (!msgTrace.enabled) {
+      return;
+    }
     // filter out base64 encoded images
     if (json.msg_data) {
       if (Array.isArray(json.msg_data)) {
@@ -422,7 +432,7 @@ class IntegrationAPI extends EventEmitter {
       }
     }
 
-    log(`${prefix} ${JSON.stringify(json)}`);
+    msgTrace(`${prefix} ${JSON.stringify(json)}`);
   }
 
   /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -455,7 +465,7 @@ class IntegrationAPI extends EventEmitter {
       if (entity) {
         this.configuredEntities.addEntity(entity);
       } else {
-        console.warn(`WARN: cannot subscribe entity '${entityId}': entity is not available`);
+        warn(`WARN: cannot subscribe entity '${entityId}': entity is not available`);
       }
     });
 
@@ -486,7 +496,7 @@ class IntegrationAPI extends EventEmitter {
     const wsHandle = { wsId, reqId };
 
     if (!data) {
-      console.warn("Ignoring entity command: called with empty msg_data");
+      warn("Ignoring entity command: called with empty msg_data");
       await this.acknowledgeCommand(wsHandle, uc.STATUS_CODES.BAD_REQUEST);
       return;
     }
@@ -494,21 +504,21 @@ class IntegrationAPI extends EventEmitter {
     const entityId = data.entity_id; // "entity_id" in data ? data.entity_id : undefined;
     const cmdId = data.cmd_id; // "cmd_id" in data ? data.cmd_id : undefined;
     if (!entityId || !cmdId) {
-      console.warn("Ignoring command: missing entity_id or cmd_id");
+      warn("Ignoring command: missing entity_id or cmd_id");
       await this.acknowledgeCommand(wsHandle, uc.STATUS_CODES.BAD_REQUEST);
       return;
     }
 
     const entity = this.configuredEntities.getEntity(entityId);
     if (!entity) {
-      console.warn("Cannot execute command '%s' for '%s': no configured entity found", cmdId, entityId);
+      warn("Cannot execute command '%s' for '%s': no configured entity found", cmdId, entityId);
       await this.acknowledgeCommand(wsHandle, uc.STATUS_CODES.NOT_FOUND);
       return;
     }
 
     if (!entity.hasCmdHandler) {
       // legacy: emit event, so the driver can act on it
-      log(
+      warn(
         `DEPRECATED no entity command handler provided for ${data.entity_id} by the driver: please migrate the integration driver, the legacy ENTITY_COMMAND event will be removed in a future release!`
       );
       this.emit(uc.EVENTS.ENTITY_COMMAND, wsHandle, data.entity_id, data.entity_type, data.cmd_id, data.params);
@@ -526,14 +536,14 @@ class IntegrationAPI extends EventEmitter {
     }
 
     if (!data || !data.setup_data) {
-      console.error("Aborting setup_driver: called with empty msg_data");
+      error("Aborting setup_driver: called with empty msg_data");
       return false;
     }
     const reconfigure = data.reconfigure && typeof data.reconfigure === "boolean" ? data.reconfigure : false;
 
     // legacy: emit event, so the driver can act on it
     if (!this.#setupHandler) {
-      log(
+      warn(
         "DEPRECATED no setup handler provided by the driver: please migrate the integration driver, the legacy SETUP_DRIVER, SETUP_DRIVER_USER_DATA, SETUP_DRIVER_USER_CONFIRMATION events will be removed in a future release!"
       );
       this.emit(uc.EVENTS.SETUP_DRIVER, wsHandle, data.setup_data, reconfigure);
@@ -568,7 +578,7 @@ class IntegrationAPI extends EventEmitter {
       }
       // TODO define custom exceptions?
     } catch (ex) {
-      console.error("Exception in setup handler, aborting setup!", ex);
+      error("Exception in setup handler, aborting setup!", ex);
     }
 
     return result;
@@ -582,7 +592,7 @@ class IntegrationAPI extends EventEmitter {
     }
 
     if (!data || !(data.input_values || data.confirm)) {
-      console.error("Unsupported set_driver_user_data payload received: %s", data);
+      warn("Unsupported set_driver_user_data payload received: %s", data);
       return false;
     }
 
@@ -598,7 +608,7 @@ class IntegrationAPI extends EventEmitter {
         this.emit(uc.EVENTS.SETUP_DRIVER_USER_CONFIRMATION, wsHandle);
         return true;
       } else {
-        console.warn("Unsupported set_driver_user_data payload received");
+        warn("Unsupported set_driver_user_data payload received");
       }
 
       return false;
@@ -636,7 +646,7 @@ class IntegrationAPI extends EventEmitter {
 
       // TODO define custom exceptions?
     } catch (ex) {
-      console.error("Exception in setup handler, aborting setup!", ex);
+      error("Exception in setup handler, aborting setup!", ex);
     }
 
     return result;
