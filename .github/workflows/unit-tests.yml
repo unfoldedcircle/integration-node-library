@@ -7,8 +7,7 @@ on:
       - '.github/**/*.yml'
       - 'package-lock.json'
   pull_request:
-    # feature branch for testing only before PR
-    branches: [ "main", "refactor/setup-flow" ]
+    branches: [ "main" ]
     types: [opened, synchronize, reopened]
 
 jobs:

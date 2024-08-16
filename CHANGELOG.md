@@ -9,4 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 _Changes in the next release_
 
+### Added
+- Remote-entity and UI definitions.
+- Setup-flow and remote examples.
+
+### Changed
+- Setup handler & entity command handler instead of events (#35).
+- Remove available & configured entity persistence (#34).
+- Remove features parameter from sensor entity constructor.
+
+### Fixed
+- Missing media-player features, options, and commands.
+- Missing options property in available entities.
+
 ---
