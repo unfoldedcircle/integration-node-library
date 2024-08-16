@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 _Changes in the next release_
 
+### Breaking changes
+- All entity class constructors have changed: use named parameters for all optional arguments. 
+
 ### Added
 - Remote-entity and UI definitions.
 - Setup-flow and remote examples.

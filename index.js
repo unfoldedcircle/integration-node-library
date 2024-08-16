@@ -24,6 +24,7 @@ function log(message) {
 }
 
 class IntegrationAPI extends EventEmitter {
+  #configDirPath;
   #driverPath;
   #driverInfo;
   #state;
@@ -37,7 +38,7 @@ class IntegrationAPI extends EventEmitter {
     this.#driverPath = "driver.json";
 
     // directory to store configuration files
-    this.configDirPath = process.env.UC_CONFIG_HOME || process.env.HOME || "./";
+    this.#configDirPath = process.env.UC_CONFIG_HOME || process.env.HOME || "./";
 
     // set default state to connected
     this.#state = uc.DEVICE_STATES.DISCONNECTED;
@@ -166,6 +167,10 @@ class IntegrationAPI extends EventEmitter {
         this.#clients.delete(connection);
       });
     });
+  }
+
+  get configDirPath() {
+    return this.#configDirPath;
   }
 
   /**
