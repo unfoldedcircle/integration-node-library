@@ -72,7 +72,7 @@ If you only want to get errors and warnings reported:
 DEBUG=ucapi:warn,ucapi:error node driver.js
 ```
 
-Combine those settings with your existing application if any of you other modules or libs also uses __debug__
+Combine those settings with your existing application if any of your other modules or libs also uses __debug__
 
 ## Versioning
 
