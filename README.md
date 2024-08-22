@@ -4,7 +4,7 @@
 This library simplifies writing Node.js based integrations for the [Unfolded Circle Remote devices](https://www.unfoldedcircle.com/)
 by wrapping the [WebSocket Integration API](https://github.com/unfoldedcircle/core-api/tree/main/integration-api).
 
-It's an alpha release (in our eyes). Breaking changes are to be expected and missing features will be continuously added.
+It's a beta release (in our eyes). Breaking changes are to be expected and missing features will be continuously added.
 
 Not supported:
 
@@ -14,6 +14,9 @@ Not supported:
 Requirements:
 - Install [nvm](https://github.com/nvm-sh/nvm) (Node.js version manager) for local development
 - Node.js v16.18.0 or newer (older versions are not tested)
+  - Development dependencies require at least v18.18
+  - The Remote Two firmware up to version 1.9.2 contains Node.js v16.18
+  - Newer firmware versions contain Node.js v20.16
 
 ## Installation
 

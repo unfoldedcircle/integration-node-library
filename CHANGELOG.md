@@ -9,8 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 _Changes in the next release_
 
+---
+
+## 0.1.0-beta - 2024-08-21
 ### Breaking changes
-- All entity class constructors have changed: use named parameters for all optional arguments. 
+- All entity class constructors have changed: use named parameters for all optional arguments.
 
 ### Added
 - Remote-entity and UI definitions.
@@ -25,5 +28,3 @@ _Changes in the next release_
 ### Fixed
 - Missing media-player features, options, and commands.
 - Missing options property in available entities.
-
----
