@@ -1,5 +1,8 @@
 # Integration Driver Examples
 
+Integrations using the Node.js API wrapper:
+- [Global Caché IR integration](https://github.com/unfoldedcircle/integration-globalcache)
+
 ## Minimum required driver framework
 
 The `minimum-required.js` file contains the minimum required methods and events that needs to be handled in an
