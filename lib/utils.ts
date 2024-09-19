@@ -5,43 +5,36 @@
  * @license Apache License 2.0, see LICENSE for more details.
  */
 
-"use strict";
-
 /**
  * Convert an input text to a language object.
  *
  * An input text is either a simple string, which is mapped to the `en` language key, a Map containing language keys and
  * text values, or an Object with language key fields and text values.
- * @param {string | Map<string, string> | Object<string, string> } text
- * @return {{[p: string]: string}|null}
+ * @param {string | Map<string, string> | Record<string, string>} text
+ * @return {{ [key: string]: string }}
  */
-function toLanguageObject(text) {
-  if (text) {
-    if (typeof text === "string" || text instanceof String) {
-      return { en: text };
-    }
-    if (text instanceof Map) {
-      return Object.fromEntries(text);
-    }
-    if (text instanceof Object) {
-      // TODO check if text object only contains string keys & values?
-      return text;
-    }
+function toLanguageObject(text: string | Map<string, string> | Record<string, string>): Record<string, string> {
+  if (typeof text === "string") {
+    return { en: text };
   }
-
-  return null;
+  else if (text instanceof Map) {
+    return Object.fromEntries(text);
+  }
+  else {
+    return text;
+  }
 }
 
 /**
  * Get the default text from a language text map.
  *
- * If english `en` or any `en-##` is not defined, the first entry is returned.
+ * If English `en` or any `en-##` is not defined, the first entry is returned.
  *
- * @param {Object<string, string>} text The language text map, key is the language identifier, value the language specific text.
+ * @param {Record<string, string>} text The language text map, key is the language identifier, value is the language-specific text.
  * @param {string} defaultText The text to return if `text` is empty.
  * @returns {string} The default text.
  */
-function getDefaultLanguageString(text, defaultText = "Undefined") {
+function getDefaultLanguageString(text: Record<string, string>, defaultText: string = "Undefined"): string {
   if (!text) {
     return defaultText;
   }
@@ -62,4 +55,5 @@ function getDefaultLanguageString(text, defaultText = "Undefined") {
   return defaultText;
 }
 
-module.exports = { toLanguageObject, getDefaultLanguageString };
+export { toLanguageObject, getDefaultLanguageString };
+
