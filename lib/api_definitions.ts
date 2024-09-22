@@ -57,6 +57,22 @@ enum MSG_EVENTS {
   ABORT_DRIVER_SETUP = "abort_driver_setup"
 };
 
+
+enum EVENTS {
+  ENTITY_COMMAND = "entity_command",
+  ENTITY_ATTRIBUTES_UPDATED = "entity_attributes_updated",
+  SUBSCRIBE_ENTITIES = "subscribe_entities",
+  UNSUBSCRIBE_ENTITIES = "unsubscribe_entities",
+  SETUP_DRIVER = "setup_driver",
+  SETUP_DRIVER_USER_DATA = "setup_driver_user_data",
+  SETUP_DRIVER_USER_CONFIRMATION = "setup_driver_user_confirmation",
+  SETUP_DRIVER_ABORT = "setup_driver_abort",
+  CONNECT = "connect",
+  DISCONNECT = "disconnect",
+  ENTER_STANDBY = "enter_standby",
+  EXIT_STANDBY = "exit_standby"
+}
+
 // Define event categories
 enum EVENT_CATEGORY {
   DEVICE = "DEVICE",
@@ -237,6 +253,7 @@ export {
   STATUS_CODES, 
   MESSAGES, 
   MSG_EVENTS, 
+  EVENTS,
   EVENT_CATEGORY,
   INTEGRATION_SETUP_ERROR
 };
