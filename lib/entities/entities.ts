@@ -62,6 +62,10 @@ class Entities extends EventEmitter {
     return true;
   }
 
+  getEntityIds(): string[] {
+    return Object.keys(this.storage);
+  }
+
   /**
    * Update or merge the provided attributes into an entity.
    *

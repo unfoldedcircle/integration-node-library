@@ -1,5 +1,5 @@
-const test = require("ava");
-const { Cover } = require("../lib/entities/entities");
+import test from "ava";
+import { Cover } from "../lib/entities/entities";
 
 test("Cover constructor without parameter object creates default Cover class", (t) => {
   const entity = new Cover("test", "Test Cover");

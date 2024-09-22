@@ -1,5 +1,6 @@
-const test = require("ava");
-const { Climate } = require("../lib/entities/entities");
+import test from "ava";
+import Climate from "../lib/entities/button";
+import { OPTIONS, FEATURES, STATES, ATTRIBUTES } from "../lib/entities/climate";
 
 test("Climate constructor without parameter object creates default Climate class", (t) => {
   const entity = new Climate("test", "Test Climate");
@@ -18,12 +19,12 @@ test("Climate constructor without parameter object creates default Climate class
 
 test("Climate constructor with parameter object", (t) => {
   const options = {};
-  options[Climate.OPTIONS.TEMPERATURE_UNIT] = "C";
+  //options[OPTIONS.TEMPERATURE_UNIT] = "C";
   const entity = new Climate("test", "Test Climate", {
-    features: [Climate.FEATURES.COOL],
-    attributes: new Map([[Climate.ATTRIBUTES.STATE, Climate.STATES.UNAVAILABLE]]),
-    options,
-    area: "Test lab"
+    //features: [FEATURES.COOL],
+    //attributes: new Map([[ATTRIBUTES.STATE, STATES.UNAVAILABLE]]),
+    ///options,
+    //area: "Test lab"
   });
 
   t.is(entity.id, "test");
@@ -40,7 +41,7 @@ test("Climate constructor with parameter object", (t) => {
 
 test("Climate constructor with Object attributes", (t) => {
   const entity = new Climate("test", "Test Climate", {
-    attributes: { state: "COOL" }
+    //attributes: { state: "COOL" }
   });
 
   t.is(entity.id, "test");

@@ -1,5 +1,6 @@
-const test = require("ava");
-const { Button } = require("../lib/entities/entities");
+import test from "ava";
+import Button from "../lib/entities/button";
+import { STATES} from "../lib/entities/button";
 
 test("Button constructor without parameter object creates default Button class", (t) => {
   const entity = new Button("test", "Test Button");
@@ -18,7 +19,7 @@ test("Button constructor without parameter object creates default Button class",
 
 test("Button constructor with parameter object", (t) => {
   const entity = new Button("test", "Test Button", {
-    state: Button.STATES.UNAVAILABLE,
+    state: STATES.UNAVAILABLE,
     area: "Test lab"
   });
 

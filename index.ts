@@ -32,20 +32,15 @@ interface DriverInfo {
 }
 
 function createDriverInfo(data: any): DriverInfo {
-  if (
-    typeof data.driver_url === 'string' || data.driver_url === null &&
-    typeof data.port === 'number' &&
-    typeof data.driver_id === 'string' &&
-    typeof data.name === 'object' &&
-    typeof data.version === 'string' &&
-    typeof data.developer === 'object' &&
-    typeof data.developer.name === 'string' &&
-    (typeof data.min_core_api === 'string' || data.min_core_api === null)
-  ) {
-    return data as DriverInfo; // Type assertion
-  } else {
-    throw new Error("Invalid structure for DriverInfo");
-  }
+  return {
+      driver_url: data.driver_url || "https://example.com",
+      port: data.port || 8080,
+      driver_id: data.driver_id || "driver123",
+      name: data.name || { en: "Example Driver" },
+      version: data.version || "1.0.0",
+      developer: { name: data.developer.name || "Developer Name" },
+      min_core_api: data.min_core_api || null
+  };
 }
 
 class IntegrationAPI extends EventEmitter {
@@ -64,6 +59,18 @@ class IntegrationAPI extends EventEmitter {
     super();
 
     this.driverPath = "driver.json";
+
+    this.server = new WebSocket.Server({ port: 8080 });
+
+    this.driverInfo = {
+      driver_url: "https://example.com",
+      port: 8080,
+      driver_id: "driver123",
+      name: { en: "Example Driver" },
+      version: "1.0.0",
+      developer: { name: "Developer Name" },
+      min_core_api: "1.0.0"
+    };
 
     // directory to store configuration files
     this.configDirPath = process.env.UC_CONFIG_HOME || process.env.HOME || "./";
@@ -468,8 +475,8 @@ class IntegrationAPI extends EventEmitter {
     return this.availableEntities.getEntities();
   }
 
-  async #subscribeEvents(entities) {
-    entities.entity_ids.forEach((entityId) => {
+  async #subscribeEvents(entities: Entities) {
+    entities.getEntityIds().forEach((entityId) => {
       const entity = this.availableEntities.getEntity(entityId);
       if (entity) {
         this.configuredEntities.addEntity(entity);
@@ -478,20 +485,20 @@ class IntegrationAPI extends EventEmitter {
       }
     });
 
-    this.emit(uc.EVENTS.SUBSCRIBE_ENTITIES, entities.entity_ids);
+    this.emit(uc.EVENTS.SUBSCRIBE_ENTITIES, entities.getEntityIds());
   }
 
-  async #unSubscribeEvents(entities) {
+  async #unSubscribeEvents(entities: Entities) {
     // remove entities from registered entities
     let res = true;
 
-    entities.entity_ids.forEach((entityId) => {
+    entities.getEntityIds().forEach((entityId) => {
       if (!this.configuredEntities.removeEntity(entityId)) {
         res = false;
       }
     });
 
-    this.emit(uc.EVENTS.UNSUBSCRIBE_ENTITIES, entities.entity_ids);
+    this.emit(uc.EVENTS.UNSUBSCRIBE_ENTITIES, entities.getEntityIds());
 
     return res;
   }
@@ -501,7 +508,7 @@ class IntegrationAPI extends EventEmitter {
     return this.configuredEntities.getStates();
   }
 
-  async #entityCommand(wsId, reqId, data) {
+  async #entityCommand(wsId : any, reqId : any, data : any) {
     const wsHandle = { wsId, reqId };
 
     if (!data) {
@@ -673,7 +680,7 @@ class IntegrationAPI extends EventEmitter {
     };
   }
 
-  async setDeviceState(state) {
+  async setDeviceState(state : any) {
     this.state = state;
 
     await this.#broadcastEvent(
@@ -700,7 +707,7 @@ class IntegrationAPI extends EventEmitter {
    *
    * @param {Object} wsHandle The WebSocket handle received in the `EVENTS.SETUP_DRIVER` event.
    */
-  async driverSetupProgress(wsHandle) {
+  async driverSetupProgress(wsHandle : any) {
     const msgData = {
       event_type: "SETUP",
       state: "SETUP"

@@ -29,7 +29,7 @@
 	"scripts": {
 		"format": "prettier --write \"./{examples,lib,test}/**/*.{js,ts}\"",
 		"lint": "prettier --check \"./{examples,lib,test}/**/*.{js,ts}\" && eslint . --ext .js,.jsx,.ts,.tsx",
-		"test": "npm run build && ava",
+		"test": "npm run build && ava dist/test/**/*.js",
 		"build": "tsc"
 	},
 	"repository": {
