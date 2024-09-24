@@ -11,7 +11,7 @@ import WebSocket from "ws";
 import { EventEmitter } from "events";
 import fs from "fs";
 import * as uc from "./lib/api_definitions";
-import Entities from "./lib/entities/entities";
+import Entities, { Entity } from "./lib/entities/entities";
 import { toLanguageObject, getDefaultLanguageString } from "./lib/utils";
 import log from "./lib/loggers";
 import { STATUS_CODES } from "http";
@@ -791,6 +791,27 @@ class IntegrationAPI extends EventEmitter {
       error
     };
     await this.#sendEvent(wsHandle.wsId, uc.MSG_EVENTS.DRIVER_SETUP_CHANGE, msgData, uc.EVENT_CATEGORY.DEVICE);
+  }
+
+  public getConfiguredEntities(): Entities {
+    return this.configuredEntities;
+  }
+
+  public getAvailableEntities(): Entities {
+    return this.availableEntities;
+  }
+
+  public addEntity(entity: Entity) {
+    this.availableEntities.addEntity(entity);
+  }
+
+  public clearAvailableEntities(): void {
+    this.availableEntities.clear();
+  }
+
+  // Function to clear configured entities
+  public clearConfiguredEntities(): void {
+    this.configuredEntities.clear();
   }
 }
 

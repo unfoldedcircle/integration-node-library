@@ -255,5 +255,8 @@ export {
   MSG_EVENTS, 
   EVENTS,
   EVENT_CATEGORY,
-  INTEGRATION_SETUP_ERROR
+  INTEGRATION_SETUP_ERROR,
+  DriverSetupRequest,
+  UserDataResponse,
+  SetupAction
 };
