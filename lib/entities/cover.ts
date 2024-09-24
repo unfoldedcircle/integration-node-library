@@ -69,7 +69,7 @@ interface CoverParams {
   features?: string[];
   attributes?: Map<string, any> | Record<string, any>;
   deviceClass?: string;
-  options?: Record<string, any>;
+  options?: Record<string, any> | null;
   area?: string;
   cmdHandler?: (entity: Entity, command: string, params?: Record<string, any>) => Promise<string>;
 }
@@ -87,7 +87,7 @@ class Cover extends Entity {
   constructor(
     id: string,
     name: string | Map<string, string> | Record<string, string>,
-    { features = [], attributes = {}, deviceClass, options = {}, area, cmdHandler }: CoverParams = {}
+    { features = [], attributes = {}, deviceClass, options = null, area, cmdHandler }: CoverParams = {}
   ) {
     super(id, name, ENTITYTYPES.COVER, { features, attributes, deviceClass, options, area, cmdHandler });
 

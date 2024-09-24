@@ -68,7 +68,7 @@ interface LightParams {
   features?: string[];
   attributes?: Map<string, any> | Record<string, any>;
   deviceClass?: string;
-  options?: Record<string, any>;
+  options?: Partial<Record<OPTIONS, any>> | null;
   area?: string;
   cmdHandler?: (entity: Entity, command: string, params?: Record<string, any>) => Promise<string> | null;
 }
@@ -90,7 +90,7 @@ class Light extends Entity {
   constructor(
     id: string,
     name: string | Map<string, string> | Record<string, string>,
-    { features = [], attributes = {}, deviceClass, options = {}, area}: LightParams = {}
+    { features = [], attributes = {}, deviceClass, options = null, area}: LightParams = {}
   ) {
     super(id, toLanguageObject(name), ENTITYTYPES.LIGHT, { features, attributes, deviceClass, options, area });
 

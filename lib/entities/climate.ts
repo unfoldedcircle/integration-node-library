@@ -54,15 +54,15 @@ enum COMMANDS {
 }
 
 // Climate entity device classes
-const DEVICECLASSES = {};
+enum DEVICECLASSES {};
 
 // Climate entity options
-const OPTIONS = {
-  TEMPERATURE_UNIT: "temperature_unit",
-  TARGET_TEMPERATURE_STEP: "target_temperature_step",
-  MAX_TEMPERATURE: "max_temperature",
-  MIN_TEMPERATURE: "min_temperature",
-  FAN_MODES: "fan_modes",
+enum OPTIONS {
+  TEMPERATURE_UNIT = "temperature_unit",
+  TARGET_TEMPERATURE_STEP = "target_temperature_step",
+  MAX_TEMPERATURE = "max_temperature",
+  MIN_TEMPERATURE = "min_temperature",
+  FAN_MODES = "fan_modes",
 };
 
 // Define types for the parameters in the constructor
@@ -70,7 +70,7 @@ interface ClimateParams {
   features?: string[];
   attributes?: Map<string, any> | Record<string, any>;
   deviceClass?: string;
-  options?: Record<string, any>;
+  options?: Partial<Record<OPTIONS, any>> | null;
   area?: string;
   cmdHandler?: (entity: Entity, command: string, params?: Record<string, any>) => Promise<string>;
 }
@@ -88,7 +88,7 @@ class Climate extends Entity {
   constructor(
     id: string,
     name: string | Map<string, string> | Record<string, string>,
-    { features = [], attributes = {}, deviceClass, options = {}, area, cmdHandler }: ClimateParams = {}
+    { features = [], attributes = {}, deviceClass, options = null, area, cmdHandler }: ClimateParams = {}
   ) {
     super(id, name, ENTITYTYPES.CLIMATE, { features, attributes, deviceClass, options, area, cmdHandler });
 

@@ -82,6 +82,13 @@ class Entity {
       attributes instanceof Map || typeof attributes === "object",
       "Entity parameter attributes must be a Map or Object"
     );
+    /*
+    if (attributes instanceof Map) {
+      this.attributes = attributes;
+    } else {
+      this.attributes = new Map(Object.entries(attributes || {}));
+    }
+      */
     this.attributes = attributes instanceof Map ? Object.fromEntries(attributes) : { ...attributes };
     assert(
       deviceClass === undefined || typeof deviceClass === "string",

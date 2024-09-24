@@ -204,7 +204,7 @@ interface MediaPlayerParams {
   features?: string[];
   attributes?: Map<string, string> | Record<string, string>;
   deviceClass?: string;
-  options?: object; // Might need to define a more specific type here
+  options?: Partial<Record<OPTIONS, any>> | null;
   area?: string;
   cmdHandler?: CmdHandler;
 }

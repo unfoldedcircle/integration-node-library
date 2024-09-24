@@ -1,5 +1,6 @@
-const test = require("ava");
-const { Light } = require("../lib/entities/entities");
+import test from "ava";
+import Light from "../lib/entities/light";
+import { FEATURES, STATES, ATTRIBUTES } from "../lib/entities/light";
 
 test("Light constructor without parameter object creates default Light class", (t) => {
   const entity = new Light("test", "Test Light");
@@ -18,8 +19,8 @@ test("Light constructor without parameter object creates default Light class", (
 
 test("Light constructor with parameter object", (t) => {
   const entity = new Light("test", "Test Light", {
-    features: [Light.FEATURES.COLOR_TEMPERATURE],
-    attributes: new Map([[Light.ATTRIBUTES.STATE, Light.STATES.UNAVAILABLE]]),
+    features: [FEATURES.COLOR_TEMPERATURE],
+    attributes: new Map([[ATTRIBUTES.STATE, STATES.UNAVAILABLE]]),
     options: {},
     area: "Test lab"
   });

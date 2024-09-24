@@ -1,5 +1,6 @@
 import test from "ava";
-import { Cover } from "../lib/entities/entities";
+import Cover from "../lib/entities/cover";
+import { FEATURES, ATTRIBUTES, STATES } from "../lib/entities/cover";
 
 test("Cover constructor without parameter object creates default Cover class", (t) => {
   const entity = new Cover("test", "Test Cover");
@@ -18,8 +19,8 @@ test("Cover constructor without parameter object creates default Cover class", (
 
 test("Cover constructor with parameter object", (t) => {
   const entity = new Cover("test", "Test Cover", {
-    features: [Cover.FEATURES.TILT],
-    attributes: new Map([[Cover.ATTRIBUTES.STATE, Cover.STATES.UNAVAILABLE]]),
+    features: [FEATURES.TILT],
+    attributes: new Map([[ATTRIBUTES.STATE, STATES.UNAVAILABLE]]),
     options: {},
     area: "Test lab"
   });
