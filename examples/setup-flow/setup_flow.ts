@@ -158,7 +158,7 @@ async function handleUserDataResponse(msg: UserDataResponse): Promise<SetupActio
  * @param {Object<string, *>} _params optional command parameters (not used for buttons)
  * @return {Promise<string>} status of the command
  */
-async function cmdHandler(entity: Entity, cmdId: string, _params: { [s: string]: any; }): Promise<string> {
+async function cmdHandler(entity: Entity, cmdId: string, _params?: { [s: string]: any; }): Promise<string> {
   console.log("Got %s command request: %s", entity.id, cmdId);
 
   return STATUS_CODES.OK ?? "OK";
@@ -169,4 +169,4 @@ uc.on(API_EVENTS.CONNECT, async () => {
   await uc.setDeviceState(DEVICE_STATES.CONNECTED);
 });
 
-uc.init("setup_flow.json", driverSetupHandler);
+uc.init("setup_flow.json", driverSetupHandler );

@@ -107,7 +107,7 @@ class Entity {
    * Set callback handler for entity command requests.
    * @param cmdHandler Callback handler for entity commands.
    */
-  setCmdHandler(cmdHandler: CommandHandler) {
+  setCmdHandler(cmdHandler: CommandHandler | null) {
     this.cmdHandler = cmdHandler;
   }
 

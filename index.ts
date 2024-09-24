@@ -15,6 +15,7 @@ import Entities, { Entity } from "./lib/entities/entities";
 import { toLanguageObject, getDefaultLanguageString } from "./lib/utils";
 import log from "./lib/loggers";
 import { STATUS_CODES } from "http";
+import { SetupAction, DriverSetupRequest, UserDataResponse, } from './lib/api_definitions';
 
 
 interface Developer {
@@ -101,7 +102,10 @@ class IntegrationAPI extends EventEmitter {
    * @param {string|object} driverConfig either a string to specify the driver configuration file path, or an object holding the configuration
    * @param setupHandler optional driver setup handler if the driver metadata contains a setup_data_schema object
    */
-  init(driverConfig: string|object, setupHandler = undefined) {
+  init(
+      driverConfig: string|object, 
+      setupHandler?: (msg: DriverSetupRequest | UserDataResponse) => Promise<SetupAction>
+    ) {
     this.setupHandler = setupHandler;
     const integrationInterface = process.env.UC_INTEGRATION_INTERFACE;
     const integrationPort = process.env.UC_INTEGRATION_HTTP_PORT;
