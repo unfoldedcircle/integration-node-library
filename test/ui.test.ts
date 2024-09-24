@@ -1,5 +1,5 @@
-const test = require("ava");
-const { UiPage, Size, UiItem, createUiText, EntityCommand, createUiIcon } = require("../lib/entities/ui");
+import test from "ava";
+import { UiPage, Size, UiItem, createUiText, EntityCommand, createUiIcon } from "../lib/entities/ui";
 
 test("Size sets default size if not specified", (t) => {
   const result = new Size();

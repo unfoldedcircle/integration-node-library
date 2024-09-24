@@ -50,7 +50,7 @@ enum OPTIONS {
 // Define types for the parameters in the constructor
 interface SwitchParams {
   features?: string[];
-  attributes?: Map<string, any>;
+  attributes?: Map<string, any> | Record<string, any>;
   deviceClass?: DEVICECLASSES;
   options?: Record<string, any>;
   area?: string;

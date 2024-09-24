@@ -78,7 +78,7 @@ enum OPTIONS {
  * @return EntityCommand the created EntityCommand.
  * @throws AssertionError if command is not specified or is empty.
  */
-function createSendCmd(command: string, { delay, repeat, hold }: { delay?: number; repeat?: number; hold?: number } = {}): EntityCommand {
+function createSendCmd(command: string | undefined, { delay, repeat, hold }: { delay?: number; repeat?: number; hold?: number } = {}): EntityCommand {
   assert(command && typeof command === "string" && command.length > 0, "command must be a string and may not be empty");
   
   const params: Record<string, any> = { command };
@@ -104,7 +104,7 @@ function createSendCmd(command: string, { delay, repeat, hold }: { delay?: numbe
  * @return EntityCommand the created EntityCommand.
  * @throws AssertionError if sequence is not specified or doesn't contain at least one command.
  */
-function createSequenceCmd(sequence: string[], { delay, repeat }: { delay?: number; repeat?: number } = {}): EntityCommand {
+function createSequenceCmd(sequence: string[] | undefined, { delay, repeat }: { delay?: number; repeat?: number } = {}): EntityCommand {
   assert(sequence && Array.isArray(sequence) && sequence.length > 0, "sequence array must be specified and contain at least one command");
   
   const params: Record<string, any> = { sequence };

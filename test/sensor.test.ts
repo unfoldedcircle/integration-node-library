@@ -1,5 +1,6 @@
-const test = require("ava");
-const { Sensor } = require("../lib/entities/entities");
+import test from "ava";
+import Sensor from "../lib/entities/sensor";
+import { OPTIONS, STATES, ATTRIBUTES, DEVICECLASSES } from "../lib/entities/sensor";
 
 test("Sensor constructor without parameter object creates default Sensor class", (t) => {
   const entity = new Sensor("test", "Test Sensor");
@@ -17,12 +18,12 @@ test("Sensor constructor without parameter object creates default Sensor class",
 });
 
 test("Sensor constructor with parameter object", (t) => {
-  const options = {};
-  options[Sensor.OPTIONS.MAX_VALUE] = 42;
+  const options: Partial<Record<OPTIONS, any>> = {};
+  options[OPTIONS.MAX_VALUE] = 42;
   const entity = new Sensor("test", "Test Sensor", {
-    attributes: new Map([[Sensor.ATTRIBUTES.STATE, Sensor.STATES.UNAVAILABLE]]),
+    attributes: new Map([[ATTRIBUTES.STATE, STATES.UNAVAILABLE]]),
     options,
-    deviceClass: Sensor.DEVICECLASSES.ENERGY,
+    deviceClass: DEVICECLASSES.ENERGY,
     area: "Test lab"
   });
 
@@ -40,7 +41,7 @@ test("Sensor constructor with parameter object", (t) => {
 
 test("Sensor constructor with Object attributes", (t) => {
   const entity = new Sensor("test", "Test Sensor", {
-    attributes: { state: Sensor.STATES.ON, value: 100, unit: "%" }
+    attributes: { state: STATES.ON, value: 100, unit: "%" }
   });
 
   t.is(entity.id, "test");

@@ -1,5 +1,5 @@
-const test = require("ava");
-const { toLanguageObject, getDefaultLanguageString } = require("../lib/utils");
+import test from "ava";
+import { toLanguageObject, getDefaultLanguageString } from "../lib/entities/utils";
 
 const toLanguageObjectTest = test.macro((t, input, expected) => {
   const result = toLanguageObject(input);

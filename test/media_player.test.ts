@@ -44,15 +44,13 @@ test("MediaPlayer constructor with parameter object", (t) => {
   t.is(entity.hasCmdHandler, false);
 });
 
-/*
 test("MediaPlayer constructor with Object attributes", (t) => {
   const entity = new MediaPlayer("test", "Test MediaPlayer", {
-    attributes: { shuffle: false, muted: false, volume: 25 }
+    attributes: { shuffle: 'false', muted: 'false', volume: '25' }
   });
 
   t.is(entity.id, "test");
   t.deepEqual(entity.name, { en: "Test MediaPlayer" });
   t.is(entity.entity_type, "media_player");
-  t.deepEqual(entity.attributes, { shuffle: false, muted: false, volume: 25 });
+  t.deepEqual(entity.attributes, { shuffle: 'false', muted: 'false', volume: '25' });
 });
-*/

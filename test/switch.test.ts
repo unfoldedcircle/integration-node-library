@@ -1,5 +1,6 @@
-const test = require("ava");
-const { Switch } = require("../lib/entities/entities");
+import test from "ava";
+import Switch from "../lib/entities/switch";
+import { OPTIONS, FEATURES, ATTRIBUTES, STATES } from "../lib/entities/switch";
 
 test("Switch constructor without parameter object creates default Switch class", (t) => {
   const entity = new Switch("test", "Test Switch");
@@ -17,11 +18,11 @@ test("Switch constructor without parameter object creates default Switch class",
 });
 
 test("Switch constructor with parameter object", (t) => {
-  const options = {};
-  options[Switch.OPTIONS.READABLE] = true;
+  const options: Partial<Record<OPTIONS, any>> = {};
+  options[OPTIONS.READABLE] = true;
   const entity = new Switch("test", "Test Switch", {
-    features: [Switch.FEATURES.TOGGLE],
-    attributes: new Map([[Switch.ATTRIBUTES.STATE, Switch.STATES.UNAVAILABLE]]),
+    features: [FEATURES.TOGGLE],
+    attributes: new Map([[ATTRIBUTES.STATE, STATES.UNAVAILABLE]]),
     options,
     area: "Test lab"
   });
@@ -40,7 +41,7 @@ test("Switch constructor with parameter object", (t) => {
 
 test("Switch constructor with Object attributes", (t) => {
   const entity = new Switch("test", "Test Switch", {
-    attributes: { state: Switch.STATES.OFF }
+    attributes: { state: STATES.OFF }
   });
 
   t.is(entity.id, "test");

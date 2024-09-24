@@ -1,9 +1,9 @@
-const test = require("ava");
-const { createSequenceCmd, createSendCmd } = require("../lib/entities/remote");
-const { EntityCommand } = require("../lib/entities/ui");
-
-const { AssertionError } = require("node:assert");
-const { Remote } = require("../lib/entities/entities");
+import test from "ava";
+import { createSequenceCmd, createSendCmd } from "../lib/entities/remote";
+import { EntityCommand } from "../lib/entities/ui";
+import { AssertionError } from "node:assert";
+import { Remote } from "../lib/entities/entities";
+import { FEATURES, STATES, ATTRIBUTES } from "../lib/entities/remote";
 
 test("createSequenceCmd with an undefined sequence throws an assert", (t) => {
   t.throws(
@@ -22,6 +22,7 @@ test("createSequenceCmd with an empty sequence array throws an assert", (t) => {
     { instanceOf: AssertionError }
   );
 });
+
 
 test("createSequenceCmd without optional params doesn't include fields", (t) => {
   const result = createSequenceCmd(["foo", "bar"]);
@@ -106,8 +107,8 @@ test("Remote constructor without parameter object creates default remote class",
 
 test("Remote constructor with parameter object", (t) => {
   const remote = new Remote("test", "Test Remote", {
-    features: [Remote.FEATURES.SEND_CMD],
-    attributes: new Map([[Remote.ATTRIBUTES.STATE, Remote.STATES.ON]]),
+    features: [FEATURES.SEND_CMD],
+    attributes: new Map([[ATTRIBUTES.STATE, STATES.ON]]),
     simpleCommands: ["foobar", "foo", "bar"],
     area: "Test lab"
   });
@@ -126,7 +127,7 @@ test("Remote constructor with parameter object", (t) => {
 
 test("Remote constructor with Object attributes", (t) => {
   const entity = new Remote("test", "Test Remote", {
-    attributes: { state: Remote.STATES.UNAVAILABLE }
+    attributes: { state: STATES.UNAVAILABLE }
   });
 
   t.is(entity.id, "test");
