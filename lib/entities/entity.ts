@@ -138,4 +138,4 @@ class Entity {
 }
 
 export default Entity;
-export {TYPES};
+export {TYPES, CommandHandler };

@@ -813,9 +813,12 @@ class IntegrationAPI extends EventEmitter {
     this.availableEntities.clear();
   }
 
-  // Function to clear configured entities
   public clearConfiguredEntities(): void {
     this.configuredEntities.clear();
+  }
+
+  public updateEntityAttributes(entityId : string, attributes: Map<string, any> | Record<string, any>): boolean {
+    return this.configuredEntities.updateEntityAttributes(entityId, attributes);
   }
 }
 

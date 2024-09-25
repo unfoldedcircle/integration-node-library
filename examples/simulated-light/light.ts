@@ -16,7 +16,7 @@ import {
 import {COMMANDS as BUTTONCOMMANDS} from "../../lib/entities/button";
 import { STATUS_CODES } from "http";
 import { DEVICE_STATES, EVENTS as API_EVENTS, setup } from '../../lib/api_definitions';
-import { Entity, Remote } from "../../lib/entities/entities";
+import { CommandHandler } from "../../lib/entities/entity";
 
 import { 
   COMMANDS as LIGHT_COMMANDS, 
@@ -63,14 +63,18 @@ uc.on(API_EVENTS.UNSUBSCRIBE_ENTITIES, async (entityIds) => {
  * @param {Object<string, *>} params optional command parameters
  * @return {Promise<string>} status of the command
  */
-async function sharedCmdHandler(entity: Entity, cmdId: string, params: { [s: string]: any; }): Promise<string> {
-  // let's add some hacky action to the button!
-  if (entity.id === "my_button" && cmdId === BUTTONCOMMANDS.PUSH) {
+const sharedCmdHandler : CommandHandler = async function (
+  entity,
+  cmdId,
+  params
+): Promise<string> {
+   // let's add some hacky action to the button!
+   if (entity.id === "my_button" && cmdId === BUTTONCOMMANDS.PUSH) {
     console.log("Got %s push request: toggling light", entity.id);
     // trigger a light command
     const lightEntity = uc.getConfiguredEntities().getEntity("my_unique_light_id");
     if (lightEntity) {
-      await lightCmdHandler(lightEntity, LIGHT_COMMANDS.TOGGLE, null);
+      await lightCmdHandler(lightEntity, LIGHT_COMMANDS.TOGGLE);
     }
     return STATUS_CODES.OK ?? "OK";
   }
@@ -96,7 +100,11 @@ async function sharedCmdHandler(entity: Entity, cmdId: string, params: { [s: str
  * @param {?Object<string, *>} params optional command parameters
  * @return {Promise<string>} status of the command
  */
-async function lightCmdHandler(entity: Entity, cmdId: string, params: { [s: string]: any; } | null): Promise<string> {
+const lightCmdHandler: CommandHandler = async function (
+  entity,
+  cmdId,
+  params
+): Promise<string> {
   console.log("Got %s command request: %s", entity.id, cmdId);
 
   // in this example we just update the entity, but in reality, you'd turn on the light with your integration
