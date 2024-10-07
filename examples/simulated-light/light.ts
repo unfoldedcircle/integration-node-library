@@ -3,7 +3,18 @@
 //uc.init("light-driver.json");
 
 import uc from "../../index";
-uc.init("dist/examples/simulated-light/light-driver.json");
+import * as fs from "fs";
+import * as path from "path";
+
+const initFilePath = path.resolve(__dirname, "light-driver.json");
+if (fs.existsSync(initFilePath)) {
+  uc.init(initFilePath);
+  console.log("File found, initialization successful.");
+} else {
+  console.error(`Error: File not found at ${initFilePath}`);
+  throw new Error(`File not found: ${initFilePath}`);
+}
+
 import Button from "../../lib/entities/button";
 import Light from "../../lib/entities/light";
 import MediaPlayer from "../../lib/entities/media_player";

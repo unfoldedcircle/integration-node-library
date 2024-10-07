@@ -32,18 +32,6 @@ interface DriverInfo {
   min_core_api: string | null; 
 }
 
-function createDriverInfo(data: any): DriverInfo {
-  return {
-      driver_url: data.driver_url || "https://example.com",
-      port: data.port || 8080,
-      driver_id: data.driver_id || "driver123",
-      name: data.name || { en: "Example Driver" },
-      version: data.version || "1.0.0",
-      developer: { name: data.developer.name || "Developer Name" },
-      min_core_api: data.min_core_api || null
-  };
-}
-
 class IntegrationAPI extends EventEmitter {
 
   private configDirPath : string;
@@ -59,19 +47,32 @@ class IntegrationAPI extends EventEmitter {
   constructor() {
     super();
 
-    this.driverPath = "driver.json";
 
-    this.server = new WebSocket.Server({ port: 8080 });
+
+
+
+
 
     this.driverInfo = {
-      driver_url: "https://example.com",
-      port: 8080,
-      driver_id: "driver123",
-      name: { en: "Example Driver" },
-      version: "1.0.0",
-      developer: { name: "Developer Name" },
-      min_core_api: "1.0.0"
+      driver_url: "",
+      port: 0,
+      driver_id: "",
+      name: {},
+      version: "",
+      developer: { name: "" },
+      min_core_api: null,
     };
+    this.server = new WebSocket.Server({ noServer: true });
+
+
+
+
+
+
+
+
+    
+    this.driverPath = "driver.json";
 
     // directory to store configuration files
     this.configDirPath = process.env.UC_CONFIG_HOME || process.env.HOME || "./";
@@ -823,3 +824,7 @@ class IntegrationAPI extends EventEmitter {
 }
 
 export default new IntegrationAPI();
+
+function createDriverInfo(driverConfig: object): DriverInfo {
+  throw new Error("Function not implemented.");
+}
