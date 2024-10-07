@@ -3,7 +3,7 @@
 //uc.init("light-driver.json");
 
 import uc from "../../index";
-uc.init("light-driver.json");
+uc.init("dist/examples/simulated-light/light-driver.json");
 import Button from "../../lib/entities/button";
 import Light from "../../lib/entities/light";
 import MediaPlayer from "../../lib/entities/media_player";
