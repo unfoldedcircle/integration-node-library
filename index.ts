@@ -71,7 +71,7 @@ class IntegrationAPI extends EventEmitter {
 
 
 
-    
+
     this.driverPath = "driver.json";
 
     // directory to store configuration files
@@ -480,8 +480,8 @@ class IntegrationAPI extends EventEmitter {
     return this.availableEntities.getEntities();
   }
 
-  async #subscribeEvents(entities: Entities) {
-    entities.getEntityIds().forEach((entityId) => {
+  async #subscribeEvents(entities: any) {
+    entities.entity_ids.forEach((entityId : any) => {
       const entity = this.availableEntities.getEntity(entityId);
       if (entity) {
         this.configuredEntities.addEntity(entity);
@@ -490,14 +490,14 @@ class IntegrationAPI extends EventEmitter {
       }
     });
 
-    this.emit(uc.EVENTS.SUBSCRIBE_ENTITIES, entities.getEntityIds());
+    this.emit(uc.EVENTS.SUBSCRIBE_ENTITIES, entities.entity_ids);
   }
 
-  async #unSubscribeEvents(entities: Entities) {
+  async #unSubscribeEvents(entities: any) {
     // remove entities from registered entities
     let res = true;
 
-    entities.getEntityIds().forEach((entityId) => {
+    entities.entity_ids.forEach((entityId : any) => {
       if (!this.configuredEntities.removeEntity(entityId)) {
         res = false;
       }
