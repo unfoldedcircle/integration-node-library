@@ -16,11 +16,9 @@
 function toLanguageObject(text: string | Map<string, string> | Record<string, string>): Record<string, string> {
   if (typeof text === "string") {
     return { en: text };
-  }
-  else if (text instanceof Map) {
+  } else if (text instanceof Map) {
     return Object.fromEntries(text);
-  }
-  else {
+  } else {
     return text;
   }
 }
@@ -56,4 +54,3 @@ function getDefaultLanguageString(text: Record<string, string>, defaultText: str
 }
 
 export { toLanguageObject, getDefaultLanguageString };
-

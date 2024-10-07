@@ -1,6 +1,5 @@
 import test from "ava";
-import Cover from "../lib/entities/cover";
-import { FEATURES, ATTRIBUTES, STATES } from "../lib/entities/cover";
+import Cover, { FEATURES, ATTRIBUTES, STATES } from "../lib/entities/cover";
 
 test("Cover constructor without parameter object creates default Cover class", (t) => {
   const entity = new Cover("test", "Test Cover");

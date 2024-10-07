@@ -6,7 +6,7 @@
  * @license Apache License 2.0, see LICENSE for more details.
  */
 
-import { TYPES as ENTITYTYPES } from './entity';
+import { TYPES as ENTITYTYPES } from "./entity";
 import Entity from "./entity";
 import log from "../loggers";
 
@@ -19,7 +19,7 @@ enum STATES {
   COOL = "COOL",
   HEAT_COOL = "HEAT_COOL",
   FAN = "FAN",
-  AUTO = "AUTO",
+  AUTO = "AUTO"
 }
 
 // Climate entity features
@@ -30,7 +30,7 @@ enum FEATURES {
   CURRENT_TEMPERATURE = "current_temperature",
   TARGET_TEMPERATURE = "target_temperature",
   TARGET_TEMPERATURE_RANGE = "target_temperature_range",
-  FAN = "fan",
+  FAN = "fan"
 }
 
 // Climate entity attributes
@@ -40,7 +40,7 @@ enum ATTRIBUTES {
   TARGET_TEMPERATURE = "target_temperature",
   TARGET_TEMPERATURE_HIGH = "target_temperature_high",
   TARGET_TEMPERATURE_LOW = "target_temperature_low",
-  FAN_MODE = "fan_mode",
+  FAN_MODE = "fan_mode"
 }
 
 // Climate entity commands
@@ -50,11 +50,11 @@ enum COMMANDS {
   HVAC_MODE = "hvac_mode",
   TARGET_TEMPERATURE = "target_temperature",
   TARGET_TEMPERATURE_RANGE = "target_temperature_range",
-  FAN_MODE = "fan_mode",
+  FAN_MODE = "fan_mode"
 }
 
 // Climate entity device classes
-enum DEVICECLASSES {};
+enum DEVICECLASSES {}
 
 // Climate entity options
 enum OPTIONS {
@@ -62,8 +62,8 @@ enum OPTIONS {
   TARGET_TEMPERATURE_STEP = "target_temperature_step",
   MAX_TEMPERATURE = "max_temperature",
   MIN_TEMPERATURE = "min_temperature",
-  FAN_MODES = "fan_modes",
-};
+  FAN_MODES = "fan_modes"
+}
 
 // Define types for the parameters in the constructor
 interface ClimateParams {

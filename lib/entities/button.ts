@@ -6,24 +6,24 @@
  * @license Apache License 2.0, see LICENSE for more details.
  */
 
-import { TYPES as ENTITYTYPES } from './entity';
+import { TYPES as ENTITYTYPES } from "./entity";
 import Entity from "./entity";
 import log from "../loggers";
 
 // Button entity states
 enum STATES {
   UNAVAILABLE = "UNAVAILABLE",
-  AVAILABLE = "AVAILABLE",
+  AVAILABLE = "AVAILABLE"
 }
 
 // Button entity attributes
 enum ATTRIBUTES {
-  STATE = "state",
+  STATE = "state"
 }
 
 // Button commands
 enum COMMANDS {
-  PUSH = "push",
+  PUSH = "push"
 }
 
 // Define types for the parameters in the constructor
@@ -59,7 +59,7 @@ class Button extends Entity {
       features: ["press"],
       attributes: new Map([[ATTRIBUTES.STATE, state]]),
       area,
-      cmdHandler,
+      cmdHandler
     });
 
     log.debug(`Button entity created with id: ${this.id}`);

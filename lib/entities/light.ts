@@ -6,7 +6,7 @@
  * @license Apache License 2.0, see LICENSE for more details.
  */
 
-import { TYPES as ENTITYTYPES } from './entity';
+import { TYPES as ENTITYTYPES } from "./entity";
 import { toLanguageObject } from "../utils";
 import Entity from "./entity";
 import log from "../loggers";
@@ -19,7 +19,7 @@ enum STATES {
   UNKNOWN = "UNKNOWN",
   ON = "ON",
   OFF = "OFF"
-};
+}
 
 /**
  * Light entity features.
@@ -30,7 +30,7 @@ enum FEATURES {
   DIM = "dim",
   COLOR = "color",
   COLOR_TEMPERATURE = "color_temperature"
-};
+}
 
 /**
  * Light entity attributes.
@@ -41,7 +41,7 @@ enum ATTRIBUTES {
   SATURATION = "saturation",
   BRIGHTNESS = "brightness",
   COLOR_TEMPERATURE = "color_temperature"
-};
+}
 
 /**
  * Light entity commands.
@@ -50,7 +50,7 @@ enum COMMANDS {
   ON = "on",
   OFF = "off",
   TOGGLE = "toggle"
-};
+}
 
 /**
  * Light entity device classes.
@@ -60,9 +60,9 @@ const DEVICECLASSES: Record<string, any> = {};
 /**
  * Light entity options.
  */
-enum OPTIONS { 
-  COLOR_TEMPERATURE_STEPS = "color_temperature_steps" 
-};
+enum OPTIONS {
+  COLOR_TEMPERATURE_STEPS = "color_temperature_steps"
+}
 
 interface LightParams {
   features?: string[];
@@ -90,7 +90,7 @@ class Light extends Entity {
   constructor(
     id: string,
     name: string | Map<string, string> | Record<string, string>,
-    { features = [], attributes = {}, deviceClass, options = null, area}: LightParams = {}
+    { features = [], attributes = {}, deviceClass, options = null, area }: LightParams = {}
   ) {
     super(id, toLanguageObject(name), ENTITYTYPES.LIGHT, { features, attributes, deviceClass, options, area });
 
@@ -99,4 +99,4 @@ class Light extends Entity {
 }
 
 export default Light;
-export { STATES, FEATURES, ATTRIBUTES, COMMANDS, DEVICECLASSES, OPTIONS};
+export { STATES, FEATURES, ATTRIBUTES, COMMANDS, DEVICECLASSES, OPTIONS };

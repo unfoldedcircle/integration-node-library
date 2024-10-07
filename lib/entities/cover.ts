@@ -6,7 +6,7 @@
  * @license Apache License 2.0, see LICENSE for more details.
  */
 
-import { TYPES as ENTITYTYPES } from './entity';
+import { TYPES as ENTITYTYPES } from "./entity";
 import Entity from "./entity";
 import log from "../loggers";
 
@@ -17,7 +17,7 @@ enum STATES {
   OPENING = "OPENING",
   OPEN = "OPEN",
   CLOSING = "CLOSING",
-  CLOSED = "CLOSED",
+  CLOSED = "CLOSED"
 }
 
 // Cover entity features
@@ -28,14 +28,14 @@ enum FEATURES {
   POSITION = "position",
   TILT = "tilt",
   TILT_STOP = "tilt_stop",
-  TILT_POSITION = "tilt_position",
+  TILT_POSITION = "tilt_position"
 }
 
 // Cover entity attributes
 enum ATTRIBUTES {
   STATE = "state",
   POSITION = "position",
-  TILT_POSITION = "tilt_position",
+  TILT_POSITION = "tilt_position"
 }
 
 // Cover entity commands
@@ -47,7 +47,7 @@ enum COMMANDS {
   TILT = "tilt",
   TILT_UP = "tilt_up",
   TILT_DOWN = "tilt_down",
-  TILT_STOP = "tilt_stop",
+  TILT_STOP = "tilt_stop"
 }
 
 // Cover entity device classes
@@ -58,7 +58,7 @@ enum DEVICECLASSES {
   SHADE = "shade",
   DOOR = "door",
   GATE = "gate",
-  WINDOW = "window",
+  WINDOW = "window"
 }
 
 // Cover entity options

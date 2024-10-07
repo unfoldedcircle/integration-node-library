@@ -6,17 +6,16 @@ import fs from "fs";
 import { createSendCmd, createSequenceCmd } from "../../lib/entities/remote";
 import { Entity, Remote } from "../../lib/entities/entities";
 
-import { 
-  COMMANDS as REMOTECOMMANDS, 
-  STATES as REMOTESTATES, 
+import {
+  COMMANDS as REMOTECOMMANDS,
+  STATES as REMOTESTATES,
   ATTRIBUTES as REMOTEATTRIBUTES,
   FEATURES as REMOTEFEATURES
-}  
-from "../../lib/entities/remote";
+} from "../../lib/entities/remote";
 
 import { STATUS_CODES } from "http";
 import { BUTTONS, createBtnMapping, UiPage, createUiText, createUiIcon, Size } from "../../lib/entities/ui";
-import { DEVICE_STATES, EVENTS as API_EVENTS } from '../../lib/api_definitions';
+import { DEVICE_STATES, EVENTS as API_EVENTS } from "../../lib/api_definitions";
 import { STATES as MEDIAPLAYERSTATES, ATTRIBUTES as MEDIAPLAYERATTRIBUTES } from "../../lib/entities/media_player";
 
 // Simple commands supported by this example remote entity
@@ -37,7 +36,7 @@ const supportedCommands: string[] = [
   "PLAY",
   "PAUSE",
   "FORWARD",
-  "RECORD",
+  "RECORD"
 ];
 
 // Command handler interface
@@ -71,10 +70,7 @@ const cmdHandler = async (entity: Entity, cmdId: string, params: CmdParams = {})
       state = REMOTESTATES.OFF;
       break;
     case REMOTECOMMANDS.TOGGLE:
-      state =
-        entity.attributes[REMOTEATTRIBUTES.STATE] === REMOTESTATES.OFF
-          ? REMOTESTATES.ON
-          : REMOTESTATES.OFF;
+      state = entity.attributes[REMOTEATTRIBUTES.STATE] === REMOTESTATES.OFF ? REMOTESTATES.ON : REMOTESTATES.OFF;
       break;
     case REMOTECOMMANDS.SEND_CMD: {
       const command = params.command ?? "";
@@ -102,7 +98,7 @@ const cmdHandler = async (entity: Entity, cmdId: string, params: CmdParams = {})
 
   if (state) {
     const newState: Record<string, string> = {
-      [REMOTEATTRIBUTES.STATE]: state,
+      [REMOTEATTRIBUTES.STATE]: state
     };
     uc.getConfiguredEntities().updateEntityAttributes(entity.id, newState);
   }
@@ -134,7 +130,7 @@ const createButtonMappings = (): Array<any> => {
       BUTTONS.BLUE,
       createSequenceCmd(["CURSOR_UP", "CURSOR_RIGHT", "CURSOR_DOWN", "CURSOR_LEFT"], { delay: 200 })
     ),
-    { button: "POWER", short_press: { cmd_id: "remote.toggle" } },
+    { button: "POWER", short_press: { cmd_id: "remote.toggle" } }
   ];
 };
 
@@ -152,9 +148,7 @@ const createUi = (): Array<UiPage> => {
   uiPage1.add(createUiText("Ok", 2, 3, "CURSOR_ENTER"));
 
   const uiPage2 = new UiPage("page2", "Page 2");
-  uiPage2.add(
-    createUiText("Pump up the volume!", 0, 0, createSendCmd("VOLUME_UP", { repeat: 5 }), new Size(4, 2))
-  );
+  uiPage2.add(createUiText("Pump up the volume!", 0, 0, createSendCmd("VOLUME_UP", { repeat: 5 }), new Size(4, 2)));
   uiPage2.add(
     createUiText(
       "Test sequence",
@@ -177,7 +171,7 @@ const entity = new Remote("remote1", "Demo remote", {
   simpleCommands: supportedCommands,
   buttonMapping: createButtonMappings(),
   uiPages: createUi(),
-  cmdHandler,
+  cmdHandler
 });
 
 uc.addEntity(entity);

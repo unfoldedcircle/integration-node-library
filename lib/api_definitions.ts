@@ -11,7 +11,7 @@ enum DEVICE_STATES {
   CONNECTING = "CONNECTING",
   DISCONNECTED = "DISCONNECTED",
   ERROR = "ERROR"
-};
+}
 
 // Define status codes
 enum STATUS_CODES {
@@ -24,7 +24,7 @@ enum STATUS_CODES {
   SERVER_ERROR = 500,
   NOT_IMPLEMENTED = 501,
   SERVICE_UNAVAILABLE = 503
-};
+}
 
 // Define request/response messages
 enum MESSAGES {
@@ -39,7 +39,7 @@ enum MESSAGES {
   GET_DRIVER_METADATA = "get_driver_metadata",
   SETUP_DRIVER = "setup_driver",
   SET_DRIVER_USER_DATA = "set_driver_user_data"
-};
+}
 
 // Define event messages
 enum MSG_EVENTS {
@@ -55,8 +55,7 @@ enum MSG_EVENTS {
   DRIVER_METADATA = "driver_metadata",
   DRIVER_SETUP_CHANGE = "driver_setup_change",
   ABORT_DRIVER_SETUP = "abort_driver_setup"
-};
-
+}
 
 enum EVENTS {
   ENTITY_COMMAND = "entity_command",
@@ -77,7 +76,7 @@ enum EVENTS {
 enum EVENT_CATEGORY {
   DEVICE = "DEVICE",
   ENTITY = "ENTITY"
-};
+}
 
 /**
  * More detailed error reason for `state: ERROR` condition.
@@ -88,7 +87,7 @@ enum INTEGRATION_SETUP_ERROR {
   CONNECTION_REFUSED = "CONNECTION_REFUSED",
   AUTHORIZATION_ERROR = "AUTHORIZATION_ERROR",
   TIMEOUT = "TIMEOUT",
-  OTHER = "OTHER",
+  OTHER = "OTHER"
 }
 
 /**
@@ -121,7 +120,7 @@ class SetupDriver {
  * - `RequestUserConfirmation`: request a user confirmation
  * - `SetupComplete` finishes the setup process and the UC Remote creates an integration instance.
  * - `SetupError` aborts the setup process.
-*/
+ */
 class DriverSetupRequest extends SetupDriver {
   reconfigure: boolean;
   setupData: { [key: string]: string };
@@ -135,7 +134,7 @@ class DriverSetupRequest extends SetupDriver {
 
 /**
  * Provide requested driver setup data to the integration driver in a setup process.
-*/
+ */
 class UserDataResponse extends SetupDriver {
   inputValues: { [key: string]: string };
 
@@ -169,14 +168,12 @@ class AbortDriverSetup extends SetupDriver {
   }
 }
 
-
 /**
  * Setup action response base class.
  */
 class SetupAction {
   // Base class logic here
 }
-
 
 /**
  * Setup action to request user input.
@@ -185,7 +182,10 @@ class RequestUserInput extends SetupAction {
   title: string | Map<string, string> | { [key: string]: string };
   settings: Array<{ [key: string]: any }>;
 
-  constructor(title: string | Map<string, string> | { [key: string]: string }, settings: Array<{ [key: string]: any }>) {
+  constructor(
+    title: string | Map<string, string> | { [key: string]: string },
+    settings: Array<{ [key: string]: any }>
+  ) {
     super();
     this.title = title;
     this.settings = settings;
@@ -200,14 +200,19 @@ class RequestUserInput extends SetupAction {
  * @param {string | Map<string, string>|Object.<string, string> | null} header Optional header text.
  * @param {string | null} image Optional base64 encoded image which will be shown between the header and footer texts.
  * @param {string | Map<string, string>|Object.<string, string> | null} footer Optional footer text.
-*/
+ */
 class RequestUserConfirmation extends SetupAction {
   title: string | Map<string, string> | { [key: string]: string };
   header?: string | Map<string, string> | { [key: string]: string };
   image?: string;
   footer?: string | Map<string, string> | { [key: string]: string };
 
-  constructor(title: string | Map<string, string> | { [key: string]: string }, header?: string | Map<string, string> | { [key: string]: string }, image?: string, footer?: string | Map<string, string> | { [key: string]: string }) {
+  constructor(
+    title: string | Map<string, string> | { [key: string]: string },
+    header?: string | Map<string, string> | { [key: string]: string },
+    image?: string,
+    footer?: string | Map<string, string> | { [key: string]: string }
+  ) {
     super();
     this.title = title;
     this.header = header;
@@ -249,10 +254,10 @@ export const setup = {
 };
 
 export {
-  DEVICE_STATES, 
-  STATUS_CODES, 
-  MESSAGES, 
-  MSG_EVENTS, 
+  DEVICE_STATES,
+  STATUS_CODES,
+  MESSAGES,
+  MSG_EVENTS,
   EVENTS,
   EVENT_CATEGORY,
   INTEGRATION_SETUP_ERROR,

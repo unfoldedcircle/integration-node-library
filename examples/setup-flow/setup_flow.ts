@@ -7,11 +7,11 @@
 import uc from "../../index";
 import Button from "../../lib/entities/button";
 import { STATUS_CODES } from "http";
-import { DEVICE_STATES, EVENTS as API_EVENTS, setup } from '../../lib/api_definitions';
+import { DEVICE_STATES, EVENTS as API_EVENTS, setup } from "../../lib/api_definitions";
 import { Entity, Remote } from "../../lib/entities/entities";
 
 const { SetupDriver, SetupError, RequestUserInput, SetupComplete } = setup;
-import { DriverSetupRequest, UserDataResponse, SetupAction } from '../../lib/api_definitions';
+import { DriverSetupRequest, UserDataResponse, SetupAction } from "../../lib/api_definitions";
 
 /**
  * Dispatch driver setup requests to corresponding handlers.
@@ -158,7 +158,7 @@ async function handleUserDataResponse(msg: UserDataResponse): Promise<SetupActio
  * @param {Object<string, *>} _params optional command parameters (not used for buttons)
  * @return {Promise<string>} status of the command
  */
-async function cmdHandler(entity: Entity, cmdId: string, _params?: { [s: string]: any; }): Promise<string> {
+async function cmdHandler(entity: Entity, cmdId: string, _params?: { [s: string]: any }): Promise<string> {
   console.log("Got %s command request: %s", entity.id, cmdId);
 
   return STATUS_CODES.OK ?? "OK";
@@ -169,4 +169,4 @@ uc.on(API_EVENTS.CONNECT, async () => {
   await uc.setDeviceState(DEVICE_STATES.CONNECTED);
 });
 
-uc.init("setup_flow.json", driverSetupHandler );
+uc.init("setup_flow.json", driverSetupHandler);

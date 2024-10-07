@@ -6,7 +6,7 @@
  * @license Apache License 2.0, see LICENSE for more details.
  */
 
-import { TYPES as ENTITYTYPES } from './entity';
+import { TYPES as ENTITYTYPES } from "./entity";
 import Entity from "./entity";
 import log from "../loggers";
 
@@ -17,7 +17,7 @@ enum STATES {
   UNAVAILABLE = "UNAVAILABLE",
   UNKNOWN = "UNKNOWN",
   ON = "ON"
-};
+}
 
 /**
  * Sensor entity features.
@@ -31,7 +31,7 @@ enum ATTRIBUTES {
   STATE = "state",
   VALUE = "value",
   UNIT = "unit"
-};
+}
 
 /**
  * Sensor entity commands.
@@ -50,7 +50,7 @@ enum DEVICECLASSES {
   POWER = "power",
   TEMPERATURE = "temperature",
   VOLTAGE = "voltage"
-};
+}
 
 /**
  * Sensor entity options.

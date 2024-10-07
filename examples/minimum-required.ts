@@ -1,29 +1,15 @@
 // use package in production
 // const uc = require("uc-integration-api");
 import uc from "../index";
-import Button from "../lib/entities/button";
-import Entity from "../lib/entities/entity";
-import Light from "../lib/entities/light";
 import MediaPlayer from "../lib/entities/media_player";
-import { 
+import {
   FEATURES as MEDIAPLAYER_FEATURES,
   ATTRIBUTES as MEDIAPLAYER_ATTRIBUTES,
-  STATES as MEDIAPLAYER_STATES,
-  DEVICECLASSES as MEDIAPLAYER_DEVICECLASSES
- } from "../lib/entities/media_player";
-
-import {COMMANDS as BUTTONCOMMANDS} from "../lib/entities/button";
+  STATES as MEDIAPLAYER_STATES
+} from "../lib/entities/media_player";
 import { STATUS_CODES } from "http";
-import { DEVICE_STATES, EVENTS as API_EVENTS, setup } from '../lib/api_definitions';
+import { DEVICE_STATES, EVENTS as API_EVENTS } from "../lib/api_definitions";
 import { CommandHandler } from "../lib/entities/entity";
-
-import { 
-  COMMANDS as LIGHT_COMMANDS, 
-  STATES as LIGHT_STATES, 
-  ATTRIBUTES as LIGHT_ATTRIBUTES,
-  FEATURES as LIGHT_FEATURES
-} from "../lib/entities/light";
-
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 // Handling events
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -75,11 +61,7 @@ uc.on(API_EVENTS.UNSUBSCRIBE_ENTITIES, async (entityIds) => {
  * @param {Object<string, *>} params optional command parameters
  * @return {Promise<string>} status of the command
  */
-const cmdHandler: CommandHandler = async function (
-  entity,
-  cmdId,
-  params
-): Promise<string> {
+const cmdHandler: CommandHandler = async function (entity, cmdId, params): Promise<string> {
   console.log("Got %s command request: %s", entity.id, cmdId, params || "");
 
   // handle entity commands here
@@ -92,7 +74,7 @@ const cmdHandler: CommandHandler = async function (
   // you need to acknowledge if the command was successfully executed with STATUS_CODES.OK
   // or an error code
   return STATUS_CODES.NOT_IMPLEMENTED ?? "NOT_IMPLEMENTED";
-}
+};
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 // Providing Available entities
@@ -133,10 +115,7 @@ const attributes = new Map([]);
 uc.updateEntityAttributes(entityId, attributes);
 
 // for example to update a state fo a media player:
-uc.updateEntityAttributes(
-  entityId,
-  new Map([[MEDIAPLAYER_ATTRIBUTES.STATE, MEDIAPLAYER_STATES.PLAYING]])
-);
+uc.updateEntityAttributes(entityId, new Map([[MEDIAPLAYER_ATTRIBUTES.STATE, MEDIAPLAYER_STATES.PLAYING]]));
 
 // or multiple attributes at the same time
 uc.updateEntityAttributes(

@@ -1,0 +1,17 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "type": "node",
+        "request": "launch",
+        "name": "Debug Light.js",
+        "program": "${workspaceFolder}/dist/examples/simulated-light/light.js",
+        "runtimeExecutable": "C:\\Program Files\\nodejs\\node.exe",
+        "env": {
+          "DEBUG": "*"
+        },
+        "console": "integratedTerminal"
+      }
+    ]
+  }
+  

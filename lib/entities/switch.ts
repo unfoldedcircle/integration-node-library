@@ -6,7 +6,7 @@
  * @license Apache License 2.0, see LICENSE for more details.
  */
 
-import { TYPES as ENTITYTYPES } from './entity';
+import { TYPES as ENTITYTYPES } from "./entity";
 import Entity from "./entity";
 import log from "../loggers";
 
@@ -15,36 +15,36 @@ enum STATES {
   UNAVAILABLE = "UNAVAILABLE",
   UNKNOWN = "UNKNOWN",
   ON = "ON",
-  OFF = "OFF",
+  OFF = "OFF"
 }
 
 // Switch entity features
 enum FEATURES {
   ON_OFF = "on_off",
-  TOGGLE = "toggle",
+  TOGGLE = "toggle"
 }
 
 // Switch entity attributes
 enum ATTRIBUTES {
-  STATE = "state",
+  STATE = "state"
 }
 
 // Switch entity commands
 enum COMMANDS {
   ON = "on",
   OFF = "off",
-  TOGGLE = "toggle",
+  TOGGLE = "toggle"
 }
 
 // Switch entity device classes
 enum DEVICECLASSES {
   OUTLET = "outlet",
-  SWITCH = "switch",
+  SWITCH = "switch"
 }
 
 // Switch entity options
 enum OPTIONS {
-  READABLE = "readable",
+  READABLE = "readable"
 }
 
 // Define types for the parameters in the constructor

@@ -1,6 +1,5 @@
 import test from "ava";
-import Button from "../lib/entities/button";
-import { STATES} from "../lib/entities/button";
+import Button, { STATES } from "../lib/entities/button";
 
 test("Button constructor without parameter object creates default Button class", (t) => {
   const entity = new Button("test", "Test Button");

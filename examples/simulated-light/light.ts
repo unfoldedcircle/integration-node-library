@@ -1,26 +1,27 @@
 // use package in production
 // const uc = require("uc-integration-api");
-uc.init("light-driver.json");
+//uc.init("light-driver.json");
 
 import uc from "../../index";
+uc.init("light-driver.json");
 import Button from "../../lib/entities/button";
 import Light from "../../lib/entities/light";
 import MediaPlayer from "../../lib/entities/media_player";
-import { 
+import {
   FEATURES as MEDIAPLAYER_FEATURES,
   ATTRIBUTES as MEDIAPLAYER_ATTRIBUTES,
   STATES as MEDIAPLAYER_STATES,
   DEVICECLASSES as MEDIAPLAYER_DEVICECLASSES
- } from "../../lib/entities/media_player";
+} from "../../lib/entities/media_player";
 
-import {COMMANDS as BUTTONCOMMANDS} from "../../lib/entities/button";
+import { COMMANDS as BUTTONCOMMANDS } from "../../lib/entities/button";
 import { STATUS_CODES } from "http";
-import { DEVICE_STATES, EVENTS as API_EVENTS, setup } from '../../lib/api_definitions';
+import { DEVICE_STATES, EVENTS as API_EVENTS, setup } from "../../lib/api_definitions";
 import { CommandHandler } from "../../lib/entities/entity";
 
-import { 
-  COMMANDS as LIGHT_COMMANDS, 
-  STATES as LIGHT_STATES, 
+import {
+  COMMANDS as LIGHT_COMMANDS,
+  STATES as LIGHT_STATES,
   ATTRIBUTES as LIGHT_ATTRIBUTES,
   FEATURES as LIGHT_FEATURES
 } from "../../lib/entities/light";
@@ -38,7 +39,7 @@ uc.on(API_EVENTS.SUBSCRIBE_ENTITIES, async (entityIds) => {
   // the UC library automatically adds the subscribed entities
   // from available to configured
   // you can act on this event if you need for your device handling
-  entityIds.forEach((entityId : string) => {
+  entityIds.forEach((entityId: string) => {
     console.log(`Subscribed entity: ${entityId}`);
   });
 });
@@ -48,7 +49,7 @@ uc.on(API_EVENTS.UNSUBSCRIBE_ENTITIES, async (entityIds) => {
   // the UC library automatically remove the unsubscribed entities
   // from configured
   // you can act on this event if you need for your device handling
-  entityIds.forEach((entityId : string) => {
+  entityIds.forEach((entityId: string) => {
     console.log(`Unsubscribed entity: ${entityId}`);
   });
 });
@@ -63,13 +64,9 @@ uc.on(API_EVENTS.UNSUBSCRIBE_ENTITIES, async (entityIds) => {
  * @param {Object<string, *>} params optional command parameters
  * @return {Promise<string>} status of the command
  */
-const sharedCmdHandler : CommandHandler = async function (
-  entity,
-  cmdId,
-  params
-): Promise<string> {
-   // let's add some hacky action to the button!
-   if (entity.id === "my_button" && cmdId === BUTTONCOMMANDS.PUSH) {
+const sharedCmdHandler: CommandHandler = async function (entity, cmdId, params): Promise<string> {
+  // let's add some hacky action to the button!
+  if (entity.id === "my_button" && cmdId === BUTTONCOMMANDS.PUSH) {
     console.log("Got %s push request: toggling light", entity.id);
     // trigger a light command
     const lightEntity = uc.getConfiguredEntities().getEntity("my_unique_light_id");
@@ -88,7 +85,7 @@ const sharedCmdHandler : CommandHandler = async function (
   console.log("Got %s command request: %s", entity.id, cmdId);
 
   return STATUS_CODES.OK ?? "OK";
-}
+};
 
 /**
  * Dedicated light entity command handler.
@@ -100,11 +97,7 @@ const sharedCmdHandler : CommandHandler = async function (
  * @param {?Object<string, *>} params optional command parameters
  * @return {Promise<string>} status of the command
  */
-const lightCmdHandler: CommandHandler = async function (
-  entity,
-  cmdId,
-  params
-): Promise<string> {
+const lightCmdHandler: CommandHandler = async function (entity, cmdId, params): Promise<string> {
   console.log("Got %s command request: %s", entity.id, cmdId);
 
   // in this example we just update the entity, but in reality, you'd turn on the light with your integration
@@ -158,7 +151,7 @@ const lightCmdHandler: CommandHandler = async function (
   }
 
   return STATUS_CODES.OK ?? "OK";
-}
+};
 
 // create a light entity
 // normally you'd create this where your driver exposed the available entities

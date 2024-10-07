@@ -29,7 +29,7 @@ enum BUTTONS {
   PREV = "PREV",
   PLAY = "PLAY",
   NEXT = "NEXT",
-  POWER = "POWER",
+  POWER = "POWER"
 }
 
 // Remote command definition for a button mapping or UI page definition.
@@ -149,13 +149,7 @@ class UiItem {
  * @returns the created UiItem
  * @throws AssertionError if invalid parameters are specified.
  */
-function createUiText(
-  text: string,
-  x: number,
-  y: number,
-  command?: string | EntityCommand,
-  size?: Size
-): UiItem {
+function createUiText(text: string, x: number, y: number, command?: string | EntityCommand, size?: Size): UiItem {
   if (typeof command === "string") {
     command = new EntityCommand(command);
   }
@@ -172,13 +166,7 @@ function createUiText(
  * @returns the created UiItem
  * @throws AssertionError if invalid parameters are specified.
  */
-function createUiIcon(
-  icon: string,
-  x: number,
-  y: number,
-  command?: string | EntityCommand,
-  size?: Size
-): UiItem {
+function createUiIcon(icon: string, x: number, y: number, command?: string | EntityCommand, size?: Size): UiItem {
   if (typeof command === "string") {
     command = new EntityCommand(command);
   }
@@ -218,5 +206,5 @@ export {
   UiItem,
   createUiText,
   createUiIcon,
-  UiPage,
+  UiPage
 };

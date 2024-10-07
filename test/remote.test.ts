@@ -1,9 +1,8 @@
 import test from "ava";
-import { createSequenceCmd, createSendCmd } from "../lib/entities/remote";
+import { createSequenceCmd, createSendCmd, FEATURES, STATES, ATTRIBUTES } from "../lib/entities/remote";
 import { EntityCommand } from "../lib/entities/ui";
 import { AssertionError } from "node:assert";
 import { Remote } from "../lib/entities/entities";
-import { FEATURES, STATES, ATTRIBUTES } from "../lib/entities/remote";
 
 test("createSequenceCmd with an undefined sequence throws an assert", (t) => {
   t.throws(
@@ -22,7 +21,6 @@ test("createSequenceCmd with an empty sequence array throws an assert", (t) => {
     { instanceOf: AssertionError }
   );
 });
-
 
 test("createSequenceCmd without optional params doesn't include fields", (t) => {
   const result = createSequenceCmd(["foo", "bar"]);

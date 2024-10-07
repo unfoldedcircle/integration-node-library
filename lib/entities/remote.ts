@@ -6,7 +6,7 @@
  * @license Apache License 2.0, see LICENSE for more details.
  */
 
-import { TYPES as ENTITYTYPES } from './entity';
+import { TYPES as ENTITYTYPES } from "./entity";
 import { EntityCommand } from "./ui";
 import Entity from "./entity";
 import log from "../loggers";
@@ -20,7 +20,7 @@ interface RemoteParams {
   uiPages?: Array<Record<string, any>>; // Adjust type if more specific type available
   area?: string;
   cmdHandler?: (entity: Entity, command: string, params?: Record<string, any>) => Promise<string>;
-};
+}
 
 /**
  * Remote entity states.
@@ -30,7 +30,7 @@ enum STATES {
   UNKNOWN = "UNKNOWN",
   ON = "ON",
   OFF = "OFF"
-};
+}
 
 /**
  * Remote-entity features.
@@ -39,14 +39,14 @@ enum FEATURES {
   ON_OFF = "on_off",
   TOGGLE = "toggle",
   SEND_CMD = "send_cmd"
-};
+}
 
 /**
  * Remote-entity attributes.
  */
 enum ATTRIBUTES {
   STATE = "state"
-};
+}
 
 /**
  * Remote-entity commands.
@@ -57,7 +57,7 @@ enum COMMANDS {
   TOGGLE = "toggle",
   SEND_CMD = "send_cmd",
   SEND_CMD_SEQUENCE = "send_cmd_sequence"
-};
+}
 
 /**
  * Remote-entity options.
@@ -66,7 +66,7 @@ enum OPTIONS {
   SIMPLE_COMMANDS = "simple_commands",
   BUTTON_MAPPING = "button_mapping",
   USER_INTERFACE = "user_interface"
-};
+}
 
 /**
  * Create a remote-entity send command.
@@ -78,9 +78,12 @@ enum OPTIONS {
  * @return EntityCommand the created EntityCommand.
  * @throws AssertionError if command is not specified or is empty.
  */
-function createSendCmd(command: string | undefined, { delay, repeat, hold }: { delay?: number; repeat?: number; hold?: number } = {}): EntityCommand {
+function createSendCmd(
+  command: string | undefined,
+  { delay, repeat, hold }: { delay?: number; repeat?: number; hold?: number } = {}
+): EntityCommand {
   assert(command && typeof command === "string" && command.length > 0, "command must be a string and may not be empty");
-  
+
   const params: Record<string, any> = { command };
   if (typeof delay === "number") {
     params.delay = delay;
@@ -91,7 +94,7 @@ function createSendCmd(command: string | undefined, { delay, repeat, hold }: { d
   if (typeof hold === "number") {
     params.hold = hold;
   }
-  
+
   return new EntityCommand(COMMANDS.SEND_CMD, params);
 }
 
@@ -104,9 +107,15 @@ function createSendCmd(command: string | undefined, { delay, repeat, hold }: { d
  * @return EntityCommand the created EntityCommand.
  * @throws AssertionError if sequence is not specified or doesn't contain at least one command.
  */
-function createSequenceCmd(sequence: string[] | undefined, { delay, repeat }: { delay?: number; repeat?: number } = {}): EntityCommand {
-  assert(sequence && Array.isArray(sequence) && sequence.length > 0, "sequence array must be specified and contain at least one command");
-  
+function createSequenceCmd(
+  sequence: string[] | undefined,
+  { delay, repeat }: { delay?: number; repeat?: number } = {}
+): EntityCommand {
+  assert(
+    sequence && Array.isArray(sequence) && sequence.length > 0,
+    "sequence array must be specified and contain at least one command"
+  );
+
   const params: Record<string, any> = { sequence };
   if (typeof delay === "number") {
     params.delay = delay;
@@ -114,7 +123,7 @@ function createSequenceCmd(sequence: string[] | undefined, { delay, repeat }: { 
   if (typeof repeat === "number") {
     params.repeat = repeat;
   }
-  
+
   return new EntityCommand(COMMANDS.SEND_CMD_SEQUENCE, params);
 }
 
@@ -142,7 +151,7 @@ class Remote extends Entity {
     if (uiPages) {
       options[OPTIONS.USER_INTERFACE] = { pages: uiPages };
     }
-    
+
     super(id, name, ENTITYTYPES.REMOTE, { features, attributes, options, area, cmdHandler });
 
     log.debug(`Remote entity created with id: ${this.id}`);

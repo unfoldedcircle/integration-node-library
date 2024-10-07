@@ -61,14 +61,7 @@ class Entity {
     id: string,
     name: string | Map<string, string> | Record<string, string>,
     entityType: string,
-    {
-      features = [],
-      attributes = {},
-      deviceClass,
-      options = null,
-      area,
-      cmdHandler = null
-    }: EntityParams = {}
+    { features = [], attributes = {}, deviceClass, options = null, area, cmdHandler = null }: EntityParams = {}
   ) {
     assert(typeof id === "string", "Entity parameter id must be a string");
     this.id = id;
@@ -138,4 +131,4 @@ class Entity {
 }
 
 export default Entity;
-export {TYPES, CommandHandler };
+export { TYPES, CommandHandler };

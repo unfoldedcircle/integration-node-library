@@ -6,9 +6,9 @@
  * @license Apache License 2.0, see LICENSE for more details.
  */
 
-import { TYPES as ENTITYTYPES } from './entity';
+import { TYPES as ENTITYTYPES } from "./entity";
 import Entity from "./entity";
-import log from "../loggers"; 
+import log from "../loggers";
 
 /**
  * Media-player entity states.
@@ -17,7 +17,7 @@ enum STATES {
   UNAVAILABLE = "UNAVAILABLE",
   UNKNOWN = "UNKNOWN",
   ON = "ON",
-  OFF= "OFF",
+  OFF = "OFF",
   PLAYING = "PLAYING",
   PAUSED = "PAUSED",
   STANDBY = "STANDBY",
@@ -68,7 +68,7 @@ enum FEATURES {
   SUBTITLE = "subtitle",
   RECORD = "record",
   SETTINGS = "settings"
-};
+}
 
 /**
  * Media-player entity attributes.
@@ -90,7 +90,7 @@ enum ATTRIBUTES {
   SOURCE_LIST = "source_list",
   SOUND_MODE = "sound_mode",
   SOUND_MODE_LIST = "sound_mode_list"
-};
+}
 
 /**
  * Media-player entity commands.
@@ -152,7 +152,7 @@ enum COMMANDS {
   SUBTITLE = "subtitle",
   SETTINGS = "settings",
   SEARCH = "search"
-};
+}
 
 /**
  * Media-player entity device classes.
@@ -163,7 +163,7 @@ enum DEVICECLASSES {
   SPEAKER = "speaker",
   STREAMING_BOX = "streaming_box",
   TV = "tv"
-};
+}
 
 /**
  * Media-player entity options.
@@ -171,7 +171,7 @@ enum DEVICECLASSES {
 enum OPTIONS {
   SIMPLE_COMMANDS = "simple_commands",
   VOLUME_STEPS = "volume_steps"
-};
+}
 
 /**
  * Media types.
@@ -182,7 +182,7 @@ enum MEDIATYPE {
   TVSHOW = "TVSHOW",
   MOVIE = "MOVIE",
   VIDEO = "VIDEO"
-};
+}
 
 /**
  * Repeat modes.
@@ -191,7 +191,7 @@ enum REPEATMODE {
   OFF = "OFF",
   ALL = "ALL",
   ONE = "ONE"
-};
+}
 
 /**
  * See {@link https://github.com/unfoldedcircle/core-api/blob/main/doc/entities/entity_media_player.md media-player entity documentation}
@@ -219,18 +219,20 @@ class MediaPlayer extends Entity {
    * @param {MediaPlayerParams} [params] Entity parameters.
    * @throws AssertionError if invalid parameters are specified.
    */
-  constructor(id: string, name: string | Map<string, string> | Record<string, string>, 
-  { features, attributes, deviceClass, options, area, cmdHandler }: MediaPlayerParams = {}) {
-
+  constructor(
+    id: string,
+    name: string | Map<string, string> | Record<string, string>,
+    { features, attributes, deviceClass, options, area, cmdHandler }: MediaPlayerParams = {}
+  ) {
     let entityName: string | Map<string, string>;
     if (typeof name === "string") {
-        entityName = name;
+      entityName = name;
     } else if (name instanceof Map) {
-        entityName = name;
+      entityName = name;
     } else {
-        entityName = new Map<string, string>(Object.entries(name));
+      entityName = new Map<string, string>(Object.entries(name));
     }
-    
+
     super(id, entityName, ENTITYTYPES.MEDIA_PLAYER, { features, attributes, deviceClass, options, area, cmdHandler });
 
     log.debug(`MediaPlayer entity created with id: ${this.id}`);

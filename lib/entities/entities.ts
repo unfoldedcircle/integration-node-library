@@ -5,7 +5,7 @@
  * @license Apache License 2.0, see LICENSE for more details.
  */
 
-import { TYPES as ENTITYTYPES } from './entity';
+import { TYPES as ENTITYTYPES } from "./entity";
 import { EventEmitter } from "events";
 import Entity from "./entity";
 import Button from "./button";
@@ -105,7 +105,7 @@ class Entities extends EventEmitter {
         name: value.name,
         area: value.area,
         device_class: value.device_class,
-        options: value.options,
+        options: value.options
       };
 
       entities.push(entity);
@@ -122,7 +122,7 @@ class Entities extends EventEmitter {
         entity_id: value.id,
         entity_type: value.entity_type,
         device_id: value.device_id,
-        attributes: value.attributes,
+        attributes: value.attributes
       };
 
       entities.push(entity);
