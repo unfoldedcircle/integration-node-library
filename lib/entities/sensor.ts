@@ -64,8 +64,8 @@ enum OPTIONS {
 }
 
 interface SensorParams {
-  attributes?: Map<string, any> | Record<string, any>;
-  deviceClass?: string;
+  attributes?: Partial<Record<ATTRIBUTES, STATES | number | boolean | string>>;
+  deviceClass?: DEVICECLASSES;
   options?: Record<string, any>; // Adjust type if more specific type available
   area?: string;
 }

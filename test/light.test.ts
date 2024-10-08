@@ -17,9 +17,13 @@ test("Light constructor without parameter object creates default Light class", (
 });
 
 test("Light constructor with parameter object", (t) => {
+  const attributes: Partial<Record<ATTRIBUTES, STATES | number | string>> = {
+    [ATTRIBUTES.STATE]: STATES.UNAVAILABLE
+  };
+
   const entity = new Light("test", "Test Light", {
     features: [FEATURES.COLOR_TEMPERATURE],
-    attributes: new Map([[ATTRIBUTES.STATE, STATES.UNAVAILABLE]]),
+    attributes,
     options: {},
     area: "Test lab"
   });

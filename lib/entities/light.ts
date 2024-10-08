@@ -6,7 +6,7 @@
  * @license Apache License 2.0, see LICENSE for more details.
  */
 
-import { TYPES as ENTITYTYPES } from "./entity";
+import { CommandHandler, TYPES as ENTITYTYPES } from "./entity";
 import { toLanguageObject } from "../utils";
 import Entity from "./entity";
 import log from "../loggers";
@@ -66,11 +66,11 @@ enum OPTIONS {
 
 interface LightParams {
   features?: string[];
-  attributes?: Map<string, any> | Record<string, any>;
+  attributes?: Partial<Record<ATTRIBUTES, STATES | number | boolean | string>>;
   deviceClass?: string;
   options?: Partial<Record<OPTIONS, any>> | null;
   area?: string;
-  cmdHandler?: (entity: Entity, command: string, params?: Record<string, any>) => Promise<string> | null;
+  cmdHandler?: CommandHandler | null;
 }
 
 /**

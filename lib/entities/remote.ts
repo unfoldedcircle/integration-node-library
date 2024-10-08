@@ -6,7 +6,7 @@
  * @license Apache License 2.0, see LICENSE for more details.
  */
 
-import { TYPES as ENTITYTYPES } from "./entity";
+import { CommandHandler, TYPES as ENTITYTYPES } from "./entity";
 import { EntityCommand } from "./ui";
 import Entity from "./entity";
 import log from "../loggers";
@@ -19,7 +19,7 @@ interface RemoteParams {
   buttonMapping?: Array<Record<string, any>>; // Adjust type if more specific type available
   uiPages?: Array<Record<string, any>>; // Adjust type if more specific type available
   area?: string;
-  cmdHandler?: (entity: Entity, command: string, params?: Record<string, any>) => Promise<string>;
+  cmdHandler?: CommandHandler | null;
 }
 
 /**

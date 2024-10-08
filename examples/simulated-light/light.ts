@@ -171,12 +171,15 @@ const name = new Map([
   ["de", "Mein Lieblingslicht"],
   ["en", "My favorite light"]
 ]);
+
+const attributes: Partial<Record<LIGHT_ATTRIBUTES, LIGHT_STATES | number | string>> = {
+  [LIGHT_ATTRIBUTES.STATE]: LIGHT_STATES.OFF,
+  [LIGHT_ATTRIBUTES.BRIGHTNESS]: "0"
+};
+
 const lightEntity = new Light("my_unique_light_id", name, {
   features: [LIGHT_FEATURES.ON_OFF, LIGHT_FEATURES.DIM],
-  attributes: new Map([
-    [LIGHT_ATTRIBUTES.STATE, LIGHT_STATES.OFF],
-    [LIGHT_ATTRIBUTES.BRIGHTNESS, "0"]
-  ])
+  attributes
 });
 lightEntity.setCmdHandler(lightCmdHandler ?? null);
 
@@ -190,9 +193,9 @@ const buttonEntity = new Button("my_button", "Push the button!", {
 });
 uc.getAvailableEntities().addEntity(buttonEntity);
 
-const defaultAttributes: Partial<Record<ATTRIBUTES, STATES | number>> = {
-  [MEDIAPLAYER_ATTRIBUTES.STATE]: MEDIAPLAYER_STATES.OFF,
-  [MEDIAPLAYER_ATTRIBUTES.VOLUME]: 0
+const defaultAttributes: Partial<Record<ATTRIBUTES, STATES | number | string | string[]>> = {
+  [MEDIAPLAYER_ATTRIBUTES.STATE]: MEDIAPLAYER_STATES.ON,
+  [MEDIAPLAYER_ATTRIBUTES.SOURCE_LIST]: ["Radio", "Streaming", "Favorite 1", "Favorite 2", "Favorite 3"]
 };
 
 // add a media-player entity

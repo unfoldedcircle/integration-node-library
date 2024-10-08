@@ -18,10 +18,16 @@ test("Sensor constructor without parameter object creates default Sensor class",
 });
 
 test("Sensor constructor with parameter object", (t) => {
-  const options: Partial<Record<OPTIONS, any>> = {};
-  options[OPTIONS.MAX_VALUE] = 42;
+  const options: Partial<Record<OPTIONS, any>> = {
+    [OPTIONS.MAX_VALUE]: 42
+  };
+
+  const attributes: Partial<Record<ATTRIBUTES, STATES | number>> = {
+    [ATTRIBUTES.STATE]: STATES.UNAVAILABLE
+  };
+
   const entity = new Sensor("test", "Test Sensor", {
-    attributes: new Map([[ATTRIBUTES.STATE, STATES.UNAVAILABLE]]),
+    attributes,
     options,
     deviceClass: DEVICECLASSES.ENERGY,
     area: "Test lab"
@@ -40,8 +46,14 @@ test("Sensor constructor with parameter object", (t) => {
 });
 
 test("Sensor constructor with Object attributes", (t) => {
+  const attributes: Partial<Record<ATTRIBUTES, STATES | number | string>> = {
+    [ATTRIBUTES.STATE]: STATES.ON,
+    [ATTRIBUTES.VALUE]: 100,
+    [ATTRIBUTES.UNIT]: "%"
+  };
+
   const entity = new Sensor("test", "Test Sensor", {
-    attributes: { state: STATES.ON, value: 100, unit: "%" }
+    attributes
   });
 
   t.is(entity.id, "test");

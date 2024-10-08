@@ -6,7 +6,7 @@
  * @license Apache License 2.0, see LICENSE for more details.
  */
 
-import { TYPES as ENTITYTYPES } from "./entity";
+import { CommandHandler, TYPES as ENTITYTYPES } from "./entity";
 import Entity from "./entity";
 import log from "../loggers";
 
@@ -72,7 +72,7 @@ interface ClimateParams {
   deviceClass?: string;
   options?: Partial<Record<OPTIONS, string>> | null;
   area?: string;
-  cmdHandler?: (entity: Entity, command: string, params?: Record<string, any>) => Promise<string>;
+  cmdHandler?: CommandHandler | null;
 }
 
 class Climate extends Entity {
