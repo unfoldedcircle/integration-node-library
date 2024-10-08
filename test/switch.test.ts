@@ -1,5 +1,5 @@
 import test from "ava";
-import Switch, {SwitchParams} from "../lib/entities/switch";
+import Switch, { SwitchParams } from "../lib/entities/switch";
 import { OPTIONS, FEATURES, ATTRIBUTES, STATES } from "../lib/entities/switch";
 
 test("Switch constructor without parameter object creates default Switch class", (t) => {
@@ -18,10 +18,9 @@ test("Switch constructor without parameter object creates default Switch class",
 });
 
 test("Switch constructor with parameter object", (t) => {
-
   const options: Record<OPTIONS, boolean> = {
     [OPTIONS.READABLE]: true
-  }
+  };
 
   const entity = new Switch("test", "Test Switch", {
     features: [FEATURES.TOGGLE],

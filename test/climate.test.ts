@@ -18,8 +18,9 @@ test("Climate constructor without parameter object creates default Climate class
 });
 
 test("Climate constructor with parameter object", (t) => {
-  const options: Partial<Record<OPTIONS, any>> = {};
-  options[OPTIONS.TEMPERATURE_UNIT] = "C";
+  const options: Partial<Record<OPTIONS, string>> = {
+    [OPTIONS.TEMPERATURE_UNIT]: "C"
+  };
 
   const entity = new Climate("test", "Test Climate", {
     features: [FEATURES.COOL],

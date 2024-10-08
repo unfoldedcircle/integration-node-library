@@ -68,9 +68,9 @@ enum OPTIONS {
 // Define types for the parameters in the constructor
 interface ClimateParams {
   features?: string[];
-  attributes?: Map<string, any> | Record<string, any>;
+  attributes?: Map<ATTRIBUTES, STATES> | {};
   deviceClass?: string;
-  options?: Partial<Record<OPTIONS, any>> | null;
+  options?: Partial<Record<OPTIONS, string>> | null;
   area?: string;
   cmdHandler?: (entity: Entity, command: string, params?: Record<string, any>) => Promise<string>;
 }
