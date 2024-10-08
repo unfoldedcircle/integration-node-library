@@ -18,7 +18,7 @@ test("Sensor constructor without parameter object creates default Sensor class",
 });
 
 test("Sensor constructor with parameter object", (t) => {
-  const options: Partial<Record<OPTIONS, any>> = {
+  const options: Partial<Record<OPTIONS, number>> = {
     [OPTIONS.MAX_VALUE]: 42
   };
 

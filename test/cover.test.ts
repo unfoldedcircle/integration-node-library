@@ -17,9 +17,13 @@ test("Cover constructor without parameter object creates default Cover class", (
 });
 
 test("Cover constructor with parameter object", (t) => {
+  const attributes: Partial<Record<ATTRIBUTES, STATES | number | string>> = {
+    [ATTRIBUTES.STATE]: STATES.UNAVAILABLE
+  };
+
   const entity = new Cover("test", "Test Cover", {
     features: [FEATURES.TILT],
-    attributes: new Map([[ATTRIBUTES.STATE, STATES.UNAVAILABLE]]),
+    attributes,
     options: {},
     area: "Test lab"
   });

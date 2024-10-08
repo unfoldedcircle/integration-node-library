@@ -67,7 +67,7 @@ const OPTIONS = {};
 // Define types for the parameters in the constructor
 interface CoverParams {
   features?: string[];
-  attributes?: Map<string, any> | Record<string, any>;
+  attributes?: Partial<Record<ATTRIBUTES, STATES | number | boolean | string>>;
   deviceClass?: string;
   options?: Record<string, any> | null;
   area?: string;

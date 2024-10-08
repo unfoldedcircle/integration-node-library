@@ -104,7 +104,6 @@ test("Remote constructor without parameter object creates default remote class",
 });
 
 test("Remote constructor with parameter object", (t) => {
-
   const attributes: Partial<Record<ATTRIBUTES, STATES>> = {
     [ATTRIBUTES.STATE]: STATES.ON
   };

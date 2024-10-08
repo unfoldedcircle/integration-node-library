@@ -7,7 +7,7 @@
  */
 
 import { CommandHandler, TYPES as ENTITYTYPES } from "./entity";
-import { EntityCommand } from "./ui";
+import { DeviceButtonMapping, EntityCommand, UiPage } from "./ui";
 import Entity from "./entity";
 import log from "../loggers";
 import assert from "node:assert";
@@ -16,8 +16,8 @@ interface RemoteParams {
   features?: string[];
   attributes?: Partial<Record<ATTRIBUTES, STATES>>;
   simpleCommands?: string[];
-  buttonMapping?: Array<Record<string, any>>; // Adjust type if more specific type available
-  uiPages?: Array<Record<string, any>>; // Adjust type if more specific type available
+  buttonMapping?: Array<DeviceButtonMapping>;
+  uiPages?: Array<UiPage>;
   area?: string;
   cmdHandler?: CommandHandler | null;
 }
@@ -84,7 +84,7 @@ function createSendCmd(
 ): EntityCommand {
   assert(command && typeof command === "string" && command.length > 0, "command must be a string and may not be empty");
 
-  const params: Record<string, any> = { command };
+  const params: Record<string, string | number> = { command };
   if (typeof delay === "number") {
     params.delay = delay;
   }
@@ -116,7 +116,7 @@ function createSequenceCmd(
     "sequence array must be specified and contain at least one command"
   );
 
-  const params: Record<string, any> = { sequence };
+  const params: Record<string, string[] | number> = { sequence };
   if (typeof delay === "number") {
     params.delay = delay;
   }
@@ -125,6 +125,14 @@ function createSequenceCmd(
   }
 
   return new EntityCommand(COMMANDS.SEND_CMD_SEQUENCE, params);
+}
+
+interface Options {
+  [OPTIONS.SIMPLE_COMMANDS]?: string[];
+  [OPTIONS.BUTTON_MAPPING]?: DeviceButtonMapping[];
+  [OPTIONS.USER_INTERFACE]?: {
+    pages: UiPage[];
+  };
 }
 
 class Remote extends Entity {
@@ -141,7 +149,7 @@ class Remote extends Entity {
     name: string | Map<string, string> | Record<string, string>,
     { features = [], attributes = {}, simpleCommands, buttonMapping, uiPages, area, cmdHandler }: RemoteParams = {}
   ) {
-    const options: Record<string, any> = {};
+    const options: Options = {};
     if (simpleCommands) {
       options[OPTIONS.SIMPLE_COMMANDS] = simpleCommands;
     }

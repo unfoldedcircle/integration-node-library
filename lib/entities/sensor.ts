@@ -22,7 +22,7 @@ enum STATES {
 /**
  * Sensor entity features.
  */
-const FEATURES: Record<string, any> = {};
+const FEATURES: Record<string, boolean> = {};
 
 /**
  * Sensor entity attributes.
@@ -36,7 +36,7 @@ enum ATTRIBUTES {
 /**
  * Sensor entity commands.
  */
-const COMMANDS: Record<string, any> = {};
+const COMMANDS: Record<string, boolean> = {};
 
 /**
  * Sensor entity device classes.
@@ -66,7 +66,7 @@ enum OPTIONS {
 interface SensorParams {
   attributes?: Partial<Record<ATTRIBUTES, STATES | number | boolean | string>>;
   deviceClass?: DEVICECLASSES;
-  options?: Record<string, any>; // Adjust type if more specific type available
+  options?: Partial<Record<OPTIONS, number | string | boolean>> | null;
   area?: string;
 }
 

@@ -68,7 +68,7 @@ interface LightParams {
   features?: string[];
   attributes?: Partial<Record<ATTRIBUTES, STATES | number | boolean | string>>;
   deviceClass?: string;
-  options?: Partial<Record<OPTIONS, any>> | null;
+  options?: Partial<Record<OPTIONS, number | string | boolean>> | null;
   area?: string;
   cmdHandler?: CommandHandler | null;
 }
