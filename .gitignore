@@ -105,3 +105,6 @@ dist
 lib/.DS_Store
 .DS_Store
 configured.json
+
+# VS code folder
+.vscode/
