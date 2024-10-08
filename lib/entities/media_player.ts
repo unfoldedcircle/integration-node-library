@@ -202,9 +202,9 @@ type CmdHandler = (entity: Entity, command: string, options?: Record<string, unk
 
 interface MediaPlayerParams {
   features?: string[];
-  attributes?: Map<string, string> | Record<string, string>;
+  attributes?: Partial<Record<ATTRIBUTES, STATES | number | boolean>>;
   deviceClass?: string;
-  options?: Partial<Record<OPTIONS, any>> | null;
+  options?: Partial<Record<OPTIONS, number | boolean>> | null;
   area?: string;
   cmdHandler?: CmdHandler;
 }

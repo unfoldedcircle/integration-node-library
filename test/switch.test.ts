@@ -1,5 +1,5 @@
 import test from "ava";
-import Switch, { SwitchParams } from "../lib/entities/switch";
+import Switch from "../lib/entities/switch";
 import { OPTIONS, FEATURES, ATTRIBUTES, STATES } from "../lib/entities/switch";
 
 test("Switch constructor without parameter object creates default Switch class", (t) => {

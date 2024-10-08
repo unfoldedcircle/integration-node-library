@@ -1,7 +1,7 @@
 // use package in production
 // const uc = require("uc-integration-api");
 import uc from "../index";
-import MediaPlayer from "../lib/entities/media_player";
+import MediaPlayer, { ATTRIBUTES, STATES } from "../lib/entities/media_player";
 import {
   FEATURES as MEDIAPLAYER_FEATURES,
   ATTRIBUTES as MEDIAPLAYER_ATTRIBUTES,
@@ -89,6 +89,11 @@ const entityId = "unique-id-inside-integration";
 // The entity name can either be string (which will be mapped to english), or a Map with multiple language entries.
 const entityName = "My entity";
 
+const defaultAttributes: Partial<Record<ATTRIBUTES, STATES | number>> = {
+  [MEDIAPLAYER_ATTRIBUTES.STATE]: MEDIAPLAYER_STATES.OFF,
+  [MEDIAPLAYER_ATTRIBUTES.VOLUME]: 0
+};
+
 const entity = new MediaPlayer(
   // entity id has to be unique, you can provide it or use uc.Entities.generateId()
   entityId,
@@ -98,10 +103,7 @@ const entity = new MediaPlayer(
     // define features in an array. Use the pre-defined object to choose features from
     features: [MEDIAPLAYER_FEATURES.ON_OFF, MEDIAPLAYER_FEATURES.VOLUME],
     // define default attributes for the entity. Use the pre-defined object to choose attributes from
-    attributes: new Map([
-      [MEDIAPLAYER_ATTRIBUTES.STATE, MEDIAPLAYER_STATES.OFF],
-      [MEDIAPLAYER_ATTRIBUTES.VOLUME, "0"]
-    ]),
+    attributes: defaultAttributes,
     cmdHandler
   }
 );

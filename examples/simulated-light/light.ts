@@ -17,7 +17,7 @@ if (fs.existsSync(initFilePath)) {
 
 import Button from "../../lib/entities/button";
 import Light from "../../lib/entities/light";
-import MediaPlayer from "../../lib/entities/media_player";
+import MediaPlayer, { ATTRIBUTES, STATES } from "../../lib/entities/media_player";
 import {
   FEATURES as MEDIAPLAYER_FEATURES,
   ATTRIBUTES as MEDIAPLAYER_ATTRIBUTES,
@@ -190,6 +190,11 @@ const buttonEntity = new Button("my_button", "Push the button!", {
 });
 uc.getAvailableEntities().addEntity(buttonEntity);
 
+const defaultAttributes: Partial<Record<ATTRIBUTES, STATES | number>> = {
+  [MEDIAPLAYER_ATTRIBUTES.STATE]: MEDIAPLAYER_STATES.OFF,
+  [MEDIAPLAYER_ATTRIBUTES.VOLUME]: 0
+};
+
 // add a media-player entity
 const mediaPlayerEntity = new MediaPlayer("test_mediaplayer", new Map([["en", "Foobar MediaPlayer"]]), {
   features: [
@@ -202,10 +207,7 @@ const mediaPlayerEntity = new MediaPlayer("test_mediaplayer", new Map([["en", "F
     MEDIAPLAYER_FEATURES.COLOR_BUTTONS,
     MEDIAPLAYER_FEATURES.PLAY_PAUSE
   ],
-  attributes: new Map([
-    [MEDIAPLAYER_ATTRIBUTES.STATE, MEDIAPLAYER_STATES.OFF],
-    [MEDIAPLAYER_ATTRIBUTES.SOURCE_LIST, '["Radio", "Streaming", "Favorite 1", "Favorite 2", "Favorite 3"]']
-  ]),
+  attributes: defaultAttributes,
   deviceClass: MEDIAPLAYER_DEVICECLASSES.STREAMING_BOX
 });
 mediaPlayerEntity.setCmdHandler(sharedCmdHandler);

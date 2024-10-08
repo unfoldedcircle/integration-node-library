@@ -55,7 +55,7 @@ enum COMMANDS {
 /**
  * Light entity device classes.
  */
-const DEVICECLASSES: Record<string, any> = {};
+const DEVICECLASSES: Record<string, unknown> = {};
 
 /**
  * Light entity options.

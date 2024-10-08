@@ -18,16 +18,18 @@ test("MediaPlayer constructor without parameter object creates default MediaPlay
 });
 
 test("MediaPlayer constructor with parameter object", (t) => {
-  const options: Partial<Record<OPTIONS, any>> = {};
-  options[OPTIONS.VOLUME_STEPS] = 10;
-  const attributes = new Map<string, any>([
-    [ATTRIBUTES.STATE, STATES.UNAVAILABLE],
-    [ATTRIBUTES.VOLUME, 22]
-  ]);
+  const options: Partial<Record<OPTIONS, number>> = {
+    [OPTIONS.VOLUME_STEPS]: 10
+  };
+
+  const attributes: Partial<Record<ATTRIBUTES, STATES | number>> = {
+    [ATTRIBUTES.STATE]: STATES.UNAVAILABLE,
+    [ATTRIBUTES.VOLUME]: 22
+  };
 
   const entity = new MediaPlayer("test", "Test MediaPlayer", {
     features: [FEATURES.MENU],
-    attributes: attributes,
+    attributes,
     options,
     area: "Test lab"
   });
@@ -45,12 +47,18 @@ test("MediaPlayer constructor with parameter object", (t) => {
 });
 
 test("MediaPlayer constructor with Object attributes", (t) => {
+  const defaultAttributes: Partial<Record<ATTRIBUTES, number | boolean>> = {
+    [ATTRIBUTES.SHUFFLE]: false,
+    [ATTRIBUTES.MUTED]: false,
+    [ATTRIBUTES.VOLUME]: 25
+  };
+
   const entity = new MediaPlayer("test", "Test MediaPlayer", {
-    attributes: { shuffle: "false", muted: "false", volume: "25" }
+    attributes: defaultAttributes
   });
 
   t.is(entity.id, "test");
   t.deepEqual(entity.name, { en: "Test MediaPlayer" });
   t.is(entity.entity_type, "media_player");
-  t.deepEqual(entity.attributes, { shuffle: "false", muted: "false", volume: "25" });
+  t.deepEqual(entity.attributes, { shuffle: false, muted: false, volume: 25 });
 });

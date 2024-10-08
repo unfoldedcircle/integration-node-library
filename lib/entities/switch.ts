@@ -83,5 +83,4 @@ class Switch extends Entity {
 }
 
 export default Switch;
-export { SwitchParams };
 export { STATES, FEATURES, ATTRIBUTES, COMMANDS, DEVICECLASSES, OPTIONS };
