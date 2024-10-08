@@ -174,9 +174,14 @@ const createUi = (): Array<UiPage> => {
 };
 
 // -- startup driver
+
+const attributes: Partial<Record<REMOTEATTRIBUTES, REMOTESTATES>> = {
+  [REMOTEATTRIBUTES.STATE]: REMOTESTATES.OFF
+};
+
 const entity = new Remote("remote1", "Demo remote", {
   features: [REMOTEFEATURES.ON_OFF, REMOTEFEATURES.TOGGLE],
-  attributes: new Map([[MEDIAPLAYERATTRIBUTES.STATE, MEDIAPLAYERSTATES.OFF]]),
+  attributes,
   simpleCommands: supportedCommands,
   buttonMapping: createButtonMappings(),
   uiPages: createUi(),

@@ -14,7 +14,7 @@ import assert from "node:assert";
 
 interface RemoteParams {
   features?: string[];
-  attributes?: Map<string, any> | Record<string, any>;
+  attributes?: Partial<Record<ATTRIBUTES, STATES>>;
   simpleCommands?: string[];
   buttonMapping?: Array<Record<string, any>>; // Adjust type if more specific type available
   uiPages?: Array<Record<string, any>>; // Adjust type if more specific type available

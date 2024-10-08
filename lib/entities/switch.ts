@@ -6,7 +6,7 @@
  * @license Apache License 2.0, see LICENSE for more details.
  */
 
-import { TYPES as ENTITYTYPES } from "./entity";
+import { CommandHandler, TYPES as ENTITYTYPES } from "./entity";
 import Entity from "./entity";
 import log from "../loggers";
 
@@ -50,11 +50,11 @@ enum OPTIONS {
 // Define types for the parameters in the constructor
 interface SwitchParams {
   features?: string[];
-  attributes?: Map<string, any> | Record<string, any>;
+  attributes?: Partial<Record<ATTRIBUTES, STATES>>;
   deviceClass?: DEVICECLASSES;
   options?: Record<OPTIONS, boolean>;
   area?: string;
-  cmdHandler?: (entity: Entity, command: string, params?: Record<string, any>) => Promise<string>;
+  cmdHandler?: CommandHandler | null;
 }
 
 /**

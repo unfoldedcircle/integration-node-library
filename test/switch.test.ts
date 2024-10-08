@@ -22,9 +22,13 @@ test("Switch constructor with parameter object", (t) => {
     [OPTIONS.READABLE]: true
   };
 
+  const attributes: Partial<Record<ATTRIBUTES, STATES>> = {
+    [ATTRIBUTES.STATE]: STATES.UNAVAILABLE
+  };
+
   const entity = new Switch("test", "Test Switch", {
     features: [FEATURES.TOGGLE],
-    attributes: new Map([[ATTRIBUTES.STATE, STATES.UNAVAILABLE]]),
+    attributes,
     options,
     area: "Test lab"
   });
