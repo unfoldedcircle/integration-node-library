@@ -27,7 +27,7 @@ import {
 
 import { COMMANDS as BUTTONCOMMANDS } from "../../lib/entities/button";
 import { STATUS_CODES } from "http";
-import { DEVICE_STATES, EVENTS as API_EVENTS, setup } from "../../lib/api_definitions";
+import { DEVICE_STATES, EVENTS as API_EVENTS } from "../../lib/api_definitions";
 import { CommandHandler } from "../../lib/entities/entity";
 
 import {

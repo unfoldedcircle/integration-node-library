@@ -9,7 +9,7 @@ import {
 } from "../lib/entities/media_player";
 import { STATUS_CODES } from "http";
 import { DEVICE_STATES, EVENTS as API_EVENTS } from "../lib/api_definitions";
-import { CommandHandler } from "../lib/entities/entity";
+import Entity, { CommandHandler } from "../lib/entities/entity";
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 // Handling events
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -33,7 +33,7 @@ uc.on(API_EVENTS.EXIT_STANDBY, async () => {
   // act on when the remote leaves standby
 });
 
-uc.on(API_EVENTS.SUBSCRIBE_ENTITIES, async (entityIds) => {
+uc.on(API_EVENTS.SUBSCRIBE_ENTITIES, async () => {
   // The integration will configure entities and subscribe for entity update events.
   // The UC library automatically adds the subscribed entities
   // from the available to the configured pool.
@@ -41,7 +41,7 @@ uc.on(API_EVENTS.SUBSCRIBE_ENTITIES, async (entityIds) => {
   // ...
 });
 
-uc.on(API_EVENTS.UNSUBSCRIBE_ENTITIES, async (entityIds) => {
+uc.on(API_EVENTS.UNSUBSCRIBE_ENTITIES, async () => {
   // When the integration unsubscribed from certain entity updates,
   // the UC library automatically removes the unsubscribed entities
   // from the configured pool.
@@ -61,9 +61,12 @@ uc.on(API_EVENTS.UNSUBSCRIBE_ENTITIES, async (entityIds) => {
  * @param {Object<string, *>} params optional command parameters
  * @return {Promise<string>} status of the command
  */
-const cmdHandler: CommandHandler = async function (entity, cmdId, params): Promise<string> {
+const cmdHandler: CommandHandler = async (
+  entity: Entity,
+  cmdId: string,
+  params: Record<string, any> | undefined
+): Promise<string> => {
   console.log("Got %s command request: %s", entity.id, cmdId, params || "");
-
   // handle entity commands here
   // execute commands on your integration devices
   // for example start playing a song or change volume
