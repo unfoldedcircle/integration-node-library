@@ -52,7 +52,7 @@ interface SwitchParams {
   features?: string[];
   attributes?: Map<string, any> | Record<string, any>;
   deviceClass?: DEVICECLASSES;
-  options?: Record<string, any>;
+  options?: Record<OPTIONS, boolean>;
   area?: string;
   cmdHandler?: (entity: Entity, command: string, params?: Record<string, any>) => Promise<string>;
 }
@@ -83,4 +83,5 @@ class Switch extends Entity {
 }
 
 export default Switch;
+export { SwitchParams };
 export { STATES, FEATURES, ATTRIBUTES, COMMANDS, DEVICECLASSES, OPTIONS };

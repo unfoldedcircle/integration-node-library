@@ -14,7 +14,16 @@ import {
 } from "../../lib/entities/remote";
 
 import { STATUS_CODES } from "http";
-import { BUTTONS, createBtnMapping, UiPage, createUiText, createUiIcon, Size } from "../../lib/entities/ui";
+import {
+  BUTTONS,
+  createBtnMapping,
+  UiPage,
+  createUiText,
+  createUiIcon,
+  Size,
+  DeviceButtonMapping,
+  EntityCommand
+} from "../../lib/entities/ui";
 import { DEVICE_STATES, EVENTS as API_EVENTS } from "../../lib/api_definitions";
 import { STATES as MEDIAPLAYERSTATES, ATTRIBUTES as MEDIAPLAYERATTRIBUTES } from "../../lib/entities/media_player";
 
@@ -116,7 +125,7 @@ uc.on(API_EVENTS.DISCONNECT, async () => {
 });
 
 // Create button mappings
-const createButtonMappings = (): Array<any> => {
+const createButtonMappings = (): Array<DeviceButtonMapping> => {
   return [
     createBtnMapping(BUTTONS.HOME, "HOME", "GUIDE"),
     createBtnMapping(BUTTONS.CHANNEL_DOWN, "VOLUME_DOWN"),
@@ -130,7 +139,7 @@ const createButtonMappings = (): Array<any> => {
       BUTTONS.BLUE,
       createSequenceCmd(["CURSOR_UP", "CURSOR_RIGHT", "CURSOR_DOWN", "CURSOR_LEFT"], { delay: 200 })
     ),
-    { button: "POWER", short_press: { cmd_id: "remote.toggle" } }
+    createBtnMapping(BUTTONS.POWER, new EntityCommand("remote.toggle"))
   ];
 };
 

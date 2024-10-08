@@ -55,7 +55,7 @@ uc.on(API_EVENTS.SUBSCRIBE_ENTITIES, async (entityIds) => {
   });
 });
 
-uc.on(API_EVENTS.UNSUBSCRIBE_ENTITIES, async (entityIds) => {
+uc.on(API_EVENTS.UNSUBSCRIBE_ENTITIES, async (entityIds: string[]) => {
   // when the integration unsubscribed from certain entity updates,
   // the UC library automatically remove the unsubscribed entities
   // from configured

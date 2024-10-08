@@ -64,7 +64,7 @@ uc.on(API_EVENTS.UNSUBSCRIBE_ENTITIES, async () => {
 const cmdHandler: CommandHandler = async (
   entity: Entity,
   cmdId: string,
-  params: Record<string, any> | undefined
+  params: Record<string, string> | undefined
 ): Promise<string> => {
   console.log("Got %s command request: %s", entity.id, cmdId, params || "");
   // handle entity commands here
