@@ -34,7 +34,11 @@ type CommandHandler = (
 
 interface EntityParams {
   features?: string[];
-  attributes?: Map<string, any> | Record<string, any> | null;
+  attributes?:
+    | object
+    | Map<string, string | object>
+    | Record<string, object | undefined | string | number | boolean>
+    | null;
   deviceClass?: string;
   options?: Record<string, object | undefined | string | number | boolean> | null;
   area?: string;
@@ -49,7 +53,7 @@ class Entity {
   public features: string[];
   public attributes: Record<string, any>;
   public device_class?: string;
-  public options: Record<string, any> | null;
+  public options: Record<string, object | undefined | string | number | boolean> | null;
   public area?: string;
   private cmdHandler?: CommandHandler | null;
 
@@ -123,7 +127,7 @@ class Entity {
    * @param params optional command parameters
    * @return command status code to acknowledge to UC Remote
    */
-  async command(cmdId: string, params?: Record<string, any>): Promise<string> {
+  async command(cmdId: string, params?: Record<string, string>): Promise<string> {
     if (this.cmdHandler) {
       return await this.cmdHandler(this, cmdId, params);
     }
