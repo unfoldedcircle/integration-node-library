@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - '**/*.js'
+      - '**/*.ts'
       - '.github/**/*.yml'
       - 'package-lock.json'
   pull_request:

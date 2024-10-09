@@ -9,6 +9,7 @@ on:
   push:
     paths:
       - '**/*.js'
+      - '**/*.ts'
       - '.github/**/*.yml'
       - '.eslintrc.json'
       - '.prettierrc'
