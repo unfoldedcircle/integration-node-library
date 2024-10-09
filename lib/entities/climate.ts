@@ -68,7 +68,7 @@ enum OPTIONS {
 // Define types for the parameters in the constructor
 interface ClimateParams {
   features?: string[];
-  attributes?: Map<ATTRIBUTES, STATES> | {};
+  attributes?: Map<ATTRIBUTES, STATES> | object;
   deviceClass?: string;
   options?: Partial<Record<OPTIONS, string>> | null;
   area?: string;

@@ -26,13 +26,17 @@ enum TYPES {
   SWITCH = "switch"
 }
 
-type CommandHandler = (entity: Entity, command: string, params?: Record<string, any>) => Promise<string>;
+type CommandHandler = (
+  entity: Entity,
+  command: string,
+  params?: Record<string, string | object | unknown>
+) => Promise<string>;
 
 interface EntityParams {
   features?: string[];
   attributes?: Map<string, any> | Record<string, any> | null;
   deviceClass?: string;
-  options?: Record<string, any> | null;
+  options?: Record<string, object | undefined | string | number | boolean> | null;
   area?: string;
   cmdHandler?: CommandHandler | null;
 }

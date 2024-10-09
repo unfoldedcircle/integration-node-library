@@ -57,7 +57,7 @@ class Button extends Entity {
   ) {
     super(id, name, ENTITYTYPES.BUTTON, {
       features: ["press"],
-      attributes: new Map([[ATTRIBUTES.STATE, state]]),
+      attributes: new Map([[ATTRIBUTES.STATE, state as unknown as object]]),
       area,
       cmdHandler
     });

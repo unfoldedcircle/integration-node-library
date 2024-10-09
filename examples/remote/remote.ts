@@ -25,7 +25,6 @@ import {
   EntityCommand
 } from "../../lib/entities/ui";
 import { DEVICE_STATES, EVENTS as API_EVENTS } from "../../lib/api_definitions";
-import { STATES as MEDIAPLAYERSTATES, ATTRIBUTES as MEDIAPLAYERATTRIBUTES } from "../../lib/entities/media_player";
 
 // Simple commands supported by this example remote entity
 const supportedCommands: string[] = [

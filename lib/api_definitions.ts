@@ -180,11 +180,11 @@ class SetupAction {
  */
 class RequestUserInput extends SetupAction {
   title: string | Map<string, string> | { [key: string]: string };
-  settings: Array<{ [key: string]: any }>;
+  settings: Array<{ [key: string]: object | string }>;
 
   constructor(
     title: string | Map<string, string> | { [key: string]: string },
-    settings: Array<{ [key: string]: any }>
+    settings: Array<{ [key: string]: object | string }>
   ) {
     super();
     this.title = title;

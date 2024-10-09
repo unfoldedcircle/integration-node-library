@@ -127,7 +127,8 @@ function createSequenceCmd(
   return new EntityCommand(COMMANDS.SEND_CMD_SEQUENCE, params);
 }
 
-interface Options {
+interface Options extends Record<string, string[] | DeviceButtonMapping[] | { pages: UiPage[] } | undefined> {
+  //interface Options {
   [OPTIONS.SIMPLE_COMMANDS]?: string[];
   [OPTIONS.BUTTON_MAPPING]?: DeviceButtonMapping[];
   [OPTIONS.USER_INTERFACE]?: {

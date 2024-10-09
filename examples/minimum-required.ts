@@ -9,7 +9,7 @@ import {
 } from "../lib/entities/media_player";
 import { STATUS_CODES } from "http";
 import { DEVICE_STATES, EVENTS as API_EVENTS } from "../lib/api_definitions";
-import Entity, { CommandHandler } from "../lib/entities/entity";
+import { CommandHandler } from "../lib/entities/entity";
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 // Handling events
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -61,11 +61,8 @@ uc.on(API_EVENTS.UNSUBSCRIBE_ENTITIES, async () => {
  * @param {Object<string, *>} params optional command parameters
  * @return {Promise<string>} status of the command
  */
-const cmdHandler: CommandHandler = async (
-  entity: Entity,
-  cmdId: string,
-  params: Record<string, string> | undefined
-): Promise<string> => {
+
+const cmdHandler: CommandHandler = async function (entity, cmdId, params): Promise<string> {
   console.log("Got %s command request: %s", entity.id, cmdId, params || "");
   // handle entity commands here
   // execute commands on your integration devices

@@ -62,14 +62,14 @@ enum DEVICECLASSES {
 }
 
 // Cover entity options
-const OPTIONS = {};
+enum OPTIONS {}
 
 // Define types for the parameters in the constructor
 interface CoverParams {
   features?: string[];
   attributes?: Partial<Record<ATTRIBUTES, STATES | number | boolean | string>>;
   deviceClass?: string;
-  options?: Record<string, any> | null;
+  options?: Partial<Record<OPTIONS, number | string | boolean>> | null;
   area?: string;
   cmdHandler?: CommandHandler | null;
 }
