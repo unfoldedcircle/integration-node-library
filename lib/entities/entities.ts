@@ -69,7 +69,10 @@ class Entities extends EventEmitter {
    * @param {Map<string, any> | Record<string, any>} attributes The attributes to merge into the entity's attributes
    * @returns {boolean} false if entity doesn't exist, true if attributes were merged.
    */
-  updateEntityAttributes(id: string, attributes: Map<string, any> | Record<string, any>): boolean {
+  updateEntityAttributes(
+    id: string,
+    attributes: Map<string, object | number | string> | Record<string, object | number | string>
+  ): boolean {
     if (!this.contains(id)) {
       return false;
     }
@@ -89,8 +92,8 @@ class Entities extends EventEmitter {
     return true;
   }
 
-  getEntities(): Array<Record<string, any>> {
-    const entities: Array<Record<string, any>> = [];
+  getEntities(): Array<Record<string, object | string | null | undefined>> {
+    const entities: Array<Record<string, object | string | null | undefined>> = [];
 
     Object.entries(this.storage).forEach(([, value]) => {
       const entity = {
@@ -110,8 +113,8 @@ class Entities extends EventEmitter {
     return entities;
   }
 
-  getStates(): Array<Record<string, any>> {
-    const entities: Array<Record<string, any>> = [];
+  getStates(): Array<Record<string, object | string | null | undefined>> {
+    const entities: Array<Record<string, object | string | null | undefined>> = [];
 
     Object.entries(this.storage).forEach(([, value]) => {
       const entity = {
