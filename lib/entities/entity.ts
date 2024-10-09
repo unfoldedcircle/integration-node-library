@@ -51,7 +51,7 @@ class Entity {
   public entity_type: string;
   public device_id: string | null;
   public features: string[];
-  public attributes: Record<string, any>;
+  public attributes: Record<string, object | string | number | undefined | boolean>;
   public device_class?: string;
   public options: Record<string, object | undefined | string | number | boolean> | null;
   public area?: string;
