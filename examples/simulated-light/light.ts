@@ -23,7 +23,7 @@ import {
   FEATURES as LIGHT_FEATURES
 } from "../../lib/entities/light.js";
 
-uc.init("dist/examples/simulated-light/light-driver.json");
+uc.init("light-driver.json");
 
 uc.on(API_EVENTS.CONNECT, async () => {
   await uc.setDeviceState(DEVICE_STATES.CONNECTED);
