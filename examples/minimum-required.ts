@@ -1,15 +1,15 @@
 // use package in production
 // const uc = require("uc-integration-api");
-import uc from "../index";
-import MediaPlayer, { ATTRIBUTES, STATES } from "../lib/entities/media_player";
+import uc from "../index.js";
+import MediaPlayer, { ATTRIBUTES, STATES } from "../lib/entities/media_player.js";
 import {
   FEATURES as MEDIAPLAYER_FEATURES,
   ATTRIBUTES as MEDIAPLAYER_ATTRIBUTES,
   STATES as MEDIAPLAYER_STATES
-} from "../lib/entities/media_player";
+} from "../lib/entities/media_player.js";
 import { STATUS_CODES } from "http";
-import { DEVICE_STATES, EVENTS as API_EVENTS } from "../lib/api_definitions";
-import { CommandHandler } from "../lib/entities/entity";
+import { DEVICE_STATES, EVENTS as API_EVENTS } from "../lib/api_definitions.js";
+import { CommandHandler } from "../lib/entities/entity.js";
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 // Handling events
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */

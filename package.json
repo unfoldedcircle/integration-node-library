@@ -9,6 +9,7 @@
 		"lib": "lib"
 	},
 	"dependencies": {
+		"bonjour": "^3.5.0",
 		"bonjour-service": "^1.2.1",
 		"debug": "^4.3.7",
 		"uc-integration-api": "github:unfoldedcircle/integration-node-library",
@@ -59,19 +60,5 @@
 	"private": true,
 	"engines": {
 		"node": ">=16.18.0"
-	},
-
-	"ava": {
-		"typescript": {
-			"extensions": [
-				"ts",
-				"tsx"
-			],
-			"rewritePaths": {
-				"src/": "build/"
-			},
-			"compile": false
-		}
 	}
-	
 }

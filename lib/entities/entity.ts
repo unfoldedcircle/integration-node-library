@@ -7,9 +7,9 @@
  */
 "use strict";
 
-import { STATUS_CODES } from "../api_definitions";
-import { toLanguageObject } from "../utils";
-import log from "../loggers";
+import { STATUS_CODES } from "../api_definitions.js";
+import { toLanguageObject } from "../utils.js";
+import log from "../loggers.js";
 import assert from "node:assert";
 
 /**

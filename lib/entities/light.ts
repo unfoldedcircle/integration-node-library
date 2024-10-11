@@ -6,10 +6,10 @@
  * @license Apache License 2.0, see LICENSE for more details.
  */
 
-import { CommandHandler, TYPES as ENTITYTYPES } from "./entity";
-import { toLanguageObject } from "../utils";
-import Entity from "./entity";
-import log from "../loggers";
+import { CommandHandler, TYPES as ENTITYTYPES } from "./entity.js";
+import { toLanguageObject } from "../utils.js";
+import Entity from "./entity.js";
+import log from "../loggers.js";
 
 /**
  * Light entity states.

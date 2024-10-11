@@ -1,5 +1,5 @@
 import test from "ava";
-import { toLanguageObject, getDefaultLanguageString } from "../lib/entities/utils";
+import { toLanguageObject, getDefaultLanguageString } from "../lib/entities/utils.js";
 
 const toLanguageObjectTest = test.macro((t, input, expected) => {
   const result = toLanguageObject(input);

@@ -1,5 +1,5 @@
 import test from "ava";
-import { UiPage, Size, UiItem, createUiText, EntityCommand, createUiIcon } from "../lib/entities/ui";
+import { UiPage, Size, UiItem, createUiText, EntityCommand, createUiIcon } from "../lib/entities/ui.js";
 
 test("Size sets default size if not specified", (t) => {
   const result = new Size();
