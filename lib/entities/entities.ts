@@ -5,19 +5,19 @@
  * @license Apache License 2.0, see LICENSE for more details.
  */
 
-import { TYPES as ENTITYTYPES } from "./entity";
+import { TYPES as ENTITYTYPES } from "./entity.js";
 import { EventEmitter } from "events";
-import Entity from "./entity";
-import Button from "./button";
-import Climate from "./climate";
-import Cover from "./cover";
-import Light from "./light";
-import MediaPlayer from "./media_player";
-import Remote from "./remote";
-import Sensor from "./sensor";
-import Switch from "./switch";
-import { EVENTS } from "../api_definitions";
-import log from "../loggers";
+import Entity from "./entity.js";
+import Button from "./button.js";
+import Climate from "./climate.js";
+import Cover from "./cover.js";
+import Light from "./light.js";
+import MediaPlayer from "./media_player.js";
+import Remote from "./remote.js";
+import Sensor from "./sensor.js";
+import Switch from "./switch.js";
+import { EVENTS } from "../api_definitions.js";
+import log from "../loggers.js";
 
 class Entities extends EventEmitter {
   private storage: Record<string, Entity>;

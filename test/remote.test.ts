@@ -1,8 +1,8 @@
 import test from "ava";
-import { createSequenceCmd, createSendCmd, FEATURES, STATES, ATTRIBUTES } from "../lib/entities/remote";
-import { EntityCommand } from "../lib/entities/ui";
+import { createSequenceCmd, createSendCmd, FEATURES, STATES, ATTRIBUTES } from "../lib/entities/remote.js";
+import { EntityCommand } from "../lib/entities/ui.js";
 import { AssertionError } from "node:assert";
-import { Remote } from "../lib/entities/entities";
+import { Remote } from "../lib/entities/entities.js";
 
 test("createSequenceCmd with an undefined sequence throws an assert", (t) => {
   t.throws(

@@ -8,14 +8,15 @@
 import os from "os";
 import Bonjour from "bonjour-service";
 import WebSocket from "ws";
+import { WebSocketServer } from "ws";
 import { EventEmitter } from "events";
 import fs from "fs";
-import * as uc from "./lib/api_definitions";
-import Entities, { Entity } from "./lib/entities/entities";
-import { toLanguageObject, getDefaultLanguageString } from "./lib/utils";
-import log from "./lib/loggers";
+import * as uc from "./lib/api_definitions.js";
+import Entities, { Entity } from "./lib/entities/entities.js";
+import { toLanguageObject, getDefaultLanguageString } from "./lib/utils.js";
+import log from "./lib/loggers.js";
 import { STATUS_CODES } from "http";
-import { SetupAction, DriverSetupRequest, UserDataResponse, } from './lib/api_definitions';
+import { SetupAction, DriverSetupRequest, UserDataResponse, } from './lib/api_definitions.js';
 
 
 interface Developer {
@@ -62,7 +63,7 @@ class IntegrationAPI extends EventEmitter {
       developer: { name: "" },
       min_core_api: null,
     };
-    this.server = new WebSocket.Server({ noServer: true });
+    this.server = new WebSocketServer({ noServer: true });
 
 
 
@@ -141,7 +142,7 @@ class IntegrationAPI extends EventEmitter {
     this.driverInfo.driver_url = this.#getDriverUrl(this.driverInfo.driver_url, this.driverInfo.port);
 
     if (!disableMdnsPublish) {
-      let bonjour = new Bonjour()
+      let bonjour = new Bonjour.default()
       log.debug("Starting mdns advertising");
 
       // Make sure to advertise a .local hostname. It seems that bonjour just blindly takes the hostname, short or FQDN.
@@ -166,12 +167,12 @@ class IntegrationAPI extends EventEmitter {
     // setup websocket server - remote-core will connect to this
     const port = integrationPort || this.driverInfo.port || 9090;
     if (integrationInterface) {
-      this.server = new WebSocket.Server({
+      this.server = new WebSocketServer({
         host: integrationInterface,
         port: Number(port)
       });
     } else {
-      this.server = new WebSocket.Server({
+      this.server = new WebSocketServer({
         port: Number(port)
       });
     }

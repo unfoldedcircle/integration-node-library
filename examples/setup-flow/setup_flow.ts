@@ -4,14 +4,14 @@
 
 // use package in production
 // const uc = require("uc-integration-api");
-import uc from "../../index";
-import Button from "../../lib/entities/button";
+import uc from "../../index.js";
+import Button from "../../lib/entities/button.js";
 import { STATUS_CODES } from "http";
-import { DEVICE_STATES, EVENTS as API_EVENTS, setup } from "../../lib/api_definitions";
-import { Entity } from "../../lib/entities/entities";
+import { DEVICE_STATES, EVENTS as API_EVENTS, setup } from "../../lib/api_definitions.js";
+import { Entity } from "../../lib/entities/entities.js";
 
 const { SetupError, RequestUserInput, SetupComplete } = setup;
-import { DriverSetupRequest, UserDataResponse, SetupAction } from "../../lib/api_definitions";
+import { DriverSetupRequest, UserDataResponse, SetupAction } from "../../lib/api_definitions.js";
 
 /**
  * Dispatch driver setup requests to corresponding handlers.

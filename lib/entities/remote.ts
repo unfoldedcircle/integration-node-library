@@ -6,10 +6,10 @@
  * @license Apache License 2.0, see LICENSE for more details.
  */
 
-import { CommandHandler, TYPES as ENTITYTYPES } from "./entity";
-import { DeviceButtonMapping, EntityCommand, UiPage } from "./ui";
-import Entity from "./entity";
-import log from "../loggers";
+import { CommandHandler, TYPES as ENTITYTYPES } from "./entity.js";
+import { DeviceButtonMapping, EntityCommand, UiPage } from "./ui.js";
+import Entity from "./entity.js";
+import log from "../loggers.js";
 import assert from "node:assert";
 
 interface RemoteParams {

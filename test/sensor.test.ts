@@ -1,6 +1,6 @@
 import test from "ava";
-import Sensor from "../lib/entities/sensor";
-import { OPTIONS, STATES, ATTRIBUTES, DEVICECLASSES } from "../lib/entities/sensor";
+import Sensor from "../lib/entities/sensor.js";
+import { OPTIONS, STATES, ATTRIBUTES, DEVICECLASSES } from "../lib/entities/sensor.js";
 
 test("Sensor constructor without parameter object creates default Sensor class", (t) => {
   const entity = new Sensor("test", "Test Sensor");

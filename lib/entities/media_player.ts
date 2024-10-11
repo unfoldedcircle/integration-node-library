@@ -6,9 +6,9 @@
  * @license Apache License 2.0, see LICENSE for more details.
  */
 
-import { TYPES as ENTITYTYPES } from "./entity";
-import Entity from "./entity";
-import log from "../loggers";
+import { TYPES as ENTITYTYPES } from "./entity.js";
+import Entity from "./entity.js";
+import log from "../loggers.js";
 
 /**
  * Media-player entity states.

@@ -1,19 +1,20 @@
 {
     "compilerOptions": {
-        "target": "es6",
-        "module": "commonjs",
+        "target": "ES2022",
+        "module": "Node16",
+        "moduleResolution": "Node16",
 	    "strict": true,
-    	"esModuleInterop": true,
+        "esModuleInterop": true,
     	"skipLibCheck": true,
 	    "rootDir": "./",
-        "outDir": "./dist/",
+        "outDir": "./dist",
         "allowJs": true
     },
     "include": [
         "./*.ts",
         "./examples/**/*.ts",
         "./lib/**/*.ts",
-        "./test/**/*.ts",
+        "./test/**/*.ts"
     ],          
-    "exclude": ["node_modules"]     
+    "exclude": ["node_modules"]
 }

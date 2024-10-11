@@ -1,17 +1,17 @@
 // use package in production
 //import * as uc from "uc-integration-api";
-import uc from "../../index";
+import uc from "../../index.js";
 
 import fs from "fs";
-import { createSendCmd, createSequenceCmd } from "../../lib/entities/remote";
-import { Entity, Remote } from "../../lib/entities/entities";
+import { createSendCmd, createSequenceCmd } from "../../lib/entities/remote.js";
+import { Entity, Remote } from "../../lib/entities/entities.js";
 
 import {
   COMMANDS as REMOTECOMMANDS,
   STATES as REMOTESTATES,
   ATTRIBUTES as REMOTEATTRIBUTES,
   FEATURES as REMOTEFEATURES
-} from "../../lib/entities/remote";
+} from "../../lib/entities/remote.js";
 
 import { STATUS_CODES } from "http";
 import {
@@ -23,8 +23,8 @@ import {
   Size,
   DeviceButtonMapping,
   EntityCommand
-} from "../../lib/entities/ui";
-import { DEVICE_STATES, EVENTS as API_EVENTS } from "../../lib/api_definitions";
+} from "../../lib/entities/ui.js";
+import { DEVICE_STATES, EVENTS as API_EVENTS } from "../../lib/api_definitions.js";
 
 // Simple commands supported by this example remote entity
 const supportedCommands: string[] = [

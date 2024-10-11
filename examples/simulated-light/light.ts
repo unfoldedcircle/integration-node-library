@@ -2,40 +2,28 @@
 // const uc = require("uc-integration-api");
 //uc.init("light-driver.json");
 
-import uc from "../../index";
-import * as fs from "fs";
-import * as path from "path";
-
-const initFilePath = path.resolve(__dirname, "light-driver.json");
-if (fs.existsSync(initFilePath)) {
-  uc.init(initFilePath);
-  console.log("File found, initialization successful.");
-} else {
-  console.error(`Error: File not found at ${initFilePath}`);
-  throw new Error(`File not found: ${initFilePath}`);
-}
-
-import Button from "../../lib/entities/button";
-import Light from "../../lib/entities/light";
-import MediaPlayer, { ATTRIBUTES, STATES } from "../../lib/entities/media_player";
+import uc from "../../index.js";
+import Button from "../../lib/entities/button.js";
+import Light from "../../lib/entities/light.js";
+import MediaPlayer, { ATTRIBUTES, STATES } from "../../lib/entities/media_player.js";
 import {
   FEATURES as MEDIAPLAYER_FEATURES,
   ATTRIBUTES as MEDIAPLAYER_ATTRIBUTES,
   STATES as MEDIAPLAYER_STATES,
   DEVICECLASSES as MEDIAPLAYER_DEVICECLASSES
-} from "../../lib/entities/media_player";
-
-import { COMMANDS as BUTTONCOMMANDS } from "../../lib/entities/button";
+} from "../../lib/entities/media_player.js";
+import { COMMANDS as BUTTONCOMMANDS } from "../../lib/entities/button.js";
 import { STATUS_CODES } from "http";
-import { DEVICE_STATES, EVENTS as API_EVENTS } from "../../lib/api_definitions";
-import { CommandHandler } from "../../lib/entities/entity";
-
+import { DEVICE_STATES, EVENTS as API_EVENTS } from "../../lib/api_definitions.js";
+import { CommandHandler } from "../../lib/entities/entity.js";
 import {
   COMMANDS as LIGHT_COMMANDS,
   STATES as LIGHT_STATES,
   ATTRIBUTES as LIGHT_ATTRIBUTES,
   FEATURES as LIGHT_FEATURES
-} from "../../lib/entities/light";
+} from "../../lib/entities/light.js";
+
+uc.init("light-driver.json");
 
 uc.on(API_EVENTS.CONNECT, async () => {
   await uc.setDeviceState(DEVICE_STATES.CONNECTED);

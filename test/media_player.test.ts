@@ -1,6 +1,6 @@
 import test from "ava";
-import MediaPlayer from "../lib/entities/media_player";
-import { OPTIONS, FEATURES, STATES, ATTRIBUTES } from "../lib/entities/media_player";
+import MediaPlayer from "../lib/entities/media_player.js";
+import { OPTIONS, FEATURES, STATES, ATTRIBUTES } from "../lib/entities/media_player.js";
 
 test("MediaPlayer constructor without parameter object creates default MediaPlayer class", (t) => {
   const entity = new MediaPlayer("test", "Test MediaPlayer");
