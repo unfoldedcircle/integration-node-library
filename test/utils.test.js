@@ -1,10 +1,13 @@
 import test from "ava";
-import { toLanguageObject, getDefaultLanguageString } from "../lib/entities/utils.js";
+import { toLanguageObject, getDefaultLanguageString } from "../lib/utils.js";
+
 
 const toLanguageObjectTest = test.macro((t, input, expected) => {
   const result = toLanguageObject(input);
   t.deepEqual(result, expected);
 });
+  
+
 
 test("toLanguageObject with undefined input returns null", toLanguageObjectTest, undefined, null);
 test("toLanguageObject with null input returns null", toLanguageObjectTest, null, null);
@@ -30,6 +33,8 @@ test(
   { en: "foobar", fr: "toto", "de-CH": "gugus", de: "dingsbums" },
   { en: "foobar", fr: "toto", "de-CH": "gugus", de: "dingsbums" }
 );
+
+
 
 const defaultLanguageString = test.macro((t, input, expected) => {
   const result = getDefaultLanguageString(input);
