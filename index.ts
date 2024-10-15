@@ -24,7 +24,7 @@ interface Developer {
 }
 
 interface DriverInfo {
-  driver_url: string | null;  
+  driver_url: string | undefined;  
   port: number;               
   driver_id: string;        
   name: Record<string, string>; 
@@ -227,7 +227,7 @@ class IntegrationAPI extends EventEmitter {
    * @param {number} port The WebSocket server port number.
    * @returns {string} The WebSocket server url which should be returned in `driver_metadata`.
    */
-  #getDriverUrl(url: string | null, port: Number) {
+  #getDriverUrl(url: string | undefined, port: Number) {
     if (url) {
       if (url.startsWith("ws://") || url.startsWith("wss://")) {
         return url;
@@ -236,7 +236,7 @@ class IntegrationAPI extends EventEmitter {
     }
 
     // Remote will use mDNS information
-    return null;
+    return undefined;
   }
 
   /**
