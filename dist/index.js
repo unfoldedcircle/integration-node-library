@@ -26,15 +26,18 @@ class IntegrationAPI extends EventEmitter {
     configuredEntities;
     constructor() {
         super();
+        //this.driver_url = null;
+        /*
         this.driverInfo = {
-            driver_url: "",
-            port: 0,
-            driver_id: "",
-            name: {},
-            version: "",
-            developer: { name: "" },
-            min_core_api: null,
+          driver_url: "",
+          port: 0,
+          driver_id: "",
+          name: {},
+          version: "",
+          developer: { name: "" },
+          min_core_api: null,
         };
+        */
         this.server = new WebSocketServer({ noServer: true });
         this.driverPath = "driver.json";
         // directory to store configuration files
@@ -169,7 +172,7 @@ class IntegrationAPI extends EventEmitter {
             return `ws://${os.hostname()}:${port}`;
         }
         // Remote will use mDNS information
-        return "";
+        return null;
     }
     /**
      * Retrieve the corresponding WebSocket connection from an identifier.
