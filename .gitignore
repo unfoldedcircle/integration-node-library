@@ -107,3 +107,6 @@ configured.json
 
 # VS code folder
 .vscode/
+
+# dist folder
+/dist

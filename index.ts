@@ -16,41 +16,35 @@ import Entities, { Entity } from "./lib/entities/entities.js";
 import { toLanguageObject, getDefaultLanguageString } from "./lib/utils.js";
 import log from "./lib/loggers.js";
 import { STATUS_CODES } from "http";
-import { SetupAction, DriverSetupRequest, UserDataResponse, } from './lib/api_definitions.js';
-
+import { SetupAction, DriverSetupRequest, UserDataResponse } from "./lib/api_definitions.js";
 
 interface Developer {
   name: string;
 }
 
 interface DriverInfo {
-  driver_url: string | undefined;  
-  port: number;               
-  driver_id: string;        
-  name: Record<string, string>; 
-  version: string;            
-  developer: Developer;      
-  min_core_api: string | null; 
+  driver_url: string | undefined;
+  port: number;
+  driver_id: string;
+  name: Record<string, string>;
+  version: string;
+  developer: Developer;
+  min_core_api: string | null;
 }
 
 class IntegrationAPI extends EventEmitter {
-
-  private configDirPath : string;
-  private driverPath : string;
+  private configDirPath: string;
+  private driverPath: string;
   private driverInfo!: DriverInfo;
   private state: uc.DEVICE_STATES;
   private server: WebSocket.Server;
   private clients: Map<WebSocket, any>;
-  private setupHandler : any;
-  private availableEntities : Entities;
-  private configuredEntities : Entities;
+  private setupHandler: any;
+  private availableEntities: Entities;
+  private configuredEntities: Entities;
 
   constructor() {
     super();
-
-
-
-
 
     //this.driver_url = null;
     /*
@@ -65,12 +59,6 @@ class IntegrationAPI extends EventEmitter {
     };
     */
     this.server = new WebSocketServer({ noServer: true });
-
-
-
-
-
-    
 
     this.driverPath = "driver.json";
 
@@ -104,9 +92,9 @@ class IntegrationAPI extends EventEmitter {
    * @param setupHandler optional driver setup handler if the driver metadata contains a setup_data_schema object
    */
   init(
-      driverConfig: string|object, 
-      setupHandler?: (msg: DriverSetupRequest | UserDataResponse) => Promise<SetupAction>
-    ) {
+    driverConfig: string | object,
+    setupHandler?: (msg: DriverSetupRequest | UserDataResponse) => Promise<SetupAction>
+  ) {
     this.setupHandler = setupHandler;
     const integrationInterface = process.env.UC_INTEGRATION_INTERFACE;
     const integrationPort = process.env.UC_INTEGRATION_HTTP_PORT;
@@ -141,7 +129,7 @@ class IntegrationAPI extends EventEmitter {
     this.driverInfo.driver_url = this.#getDriverUrl(this.driverInfo.driver_url, this.driverInfo.port);
 
     if (!disableMdnsPublish) {
-      let bonjour = new Bonjour.default()
+      let bonjour = new Bonjour.default();
       log.debug("Starting mdns advertising");
 
       // Make sure to advertise a .local hostname. It seems that bonjour just blindly takes the hostname, short or FQDN.
@@ -212,7 +200,7 @@ class IntegrationAPI extends EventEmitter {
     );
   }
 
-  public getConfigDirPath() : string {
+  public getConfigDirPath(): string {
     return this.configDirPath;
   }
 
@@ -481,7 +469,7 @@ class IntegrationAPI extends EventEmitter {
   }
 
   async #subscribeEvents(entities: any) {
-    entities.entity_ids.forEach((entityId : any) => {
+    entities.entity_ids.forEach((entityId: any) => {
       const entity = this.availableEntities.getEntity(entityId);
       if (entity) {
         this.configuredEntities.addEntity(entity);
@@ -497,7 +485,7 @@ class IntegrationAPI extends EventEmitter {
     // remove entities from registered entities
     let res = true;
 
-    entities.entity_ids.forEach((entityId : any) => {
+    entities.entity_ids.forEach((entityId: any) => {
       if (!this.configuredEntities.removeEntity(entityId)) {
         res = false;
       }
@@ -513,7 +501,7 @@ class IntegrationAPI extends EventEmitter {
     return this.configuredEntities.getStates();
   }
 
-  async #entityCommand(wsId : any, reqId : any, data : any) {
+  async #entityCommand(wsId: any, reqId: any, data: any) {
     const wsHandle = { wsId, reqId };
 
     if (!data) {
@@ -550,7 +538,7 @@ class IntegrationAPI extends EventEmitter {
     }
   }
 
-  async #setupDriver(wsId: any, reqId: any, data: { setup_data: { [key: string]: string; }; reconfigure: any; }) {
+  async #setupDriver(wsId: any, reqId: any, data: { setup_data: { [key: string]: string }; reconfigure: any }) {
     const wsHandle = { wsId, reqId };
 
     if (this.setupHandler) {
@@ -606,7 +594,7 @@ class IntegrationAPI extends EventEmitter {
     return result;
   }
 
-  async #setDriverUserData(wsId: any, reqId: any, data: { input_values: { [key: string]: string; }; confirm: boolean; }) {
+  async #setDriverUserData(wsId: any, reqId: any, data: { input_values: { [key: string]: string }; confirm: boolean }) {
     const wsHandle = { wsId, reqId };
 
     if (this.setupHandler) {
@@ -685,7 +673,7 @@ class IntegrationAPI extends EventEmitter {
     };
   }
 
-  async setDeviceState(state : any) {
+  async setDeviceState(state: any) {
     this.state = state;
 
     await this.#broadcastEvent(
@@ -703,7 +691,7 @@ class IntegrationAPI extends EventEmitter {
    * @param {Object} wsHandle The WebSocket handle received in the ENTITY_COMMAND event.
    * @param {Number} statusCode The status code. Defaults to OK 200.
    */
-  async acknowledgeCommand(wsHandle: { wsId: any; reqId: any; }, statusCode = uc.STATUS_CODES.OK) {
+  async acknowledgeCommand(wsHandle: { wsId: any; reqId: any }, statusCode = uc.STATUS_CODES.OK) {
     await this.#sendResponse(wsHandle.wsId, wsHandle.reqId, "result", {}, statusCode);
   }
 
@@ -712,7 +700,7 @@ class IntegrationAPI extends EventEmitter {
    *
    * @param {Object} wsHandle The WebSocket handle received in the `EVENTS.SETUP_DRIVER` event.
    */
-  async driverSetupProgress(wsHandle : any) {
+  async driverSetupProgress(wsHandle: any) {
     const msgData = {
       event_type: "SETUP",
       state: "SETUP"
@@ -729,7 +717,13 @@ class IntegrationAPI extends EventEmitter {
    * @param {string} image An optional base64 encoded image to display below `msg1`.
    * @param {string|Map} msg2 An optional message to display in the request screen below `msg1` or `image`. Either a string or a language map.
    */
-  async requestDriverSetupUserConfirmation(wsHandle: { wsId: any; reqId?: any; }, title: string | Map<string, string> | { [key: string]: string; }, msg1 : string, image = undefined, msg2 : string) {
+  async requestDriverSetupUserConfirmation(
+    wsHandle: { wsId: any; reqId?: any },
+    title: string | Map<string, string> | { [key: string]: string },
+    msg1: string,
+    image = undefined,
+    msg2: string
+  ) {
     const msgData = {
       event_type: "SETUP",
       state: "WAIT_USER_ACTION",
@@ -752,7 +746,11 @@ class IntegrationAPI extends EventEmitter {
    * @param {string|Map<string, string>|Object<string, string>} title A human-readable title of the request screen. Either a string, which will be mapped to english, or a Map / Object containing multiple language strings.
    * @param {Array<object>} settings Array of input field definition objects. See Integration-API specification.
    */
-  async requestDriverSetupUserInput(wsHandle: { wsId: any; reqId?: any; }, title: string | Map<string, string> | { [key: string]: string; }, settings: { [key: string]: any; }[]) {
+  async requestDriverSetupUserInput(
+    wsHandle: { wsId: any; reqId?: any },
+    title: string | Map<string, string> | { [key: string]: string },
+    settings: { [key: string]: any }[]
+  ) {
     const msgData = {
       event_type: "SETUP",
       state: "WAIT_USER_ACTION",
@@ -789,7 +787,7 @@ class IntegrationAPI extends EventEmitter {
    * @param {Object} wsHandle The WebSocket handle received in the `EVENTS.SETUP_DRIVER` event.
    * @param {string} error The error reason. TODO create enum.
    */
-  async driverSetupError(wsHandle: { wsId: any; id?: any; reqId?: any; }, error: string = "OTHER") {
+  async driverSetupError(wsHandle: { wsId: any; id?: any; reqId?: any }, error: string = "OTHER") {
     const msgData = {
       event_type: "STOP",
       state: "ERROR",
@@ -818,7 +816,7 @@ class IntegrationAPI extends EventEmitter {
     this.configuredEntities.clear();
   }
 
-  public updateEntityAttributes(entityId : string, attributes: Map<string, any> | Record<string, any>): boolean {
+  public updateEntityAttributes(entityId: string, attributes: Map<string, any> | Record<string, any>): boolean {
     return this.configuredEntities.updateEntityAttributes(entityId, attributes);
   }
 }

@@ -15,7 +15,8 @@
         "./*.ts",
         "./examples/**/*.ts",
         "./lib/**/*.ts",
-        "./test/**/*.ts"
+        "./test/**/*.ts",
+        "tsup.config.js"    
     ],          
     "exclude": ["node_modules"]
 }

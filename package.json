@@ -1,9 +1,11 @@
 {
 	"name": "uc-integration-api",
-	"version": "0.1.0",
 	"description": "NodeJS wrapper for the Unfolded Circle Integration API",
-	"main": "dist/index.js",
+	"version": "0.1.0",
 	"type": "module",
+	"main": "./dist/index.js",
+	"module": "./dist/index.mjs",
+	"types": "./dist/index.d.ts",
 	"directories": {
 		"example": "examples",
 		"lib": "lib"
@@ -29,13 +31,15 @@
 		"eslint-plugin-promise": "^6.6.0",
 		"prettier": "^3.3.3",
 		"ts-node": "^10.9.2",
+		"tsup": "^8.3.0",
 		"typescript": "5.5.x"
 	},
 	"scripts": {
-		"format": "prettier --write \"./{examples,lib,test}/**/*.ts\"",
-		"lint": "prettier --write \"./{examples,lib,test}/**/*.ts\" && eslint \"./{examples,lib,test}/**/*.ts\" --fix",
-		"test": "npm run build && ava dist/test/**/*.js",
-		"build": "tsc && copyfiles \"{examples,lib,test}/**/*.json\" dist/"
+		"format": 		"prettier --write \"**/*.ts\"",
+		"code-check": 	"prettier --check \"**/*.ts\"",
+		"lint": 		"eslint --fix",
+		"build": 		"tsup",
+		"test": 		"npm run build && ava dist/test/**/*.js"
 	},
 	"repository": {
 		"type": "git",
