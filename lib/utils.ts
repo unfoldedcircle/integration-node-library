@@ -16,13 +16,20 @@
 function toLanguageObject(
   text: string | Map<string, string> | Record<string, string> | null | undefined
 ): Record<string, string> | null {
-  if (typeof text === "string") {
-    return { en: text };
-  } else if (text instanceof Map) {
-    return Object.fromEntries(text);
-  } else {
-    return null;
+  if (text) {
+    if (typeof text === "string") {
+      return { en: text };
+    }
+    if (text instanceof Map) {
+      return Object.fromEntries(text);
+    }
+    if (text instanceof Object) {
+      // TODO check if text object only contains string keys & values?
+      return text;
+    }
   }
+
+  return null;
 }
 
 /**
