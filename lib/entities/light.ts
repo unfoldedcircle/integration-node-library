@@ -7,14 +7,13 @@
  */
 
 import { CommandHandler, TYPES as ENTITYTYPES } from "./entity.js";
-import { toLanguageObject } from "../utils.js";
-import Entity from "./entity.js";
+import { Entity } from "./entity.js";
 import log from "../loggers.js";
 
 /**
  * Light entity states.
  */
-enum STATES {
+export enum STATES {
   UNAVAILABLE = "UNAVAILABLE",
   UNKNOWN = "UNKNOWN",
   ON = "ON",
@@ -24,7 +23,7 @@ enum STATES {
 /**
  * Light entity features.
  */
-enum FEATURES {
+export enum FEATURES {
   ON_OFF = "on_off",
   TOGGLE = "toggle",
   DIM = "dim",
@@ -35,7 +34,7 @@ enum FEATURES {
 /**
  * Light entity attributes.
  */
-enum ATTRIBUTES {
+export enum ATTRIBUTES {
   STATE = "state",
   HUE = "hue",
   SATURATION = "saturation",
@@ -46,7 +45,7 @@ enum ATTRIBUTES {
 /**
  * Light entity commands.
  */
-enum COMMANDS {
+export enum COMMANDS {
   ON = "on",
   OFF = "off",
   TOGGLE = "toggle"
@@ -55,12 +54,12 @@ enum COMMANDS {
 /**
  * Light entity device classes.
  */
-const DEVICECLASSES: Record<string, unknown> = {};
+export const DEVICECLASSES: Record<string, unknown> = {};
 
 /**
  * Light entity options.
  */
-enum OPTIONS {
+export enum OPTIONS {
   COLOR_TEMPERATURE_STEPS = "color_temperature_steps"
 }
 
@@ -77,7 +76,7 @@ interface LightParams {
  * See {@link https://github.com/unfoldedcircle/core-api/blob/main/doc/entities/entity_light.md light entity documentation}
  * for more information.
  */
-class Light extends Entity {
+export class Light extends Entity {
   /**
    * Constructs a new light entity.
    *
@@ -97,6 +96,3 @@ class Light extends Entity {
     log.debug(`Light entity created with id: ${this.id}`);
   }
 }
-
-export default Light;
-export { STATES, FEATURES, ATTRIBUTES, COMMANDS, DEVICECLASSES, OPTIONS };

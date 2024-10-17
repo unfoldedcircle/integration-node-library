@@ -6,7 +6,7 @@
  */
 
 // Define device states
-enum DEVICE_STATES {
+export enum DEVICE_STATES {
   CONNECTED = "CONNECTED",
   CONNECTING = "CONNECTING",
   DISCONNECTED = "DISCONNECTED",
@@ -14,7 +14,7 @@ enum DEVICE_STATES {
 }
 
 // Define status codes
-enum STATUS_CODES {
+export enum STATUS_CODES {
   OK = 200,
   BAD_REQUEST = 400,
   UNAUTHORIZED = 401,
@@ -27,7 +27,7 @@ enum STATUS_CODES {
 }
 
 // Define request/response messages
-enum MESSAGES {
+export enum MESSAGES {
   AUTHENTICATION = "authentication",
   GET_DRIVER_VERSION = "get_driver_version",
   GET_DEVICE_STATE = "get_device_state",
@@ -42,7 +42,7 @@ enum MESSAGES {
 }
 
 // Define event messages
-enum MSG_EVENTS {
+export enum MSG_EVENTS {
   CONNECT = "connect",
   DISCONNECT = "disconnect",
   ENTER_STANDBY = "enter_standby",
@@ -57,7 +57,7 @@ enum MSG_EVENTS {
   ABORT_DRIVER_SETUP = "abort_driver_setup"
 }
 
-enum EVENTS {
+export enum EVENTS {
   ENTITY_COMMAND = "entity_command",
   ENTITY_ATTRIBUTES_UPDATED = "entity_attributes_updated",
   SUBSCRIBE_ENTITIES = "subscribe_entities",
@@ -73,7 +73,7 @@ enum EVENTS {
 }
 
 // Define event categories
-enum EVENT_CATEGORY {
+export enum EVENT_CATEGORY {
   DEVICE = "DEVICE",
   ENTITY = "ENTITY"
 }
@@ -81,13 +81,13 @@ enum EVENT_CATEGORY {
 /**
  * More detailed error reason for `state: ERROR` condition.
  */
-enum INTEGRATION_SETUP_ERROR {
-  NONE = "NONE",
-  NOT_FOUND = "NOT_FOUND",
-  CONNECTION_REFUSED = "CONNECTION_REFUSED",
-  AUTHORIZATION_ERROR = "AUTHORIZATION_ERROR",
-  TIMEOUT = "TIMEOUT",
-  OTHER = "OTHER"
+class IntegrationSetupError {
+  static NONE = "NONE";
+  static NOT_FOUND = "NOT_FOUND";
+  static CONNECTION_REFUSED = "CONNECTION_REFUSED";
+  static AUTHORIZATION_ERROR = "AUTHORIZATION_ERROR";
+  static TIMEOUT = "TIMEOUT";
+  static OTHER = "OTHER";
 }
 
 /**
@@ -227,7 +227,7 @@ class RequestUserConfirmation extends SetupAction {
 class SetupError extends SetupAction {
   errorType: string;
 
-  constructor(errorType: string = INTEGRATION_SETUP_ERROR.OTHER) {
+  constructor(errorType: string = IntegrationSetupError.OTHER) {
     super();
     this.errorType = errorType;
   }
@@ -241,6 +241,7 @@ class SetupComplete extends SetupAction {
 }
 
 export const setup = {
+  IntegrationSetupError,
   SetupDriver,
   DriverSetupRequest,
   UserDataResponse,
@@ -251,17 +252,4 @@ export const setup = {
   RequestUserConfirmation,
   SetupError,
   SetupComplete
-};
-
-export {
-  DEVICE_STATES,
-  STATUS_CODES,
-  MESSAGES,
-  MSG_EVENTS,
-  EVENTS,
-  EVENT_CATEGORY,
-  INTEGRATION_SETUP_ERROR,
-  DriverSetupRequest,
-  UserDataResponse,
-  SetupAction
 };

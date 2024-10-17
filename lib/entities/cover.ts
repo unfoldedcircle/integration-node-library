@@ -7,11 +7,11 @@
  */
 
 import { CommandHandler, TYPES as ENTITYTYPES } from "./entity.js";
-import Entity from "./entity.js";
+import { Entity } from "./entity.js";
 import log from "../loggers.js";
 
 // Cover entity states
-enum STATES {
+export enum STATES {
   UNAVAILABLE = "UNAVAILABLE",
   UNKNOWN = "UNKNOWN",
   OPENING = "OPENING",
@@ -21,7 +21,7 @@ enum STATES {
 }
 
 // Cover entity features
-enum FEATURES {
+export enum FEATURES {
   OPEN = "open",
   CLOSE = "close",
   STOP = "stop",
@@ -32,14 +32,14 @@ enum FEATURES {
 }
 
 // Cover entity attributes
-enum ATTRIBUTES {
+export enum ATTRIBUTES {
   STATE = "state",
   POSITION = "position",
   TILT_POSITION = "tilt_position"
 }
 
 // Cover entity commands
-enum COMMANDS {
+export enum COMMANDS {
   OPEN = "open",
   CLOSE = "close",
   STOP = "stop",
@@ -51,7 +51,7 @@ enum COMMANDS {
 }
 
 // Cover entity device classes
-enum DEVICECLASSES {
+export enum DEVICECLASSES {
   BLIND = "blind",
   CURTAIN = "curtain",
   GARAGE = "garage",
@@ -62,7 +62,7 @@ enum DEVICECLASSES {
 }
 
 // Cover entity options
-enum OPTIONS {}
+export enum OPTIONS {}
 
 // Define types for the parameters in the constructor
 interface CoverParams {
@@ -74,7 +74,7 @@ interface CoverParams {
   cmdHandler?: CommandHandler | null;
 }
 
-class Cover extends Entity {
+export class Cover extends Entity {
   /**
    * Constructs a new cover entity.
    *
@@ -94,6 +94,3 @@ class Cover extends Entity {
     log.debug(`Cover entity created with id: ${this.id}`);
   }
 }
-
-export default Cover;
-export { STATES, FEATURES, ATTRIBUTES, COMMANDS, DEVICECLASSES, OPTIONS };

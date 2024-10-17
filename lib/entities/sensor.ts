@@ -7,13 +7,13 @@
  */
 
 import { TYPES as ENTITYTYPES } from "./entity.js";
-import Entity from "./entity.js";
+import { Entity } from "./entity.js";
 import log from "../loggers.js";
 
 /**
  * Sensor entity states.
  */
-enum STATES {
+export enum STATES {
   UNAVAILABLE = "UNAVAILABLE",
   UNKNOWN = "UNKNOWN",
   ON = "ON"
@@ -22,12 +22,12 @@ enum STATES {
 /**
  * Sensor entity features.
  */
-const FEATURES: Record<string, boolean> = {};
+export const FEATURES: Record<string, boolean> = {};
 
 /**
  * Sensor entity attributes.
  */
-enum ATTRIBUTES {
+export enum ATTRIBUTES {
   STATE = "state",
   VALUE = "value",
   UNIT = "unit"
@@ -36,12 +36,12 @@ enum ATTRIBUTES {
 /**
  * Sensor entity commands.
  */
-const COMMANDS: Record<string, boolean> = {};
+export const COMMANDS: Record<string, boolean> = {};
 
 /**
  * Sensor entity device classes.
  */
-enum DEVICECLASSES {
+export enum DEVICECLASSES {
   CUSTOM = "custom",
   BATTERY = "battery",
   CURRENT = "current",
@@ -55,7 +55,7 @@ enum DEVICECLASSES {
 /**
  * Sensor entity options.
  */
-enum OPTIONS {
+export enum OPTIONS {
   CUSTOM_UNIT = "custom_unit",
   NATIVE_UNIT = "native_unit",
   DECIMALS = "decimals",
@@ -70,7 +70,7 @@ interface SensorParams {
   area?: string;
 }
 
-class Sensor extends Entity {
+export class Sensor extends Entity {
   /**
    * Constructs a new sensor entity.
    *
@@ -89,6 +89,3 @@ class Sensor extends Entity {
     log.debug(`Sensor entity created with id: ${this.id}`);
   }
 }
-
-export default Sensor;
-export { STATES, FEATURES, ATTRIBUTES, COMMANDS, DEVICECLASSES, OPTIONS };

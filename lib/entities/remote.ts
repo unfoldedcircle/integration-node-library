@@ -8,7 +8,7 @@
 
 import { CommandHandler, TYPES as ENTITYTYPES } from "./entity.js";
 import { DeviceButtonMapping, EntityCommand, UiPage } from "./ui.js";
-import Entity from "./entity.js";
+import { Entity } from "./entity.js";
 import log from "../loggers.js";
 import assert from "node:assert";
 
@@ -25,7 +25,7 @@ interface RemoteParams {
 /**
  * Remote entity states.
  */
-enum STATES {
+export enum STATES {
   UNAVAILABLE = "UNAVAILABLE",
   UNKNOWN = "UNKNOWN",
   ON = "ON",
@@ -35,7 +35,7 @@ enum STATES {
 /**
  * Remote-entity features.
  */
-enum FEATURES {
+export enum FEATURES {
   ON_OFF = "on_off",
   TOGGLE = "toggle",
   SEND_CMD = "send_cmd"
@@ -44,14 +44,14 @@ enum FEATURES {
 /**
  * Remote-entity attributes.
  */
-enum ATTRIBUTES {
+export enum ATTRIBUTES {
   STATE = "state"
 }
 
 /**
  * Remote-entity commands.
  */
-enum COMMANDS {
+export enum COMMANDS {
   ON = "on",
   OFF = "off",
   TOGGLE = "toggle",
@@ -62,7 +62,7 @@ enum COMMANDS {
 /**
  * Remote-entity options.
  */
-enum OPTIONS {
+export enum OPTIONS {
   SIMPLE_COMMANDS = "simple_commands",
   BUTTON_MAPPING = "button_mapping",
   USER_INTERFACE = "user_interface"
@@ -78,7 +78,7 @@ enum OPTIONS {
  * @return EntityCommand the created EntityCommand.
  * @throws AssertionError if command is not specified or is empty.
  */
-function createSendCmd(
+export function createSendCmd(
   command: string | undefined,
   { delay, repeat, hold }: { delay?: number; repeat?: number; hold?: number } = {}
 ): EntityCommand {
@@ -107,7 +107,7 @@ function createSendCmd(
  * @return EntityCommand the created EntityCommand.
  * @throws AssertionError if sequence is not specified or doesn't contain at least one command.
  */
-function createSequenceCmd(
+export function createSequenceCmd(
   sequence: string[] | undefined,
   { delay, repeat }: { delay?: number; repeat?: number } = {}
 ): EntityCommand {
@@ -128,7 +128,6 @@ function createSequenceCmd(
 }
 
 interface Options extends Record<string, string[] | DeviceButtonMapping[] | { pages: UiPage[] } | undefined> {
-  //interface Options {
   [OPTIONS.SIMPLE_COMMANDS]?: string[];
   [OPTIONS.BUTTON_MAPPING]?: DeviceButtonMapping[];
   [OPTIONS.USER_INTERFACE]?: {
@@ -136,7 +135,7 @@ interface Options extends Record<string, string[] | DeviceButtonMapping[] | { pa
   };
 }
 
-class Remote extends Entity {
+export class Remote extends Entity {
   /**
    * Constructs a new remote-entity.
    *
@@ -166,6 +165,3 @@ class Remote extends Entity {
     log.debug(`Remote entity created with id: ${this.id}`);
   }
 }
-
-export default Remote;
-export { createSendCmd, createSequenceCmd, STATES, FEATURES, ATTRIBUTES, COMMANDS, OPTIONS };

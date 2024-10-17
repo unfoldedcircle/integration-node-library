@@ -4,19 +4,20 @@
  * @copyright (c) 2024 by Unfolded Circle ApS.
  * @license Apache License 2.0, see LICENSE for more details.
  */
-
 import os from "os";
+import fs from "fs";
+import log from "./lib/loggers.js";
 import Bonjour from "bonjour-service";
 import WebSocket from "ws";
+
 import { WebSocketServer } from "ws";
 import { EventEmitter } from "events";
-import fs from "fs";
-import * as uc from "./lib/api_definitions.js";
-import Entities, { Entity } from "./lib/entities/entities.js";
+import { Entities, Entity } from "./lib/entities/entities.js";
 import { toLanguageObject, getDefaultLanguageString } from "./lib/utils.js";
-import log from "./lib/loggers.js";
-import { STATUS_CODES } from "http";
-import { SetupAction, DriverSetupRequest, UserDataResponse } from "./lib/api_definitions.js";
+import { DEVICE_STATES, EVENTS, STATUS_CODES, setup } from "./lib/api_definitions.js";
+
+import * as ui from "./lib/entities/ui.js";
+import * as uc from "./lib/api_definitions.js";
 
 interface Developer {
   name: string;
@@ -46,18 +47,6 @@ class IntegrationAPI extends EventEmitter {
   constructor() {
     super();
 
-    //this.driver_url = null;
-    /*
-    this.driverInfo = {
-      driver_url: "",
-      port: 0,
-      driver_id: "",
-      name: {},
-      version: "",
-      developer: { name: "" },
-      min_core_api: null,
-    };
-    */
     this.server = new WebSocketServer({ noServer: true });
 
     this.driverPath = "driver.json";
@@ -93,7 +82,9 @@ class IntegrationAPI extends EventEmitter {
    */
   init(
     driverConfig: string | object,
-    setupHandler?: (msg: DriverSetupRequest | UserDataResponse) => Promise<SetupAction>
+    setupHandler?: (
+      msg: typeof uc.setup.DriverSetupRequest | typeof uc.setup.UserDataResponse
+    ) => Promise<typeof uc.setup.SetupAction>
   ) {
     this.setupHandler = setupHandler;
     const integrationInterface = process.env.UC_INTEGRATION_INTERFACE;
@@ -533,7 +524,6 @@ class IntegrationAPI extends EventEmitter {
       this.emit(uc.EVENTS.ENTITY_COMMAND, wsHandle, data.entity_id, data.entity_type, data.cmd_id, data.params);
     } else {
       const result = await entity.command(cmdId, "params" in data ? data.params : undefined);
-      const resultEnumValue = STATUS_CODES[result as keyof typeof STATUS_CODES];
       await this.acknowledgeCommand(wsHandle);
     }
   }
@@ -821,8 +811,9 @@ class IntegrationAPI extends EventEmitter {
   }
 }
 
-export default new IntegrationAPI();
-
 function createDriverInfo(driverConfig: object): DriverInfo {
   throw new Error("Function not implemented.");
 }
+
+export default new IntegrationAPI();
+export { DEVICE_STATES, EVENTS, STATUS_CODES, Entities, setup, ui };

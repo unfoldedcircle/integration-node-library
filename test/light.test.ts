@@ -1,5 +1,5 @@
 import test from "ava";
-import Light, { FEATURES, STATES, ATTRIBUTES } from "../lib/entities/light.js";
+import { Light, FEATURES, STATES, ATTRIBUTES } from "../lib/entities/light.js";
 
 test("Light constructor without parameter object creates default Light class", (t) => {
   const entity = new Light("test", "Test Light");

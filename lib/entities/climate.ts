@@ -7,11 +7,11 @@
  */
 
 import { CommandHandler, TYPES as ENTITYTYPES } from "./entity.js";
-import Entity from "./entity.js";
+import { Entity } from "./entity.js";
 import log from "../loggers.js";
 
 // Climate entity states
-enum STATES {
+export enum STATES {
   UNAVAILABLE = "UNAVAILABLE",
   UNKNOWN = "UNKNOWN",
   OFF = "OFF",
@@ -23,7 +23,7 @@ enum STATES {
 }
 
 // Climate entity features
-enum FEATURES {
+export enum FEATURES {
   ON_OFF = "on_off",
   HEAT = "heat",
   COOL = "cool",
@@ -34,7 +34,7 @@ enum FEATURES {
 }
 
 // Climate entity attributes
-enum ATTRIBUTES {
+export enum ATTRIBUTES {
   STATE = "state",
   CURRENT_TEMPERATURE = "current_temperature",
   TARGET_TEMPERATURE = "target_temperature",
@@ -44,7 +44,7 @@ enum ATTRIBUTES {
 }
 
 // Climate entity commands
-enum COMMANDS {
+export enum COMMANDS {
   ON = "on",
   OFF = "off",
   HVAC_MODE = "hvac_mode",
@@ -54,10 +54,10 @@ enum COMMANDS {
 }
 
 // Climate entity device classes
-enum DEVICECLASSES {}
+export enum DEVICECLASSES {}
 
 // Climate entity options
-enum OPTIONS {
+export enum OPTIONS {
   TEMPERATURE_UNIT = "temperature_unit",
   TARGET_TEMPERATURE_STEP = "target_temperature_step",
   MAX_TEMPERATURE = "max_temperature",
@@ -75,7 +75,7 @@ interface ClimateParams {
   cmdHandler?: CommandHandler | null;
 }
 
-class Climate extends Entity {
+export class Climate extends Entity {
   /**
    * Constructs a new climate entity.
    *
@@ -95,6 +95,3 @@ class Climate extends Entity {
     log.debug(`Climate entity created with id: ${this.id}`);
   }
 }
-
-export default Climate;
-export { STATES, FEATURES, ATTRIBUTES, COMMANDS, DEVICECLASSES, OPTIONS };

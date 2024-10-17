@@ -1,6 +1,5 @@
 import test from "ava";
-import Switch from "../lib/entities/switch.js";
-import { OPTIONS, FEATURES, ATTRIBUTES, STATES } from "../lib/entities/switch.js";
+import { Switch, OPTIONS, FEATURES, ATTRIBUTES, STATES } from "../lib/entities/switch.js";
 
 test("Switch constructor without parameter object creates default Switch class", (t) => {
   const entity = new Switch("test", "Test Switch");

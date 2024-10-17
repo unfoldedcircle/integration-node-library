@@ -7,22 +7,22 @@
  */
 
 import { CommandHandler, TYPES as ENTITYTYPES } from "./entity.js";
-import Entity from "./entity.js";
+import { Entity } from "./entity.js";
 import log from "../loggers.js";
 
 // Button entity states
-enum STATES {
+export enum STATES {
   UNAVAILABLE = "UNAVAILABLE",
   AVAILABLE = "AVAILABLE"
 }
 
 // Button entity attributes
-enum ATTRIBUTES {
+export enum ATTRIBUTES {
   STATE = "state"
 }
 
 // Button commands
-enum COMMANDS {
+export enum COMMANDS {
   PUSH = "push"
 }
 
@@ -37,7 +37,7 @@ interface ButtonParams {
  * See {@link https://github.com/unfoldedcircle/core-api/blob/main/doc/entities/entity_button.md button entity documentation}
  * for more information.
  */
-class Button extends Entity {
+export class Button extends Entity {
   /**
    * Constructs a new button entity.
    *
@@ -65,6 +65,3 @@ class Button extends Entity {
     log.debug(`Button entity created with id: ${this.id}`);
   }
 }
-
-export default Button;
-export { STATES, ATTRIBUTES, COMMANDS };

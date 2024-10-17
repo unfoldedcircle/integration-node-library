@@ -7,11 +7,11 @@
  */
 
 import { CommandHandler, TYPES as ENTITYTYPES } from "./entity.js";
-import Entity from "./entity.js";
+import { Entity } from "./entity.js";
 import log from "../loggers.js";
 
 // Switch entity states
-enum STATES {
+export enum STATES {
   UNAVAILABLE = "UNAVAILABLE",
   UNKNOWN = "UNKNOWN",
   ON = "ON",
@@ -19,31 +19,31 @@ enum STATES {
 }
 
 // Switch entity features
-enum FEATURES {
+export enum FEATURES {
   ON_OFF = "on_off",
   TOGGLE = "toggle"
 }
 
 // Switch entity attributes
-enum ATTRIBUTES {
+export enum ATTRIBUTES {
   STATE = "state"
 }
 
 // Switch entity commands
-enum COMMANDS {
+export enum COMMANDS {
   ON = "on",
   OFF = "off",
   TOGGLE = "toggle"
 }
 
 // Switch entity device classes
-enum DEVICECLASSES {
+export enum DEVICECLASSES {
   OUTLET = "outlet",
   SWITCH = "switch"
 }
 
 // Switch entity options
-enum OPTIONS {
+export enum OPTIONS {
   READABLE = "readable"
 }
 
@@ -61,7 +61,7 @@ interface SwitchParams {
  * See {@link https://github.com/unfoldedcircle/core-api/blob/main/doc/entities/entity_switch.md switch entity documentation}
  * for more information.
  */
-class Switch extends Entity {
+export class Switch extends Entity {
   /**
    * Constructs a new switch entity.
    *
@@ -81,6 +81,3 @@ class Switch extends Entity {
     log.debug(`Switch entity created with id: ${this.id}`);
   }
 }
-
-export default Switch;
-export { STATES, FEATURES, ATTRIBUTES, COMMANDS, DEVICECLASSES, OPTIONS };

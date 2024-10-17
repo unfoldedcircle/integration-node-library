@@ -7,13 +7,13 @@
  */
 
 import { TYPES as ENTITYTYPES } from "./entity.js";
-import Entity from "./entity.js";
+import { Entity } from "./entity.js";
 import log from "../loggers.js";
 
 /**
  * Media-player entity states.
  */
-enum STATES {
+export enum STATES {
   UNAVAILABLE = "UNAVAILABLE",
   UNKNOWN = "UNKNOWN",
   ON = "ON",
@@ -27,7 +27,7 @@ enum STATES {
 /**
  * Media-player entity features.
  */
-enum FEATURES {
+export enum FEATURES {
   ON_OFF = "on_off",
   TOGGLE = "toggle",
   VOLUME = "volume",
@@ -73,7 +73,7 @@ enum FEATURES {
 /**
  * Media-player entity attributes.
  */
-enum ATTRIBUTES {
+export enum ATTRIBUTES {
   STATE = "state",
   VOLUME = "volume",
   MUTED = "muted",
@@ -95,7 +95,7 @@ enum ATTRIBUTES {
 /**
  * Media-player entity commands.
  */
-enum COMMANDS {
+export enum COMMANDS {
   ON = "on",
   OFF = "off",
   TOGGLE = "toggle",
@@ -157,7 +157,7 @@ enum COMMANDS {
 /**
  * Media-player entity device classes.
  */
-enum DEVICECLASSES {
+export enum DEVICECLASSES {
   RECEIVER = "receiver",
   SET_TOP_BOX = "set_top_box",
   SPEAKER = "speaker",
@@ -168,7 +168,7 @@ enum DEVICECLASSES {
 /**
  * Media-player entity options.
  */
-enum OPTIONS {
+export enum OPTIONS {
   SIMPLE_COMMANDS = "simple_commands",
   VOLUME_STEPS = "volume_steps"
 }
@@ -176,7 +176,7 @@ enum OPTIONS {
 /**
  * Media types.
  */
-enum MEDIATYPE {
+export enum MEDIATYPE {
   MUSIC = "MUSIC",
   RADIO = "RADIO",
   TVSHOW = "TVSHOW",
@@ -187,18 +187,13 @@ enum MEDIATYPE {
 /**
  * Repeat modes.
  */
-enum REPEATMODE {
+export enum REPEATMODE {
   OFF = "OFF",
   ALL = "ALL",
   ONE = "ONE"
 }
 
-/**
- * See {@link https://github.com/unfoldedcircle/core-api/blob/main/doc/entities/entity_media_player.md media-player entity documentation}
- * for more information.
- */
-
-type CmdHandler = (entity: Entity, command: string, options?: Record<string, unknown>) => Promise<string>;
+export type CmdHandler = (entity: Entity, command: string, options?: Record<string, unknown>) => Promise<string>;
 
 interface MediaPlayerParams {
   features?: string[];
@@ -209,7 +204,12 @@ interface MediaPlayerParams {
   cmdHandler?: CmdHandler;
 }
 
-class MediaPlayer extends Entity {
+/**
+ * See {@link https://github.com/unfoldedcircle/core-api/blob/main/doc/entities/entity_media_player.md media-player entity documentation}
+ * for more information.
+ */
+
+export class MediaPlayer extends Entity {
   /**
    * Constructs a new media-player entity.
    *
@@ -238,6 +238,3 @@ class MediaPlayer extends Entity {
     log.debug(`MediaPlayer entity created with id: ${this.id}`);
   }
 }
-
-export default MediaPlayer;
-export { STATES, FEATURES, ATTRIBUTES, COMMANDS, DEVICECLASSES, OPTIONS, MEDIATYPE, REPEATMODE };

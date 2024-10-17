@@ -8,7 +8,7 @@
 import assert from "node:assert";
 
 // Physical buttons
-enum BUTTONS {
+export enum BUTTONS {
   BACK = "BACK",
   HOME = "HOME",
   VOICE = "VOICE",
@@ -33,7 +33,7 @@ enum BUTTONS {
 }
 
 // Remote command definition for a button mapping or UI page definition.
-class EntityCommand {
+export class EntityCommand {
   cmd_id: string;
   params?: Record<string, string | number | string[]>;
 
@@ -44,7 +44,7 @@ class EntityCommand {
 }
 
 // Physical button command mapping.
-class DeviceButtonMapping {
+export class DeviceButtonMapping {
   button: BUTTONS;
   short_press?: EntityCommand;
   long_press?: EntityCommand;
@@ -72,7 +72,7 @@ class DeviceButtonMapping {
  * @returns the created DeviceButtonMapping
  * @throws AssertionError if shortPress or longPress arguments are of a wrong type.
  */
-function createBtnMapping(
+export function createBtnMapping(
   button: BUTTONS,
   short?: string | EntityCommand,
   long?: string | EntityCommand
@@ -87,7 +87,7 @@ function createBtnMapping(
 }
 
 // Item size in the button grid. Default size if not specified: 1x1.
-class Size {
+export class Size {
   width: number;
   height: number;
 
@@ -98,7 +98,7 @@ class Size {
 }
 
 // Button placement in the grid with 0-based coordinates.
-class Location {
+export class Location {
   x: number;
   y: number;
 
@@ -109,7 +109,7 @@ class Location {
 }
 
 // A user interface item is either an icon or text.
-class UiItem {
+export class UiItem {
   type: "icon" | "text";
   location: Location;
   size?: Size;
@@ -149,7 +149,13 @@ class UiItem {
  * @returns the created UiItem
  * @throws AssertionError if invalid parameters are specified.
  */
-function createUiText(text: string, x: number, y: number, command?: string | EntityCommand, size?: Size): UiItem {
+export function createUiText(
+  text: string,
+  x: number,
+  y: number,
+  command?: string | EntityCommand,
+  size?: Size
+): UiItem {
   if (typeof command === "string") {
     command = new EntityCommand(command);
   }
@@ -166,7 +172,13 @@ function createUiText(text: string, x: number, y: number, command?: string | Ent
  * @returns the created UiItem
  * @throws AssertionError if invalid parameters are specified.
  */
-function createUiIcon(icon: string, x: number, y: number, command?: string | EntityCommand, size?: Size): UiItem {
+export function createUiIcon(
+  icon: string,
+  x: number,
+  y: number,
+  command?: string | EntityCommand,
+  size?: Size
+): UiItem {
   if (typeof command === "string") {
     command = new EntityCommand(command);
   }
@@ -174,7 +186,7 @@ function createUiIcon(icon: string, x: number, y: number, command?: string | Ent
 }
 
 // Definition of a complete user interface page.
-class UiPage {
+export class UiPage {
   page_id: string;
   name: string;
   grid: Size;
@@ -195,16 +207,3 @@ class UiPage {
     this.items.push(item);
   }
 }
-
-export {
-  BUTTONS,
-  EntityCommand,
-  DeviceButtonMapping,
-  createBtnMapping,
-  Size,
-  Location,
-  UiItem,
-  createUiText,
-  createUiIcon,
-  UiPage
-};

@@ -1,6 +1,5 @@
 import test from "ava";
-import Climate from "../lib/entities/climate.js";
-import { OPTIONS, FEATURES, STATES, ATTRIBUTES } from "../lib/entities/climate.js";
+import { Climate, OPTIONS, FEATURES, STATES, ATTRIBUTES } from "../lib/entities/climate.js";
 
 test("Climate constructor without parameter object creates default Climate class", (t) => {
   const entity = new Climate("test", "Test Climate");

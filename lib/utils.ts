@@ -13,7 +13,7 @@
  * @param {string | Map<string, string> | Record<string, string> | null | undefined} text
  * @return {{ Record<string, string> | null }}
  */
-function toLanguageObject(
+export function toLanguageObject(
   text: string | Map<string, string> | Record<string, string> | null | undefined
 ): Record<string, string> | null {
   if (text) {
@@ -41,7 +41,7 @@ function toLanguageObject(
  * @param {string} defaultText The text to return if `text` is empty.
  * @returns {string} The default text.
  */
-function getDefaultLanguageString(
+export function getDefaultLanguageString(
   text: Record<string, string> | null | undefined,
   defaultText: string = "Undefined"
 ): string {
@@ -64,5 +64,3 @@ function getDefaultLanguageString(
 
   return defaultText;
 }
-
-export { toLanguageObject, getDefaultLanguageString };
