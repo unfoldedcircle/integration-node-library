@@ -854,6 +854,7 @@ function createDriverInfo(driverConfig: object): DriverInfo {
 
 // Combine the instance with additional exports using Object.assign
 const uc = Object.assign(new IntegrationAPI(), {
+  IntegrationAPI,
   DEVICE_STATES,
   EVENTS,
   STATUS_CODES,
@@ -861,6 +862,7 @@ const uc = Object.assign(new IntegrationAPI(), {
   setup,
   ui
 }) as IntegrationAPI & {
+  IntegrationAPI: typeof IntegrationAPI;
   DEVICE_STATES: typeof DEVICE_STATES;
   EVENTS: typeof EVENTS;
   STATUS_CODES: typeof STATUS_CODES;
