@@ -92,7 +92,7 @@ class Light extends Entity {
     name: string | Map<string, string> | Record<string, string>,
     { features = [], attributes = {}, deviceClass, options = null, area }: LightParams = {}
   ) {
-    super(id, toLanguageObject(name), ENTITYTYPES.LIGHT, { features, attributes, deviceClass, options, area });
+    super(id, name, ENTITYTYPES.LIGHT, { features, attributes, deviceClass, options, area });
 
     log.debug(`Light entity created with id: ${this.id}`);
   }
