@@ -9,15 +9,19 @@ import fs from "fs";
 import log from "./lib/loggers.js";
 import Bonjour from "bonjour-service";
 import WebSocket from "ws";
-
 import { WebSocketServer } from "ws";
 import { EventEmitter } from "events";
-import { Entities, Entity } from "./lib/entities/entities.js";
+
+
 import { toLanguageObject, getDefaultLanguageString } from "./lib/utils.js";
 import { DEVICE_STATES, EVENTS, STATUS_CODES, setup } from "./lib/api_definitions.js";
 
 import * as ui from "./lib/entities/ui.js";
 import * as api_definitions from "./lib/api_definitions.js";
+import * as entities from "./lib/entities/entities.js";
+
+import { CommandHandler } from "./lib/entities/entities.js";
+
 
 interface Developer {
   name: string;
@@ -41,8 +45,8 @@ class IntegrationAPI extends EventEmitter {
   private server: WebSocket.Server;
   private clients: Map<WebSocket, any>;
   private setupHandler: any;
-  private availableEntities: Entities;
-  private configuredEntities: Entities;
+  private availableEntities: entities.Entities
+  private configuredEntities: entities.Entities;
 
   constructor() {
     super();
@@ -55,16 +59,16 @@ class IntegrationAPI extends EventEmitter {
     this.configDirPath = process.env.UC_CONFIG_HOME || process.env.HOME || "./";
 
     // set default state to connected
-    this.state = uc.DEVICE_STATES.DISCONNECTED;
+    this.state = api_definitions.DEVICE_STATES.DISCONNECTED;
 
     this.clients = new Map();
 
     // create storage for available and configured entities
-    this.availableEntities = new Entities("available");
-    this.configuredEntities = new Entities("configured");
+    this.availableEntities = new entities.Entities("available");
+    this.configuredEntities = new entities.Entities("configured");
 
     // connect to update events for entity attributes
-    this.configuredEntities.on(uc.EVENTS.ENTITY_ATTRIBUTES_UPDATED, async (entityId, entityType, attributes) => {
+    this.configuredEntities.on(api_definitions.EVENTS.ENTITY_ATTRIBUTES_UPDATED, async (entityId, entityType, attributes) => {
       const data = {
         entity_id: entityId,
         entity_type: entityType,
@@ -820,15 +824,16 @@ class IntegrationAPI extends EventEmitter {
     );
   }
 
-  public getConfiguredEntities(): Entities {
+
+  public getConfiguredEntities(): entities.Entities {
     return this.configuredEntities;
   }
 
-  public getAvailableEntities(): Entities {
+  public getAvailableEntities(): entities.Entities {
     return this.availableEntities;
   }
 
-  public addEntity(entity: Entity) {
+  public addEntity(entity: entities.Entity) {
     this.availableEntities.addEntity(entity);
   }
 
@@ -858,17 +863,24 @@ const uc = Object.assign(new IntegrationAPI(), {
   DEVICE_STATES,
   EVENTS,
   STATUS_CODES,
-  Entities,
+  entities,
   setup,
-  ui
+  ui,
+  api_definitions,
 }) as IntegrationAPI & {
   IntegrationAPI: typeof IntegrationAPI;
   DEVICE_STATES: typeof DEVICE_STATES;
   EVENTS: typeof EVENTS;
   STATUS_CODES: typeof STATUS_CODES;
-  Entities: typeof Entities;
+  entities: typeof entities;
   setup: typeof setup;
   ui: typeof ui;
+  api_definitions: typeof api_definitions;
 };
 
 export default uc;
+
+
+export type {
+  CommandHandler
+};

@@ -8,16 +8,18 @@
 import { TYPES as ENTITYTYPES } from "./entity.js";
 import { EventEmitter } from "events";
 import { Entity } from "./entity.js";
-import { Button } from "./button.js";
+import type { CommandHandler } from "./entity.js";
+import * as Button from "./button.js";
 import { Climate } from "./climate.js";
 import { Cover } from "./cover.js";
-import { Light } from "./light.js";
-import { MediaPlayer } from "./media_player.js";
+import * as Light from "./light.js";
+import * as MediaPlayer from "./media_player.js";
 import { Remote } from "./remote.js";
 import { Sensor } from "./sensor.js";
 import { Switch } from "./switch.js";
 import { EVENTS } from "../api_definitions.js";
 import log from "../loggers.js";
+
 
 class Entities extends EventEmitter {
   private storage: Record<string, Entity>;
@@ -135,4 +137,19 @@ class Entities extends EventEmitter {
   }
 }
 
-export { Entities, ENTITYTYPES, Entity, Button, Climate, Cover, Light, MediaPlayer, Remote, Sensor, Switch };
+
+export {
+  ENTITYTYPES, 
+  Entities, 
+  Entity, 
+  Button, 
+  Climate, 
+  Cover, 
+  Light, 
+  MediaPlayer, 
+  Remote, 
+  Sensor, 
+  Switch,
+};
+
+export type { CommandHandler };
