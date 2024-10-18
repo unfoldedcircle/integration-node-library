@@ -833,6 +833,10 @@ class IntegrationAPI extends EventEmitter {
     return this.availableEntities;
   }
 
+  public getDriverUrl() : string | undefined {
+    return this.driverInfo.driver_url;
+  }
+
   public addEntity(entity: entities.Entity) {
     this.availableEntities.addEntity(entity);
   }
