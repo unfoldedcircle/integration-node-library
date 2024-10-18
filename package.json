@@ -39,7 +39,7 @@
 		"integration"
 	],
 	"author": "Unfolded Circle",
-	"license": "ISC",
+	"license": "Apache-2.0",
 	"bugs": {
 		"url": "https://github.com/unfoldedcircle/integration-node-library/issues"
 	},
