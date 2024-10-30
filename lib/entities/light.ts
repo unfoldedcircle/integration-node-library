@@ -92,8 +92,12 @@ export class Light extends Entity {
    * @param {LightParams} [params] Entity parameters.
    * @throws AssertionError if invalid parameters are specified.
    */
-  constructor(id: string, name: EntityName, { features, attributes, deviceClass, options, area }: LightParams = {}) {
-    super(id, name, EntityType.Light, { features, attributes, deviceClass, options, area });
+  constructor(
+    id: string,
+    name: EntityName,
+    { features, attributes, deviceClass, options, area, cmdHandler }: LightParams = {}
+  ) {
+    super(id, name, EntityType.Light, { features, attributes, deviceClass, options, area, cmdHandler });
 
     log.debug(`Light entity created with id: ${this.id}`);
   }

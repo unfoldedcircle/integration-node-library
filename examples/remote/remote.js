@@ -1,10 +1,8 @@
-// use package in production
-//import * as uc from "uc-integration-api";
-import uc, { CommandHandler, StatusCodes } from "../../index.js";
+// use integration library in a client project:
+// import uc from "@unfoldedcircle/integration-api";
+import uc from "../../dist/index.js";
 
 import fs from "fs";
-import { createSendCmd, createSequenceCmd } from "../../lib/entities/remote.js";
-import { EntityCommand } from "../../lib/entities/ui.js";
 
 // Simple commands supported by this example remote entity
 const supportedCommands = [
@@ -34,10 +32,10 @@ const supportedCommands = [
  *
  * @param {Entity} entity remote entity
  * @param {string} cmdId command
- * @param {?Object<string, *>} params optional command parameters
- * @return {Promise<string>} status of the command
+ * @param {?Object<string, *>} [params] optional command parameters
+ * @return {Promise<uc.StatusCodes>} status of the command
  */
-const cmdHandler: CommandHandler = async function (entity, cmdId, params = {}): Promise<StatusCodes> {
+const cmdHandler = async function (entity, cmdId, params = {}) {
   console.log(`Got ${entity.id} command request: ${cmdId}`);
 
   let state = null;
@@ -55,7 +53,7 @@ const cmdHandler: CommandHandler = async function (entity, cmdId, params = {}): 
           : uc.entities.Remote.States.Off;
       break;
     case uc.entities.Remote.Commands.SendCmd: {
-      const command = (params.command ?? "") as string;
+      const command = params.command ?? "";
       if (!supportedCommands.includes(command)) {
         console.error(`Unknown command: ${command}`);
         return uc.StatusCodes.BadRequest;
@@ -79,7 +77,7 @@ const cmdHandler: CommandHandler = async function (entity, cmdId, params = {}): 
   }
 
   if (state) {
-    const newState: Record<string, string> = {
+    const newState = {
       [uc.entities.Remote.Attributes.State]: state
     };
     uc.getConfiguredEntities().updateEntityAttributes(entity.id, newState);
@@ -107,12 +105,12 @@ const createButtonMappings = () => {
     uc.ui.createBtnMapping(uc.ui.Buttons.DpadDown, "CURSOR_DOWN"),
     uc.ui.createBtnMapping(uc.ui.Buttons.DpadLeft, "CURSOR_LEFT"),
     uc.ui.createBtnMapping(uc.ui.Buttons.DpadRight, "CURSOR_RIGHT"),
-    uc.ui.createBtnMapping(uc.ui.Buttons.DpadMiddle, createSendCmd("CONTEXT_MENU", { hold: 100 })),
+    uc.ui.createBtnMapping(uc.ui.Buttons.DpadMiddle, uc.entities.Remote.createSendCmd("CONTEXT_MENU", { hold: 100 })),
     uc.ui.createBtnMapping(
       uc.ui.Buttons.Blue,
-      createSequenceCmd(["CURSOR_UP", "CURSOR_RIGHT", "CURSOR_DOWN", "CURSOR_LEFT"], { delay: 200 })
+      uc.entities.Remote.createSequenceCmd(["CURSOR_UP", "CURSOR_RIGHT", "CURSOR_DOWN", "CURSOR_LEFT"], { delay: 200 })
     ),
-    uc.ui.createBtnMapping(uc.ui.Buttons.Power, new EntityCommand("remote.toggle"))
+    uc.ui.createBtnMapping(uc.ui.Buttons.Power, new uc.ui.EntityCommand("remote.toggle"))
   ];
 };
 
@@ -131,14 +129,20 @@ const createUi = () => {
 
   const uiPage2 = new uc.ui.UiPage("page2", "Page 2");
   uiPage2.add(
-    uc.ui.createUiText("Pump up the volume!", 0, 0, createSendCmd("VOLUME_UP", { repeat: 5 }), new uc.ui.Size(4, 2))
+    uc.ui.createUiText(
+      "Pump up the volume!",
+      0,
+      0,
+      uc.entities.Remote.createSendCmd("VOLUME_UP", { repeat: 5 }),
+      new uc.ui.Size(4, 2)
+    )
   );
   uiPage2.add(
     uc.ui.createUiText(
       "Test sequence",
       0,
       4,
-      createSequenceCmd(["CURSOR_UP", "CURSOR_RIGHT", "CURSOR_DOWN", "CURSOR_LEFT"], { delay: 200 }),
+      uc.entities.Remote.createSequenceCmd(["CURSOR_UP", "CURSOR_RIGHT", "CURSOR_DOWN", "CURSOR_LEFT"], { delay: 200 }),
       new uc.ui.Size(4, 1)
     )
   );
