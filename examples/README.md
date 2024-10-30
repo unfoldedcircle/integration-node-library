@@ -1,6 +1,7 @@
 # Integration Driver Examples
 
 Integrations using the Node.js API wrapper:
+
 - [Global Caché IR integration](https://github.com/unfoldedcircle/integration-globalcache)
 
 ## Minimum required driver framework
@@ -29,7 +30,7 @@ node light.js
 The [remote-entity example](remote/remote.js) integration shows how to use simple commands, power toggle functionality,
 pre-defined physical button mappings and how to define a user-interface.
 
-The user interface is partially created programmatically, and partially loaded from a json file.  
+The user interface is partially created programmatically, and partially loaded from a json file.
 
 ## setup-flow
 

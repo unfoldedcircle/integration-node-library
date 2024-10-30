@@ -12,19 +12,24 @@ _Changes in the next release_
 ---
 
 ## 0.1.0-beta - 2024-08-21
+
 ### Breaking changes
+
 - All entity class constructors have changed: use named parameters for all optional arguments.
 
 ### Added
+
 - Remote-entity and UI definitions.
 - Setup-flow and remote examples.
 - Log configuration with the `debug` module.
 
 ### Changed
+
 - Setup handler & entity command handler instead of events (#35).
 - Remove available & configured entity persistence (#34).
 - Remove features parameter from sensor entity constructor.
 
 ### Fixed
+
 - Missing media-player features, options, and commands.
 - Missing options property in available entities.
