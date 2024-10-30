@@ -1,5 +1,8 @@
 # Integration Driver Examples
 
+See [integration-ts-example](https://github.com/unfoldedcircle/integration-ts-example) for a simple integration driver
+project implementing the `simulated-light` example. This project can be used as a template for writing an integration driver.
+
 Integrations using the Node.js API wrapper:
 
 - [Global Caché IR integration](https://github.com/unfoldedcircle/integration-globalcache)
