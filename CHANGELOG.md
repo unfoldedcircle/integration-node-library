@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 _Changes in the next release_
 
+### Breaking changes
+
+- Package name change to `@unfoldedcircle/integration-api`. Use a scoped name for npmjs publishing.
+- Using enums for all entity options, features etc. using UpperCamelCase
+
+### Changed
+
+- TypeScript conversion.
+
 ---
 
 ## 0.1.0-beta - 2024-08-21
