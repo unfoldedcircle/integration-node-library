@@ -86,7 +86,7 @@ class IntegrationAPI extends EventEmitter {
   /**
    * Initialize the library
    * @param {string|object} driverConfig either a string to specify the driver configuration file path, or an object holding the configuration
-   * @param #setupHandler optional driver setup handler if the driver metadata contains a setup_data_schema object
+   * @param [setupHandler] optional driver setup handler if the driver metadata contains a setup_data_schema object
    */
   init(
     driverConfig: string | object,
