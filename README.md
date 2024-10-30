@@ -30,10 +30,14 @@ npm install @unfoldedcircle/integration-api
 
 ## Usage
 
-The [examples](examples) directory contains some minimal examples on how to get started using the Node.js API wrapper.
+The [examples](examples) directory contains some minimal examples in JavaScript on how to get started using the Node.js
+API wrapper.
 
 See [integration-ts-example](https://github.com/unfoldedcircle/integration-ts-example) for a simple integration driver
 project using TypeScript. This project can be used as a template for writing an integration driver.
+
+We highly recommend using TypeScript for any new project using this package!  
+We might even move the runtime on the Remote to [Deno v2](https://deno.com/). Stay tuned :-)
 
 ### Environment Variables
 

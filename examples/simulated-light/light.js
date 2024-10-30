@@ -1,7 +1,7 @@
-// use package in production
-// const uc = require("uc-integration-api");
-//uc.init("light-driver.json");
-import uc, { CommandHandler, StatusCodes } from "../../index.js";
+// use integration library in a client project:
+// import uc from "@unfoldedcircle/integration-api";
+// This example is also available as a full client project: https://github.com/unfoldedcircle/integration-ts-example
+import uc from "../../dist/index.js";
 
 uc.init("light-driver.json");
 
@@ -18,17 +18,17 @@ uc.on(uc.Events.SubscribeEntities, async (entityIds) => {
   // the UC library automatically adds the subscribed entities
   // from available to configured
   // you can act on this event if you need for your device handling
-  entityIds.forEach((entityId: string) => {
+  entityIds.forEach((entityId) => {
     console.log(`Subscribed entity: ${entityId}`);
   });
 });
 
-uc.on(uc.Events.UnsubscribeEntities, async (entityIds: string[]) => {
+uc.on(uc.Events.UnsubscribeEntities, async (entityIds) => {
   // when the integration unsubscribed from certain entity updates,
   // the UC library automatically remove the unsubscribed entities
   // from configured
   // you can act on this event if you need for your device handling
-  entityIds.forEach((entityId: string) => {
+  entityIds.forEach((entityId) => {
     console.log(`Unsubscribed entity: ${entityId}`);
   });
 });
@@ -40,10 +40,10 @@ uc.on(uc.Events.UnsubscribeEntities, async (entityIds: string[]) => {
  *
  * @param {Entity} entity button entity
  * @param {string} cmdId command
- * @param {Object<string, *>} params optional command parameters
- * @return {Promise<string>} status of the command
+ * @param {Object<string, *>} [params] optional command parameters
+ * @return {Promise<uc.StatusCodes>} status of the command
  */
-const sharedCmdHandler: CommandHandler = async function (entity, cmdId, params): Promise<StatusCodes> {
+const sharedCmdHandler = async function (entity, cmdId, params) {
   // let's add some hacky action to the button!
   if (entity.id === "my_button" && cmdId === uc.entities.Button.Commands.Push) {
     console.log("Got %s push request: toggling light", entity.id);
@@ -73,10 +73,10 @@ const sharedCmdHandler: CommandHandler = async function (entity, cmdId, params):
  *
  * @param {Entity} entity light entity
  * @param {string} cmdId command
- * @param {?Object<string, *>} params optional command parameters
- * @return {Promise<string>} status of the command
+ * @param {Object<string, *>} [params] optional command parameters
+ * @return {Promise<uc.StatusCodes>} status of the command
  */
-const lightCmdHandler: CommandHandler = async function (entity, cmdId, params): Promise<StatusCodes> {
+const lightCmdHandler = async function (entity, cmdId, params) {
   console.log("Got %s command request: %s", entity.id, cmdId);
 
   // in this example we just update the entity, but in reality, you'd turn on the light with your integration
@@ -138,13 +138,13 @@ lightEntity.setCmdHandler(lightCmdHandler);
 
 // add entity as available
 // this is important, so the core knows what entities are available
-uc.getAvailableEntities().addAvailableEntity(lightEntity);
+uc.addAvailableEntity(lightEntity);
 
 const buttonEntity = new uc.entities.Button("my_button", "Push the button!", {
   area: "test lab",
   cmdHandler: sharedCmdHandler
 });
-uc.getAvailableEntities().addAvailableEntity(buttonEntity);
+uc.addAvailableEntity(buttonEntity);
 
 // add a media-player entity
 const mediaPlayerEntity = new uc.entities.MediaPlayer(
@@ -169,4 +169,4 @@ const mediaPlayerEntity = new uc.entities.MediaPlayer(
   }
 );
 mediaPlayerEntity.setCmdHandler(sharedCmdHandler);
-uc.getAvailableEntities().addAvailableEntity(mediaPlayerEntity);
+uc.addAvailableEntity(mediaPlayerEntity);

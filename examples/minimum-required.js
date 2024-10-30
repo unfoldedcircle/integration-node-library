@@ -1,6 +1,6 @@
-// use package in production
-// const uc = require("uc-integration-api");
-import uc, { CommandHandler, StatusCodes } from "../index.js";
+// use integration library in a client project:
+// import uc from "@unfoldedcircle/integration-api";
+import uc from "../index.js";
 
 uc.init("driver.json");
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -51,11 +51,11 @@ uc.on(uc.Events.UnsubscribeEntities, async () => {
  *
  * @param {Entity} entity button entity
  * @param {string} cmdId command
- * @param {Object<string, *>} params optional command parameters
- * @return {Promise<string>} status of the command
+ * @param {Object<string, *>} [params] optional command parameters
+ * @return {Promise<uc.StatusCodes>} status of the command
  */
 
-const cmdHandler: CommandHandler = async function (entity, cmdId, params): Promise<StatusCodes> {
+const cmdHandler = async function (entity, cmdId, params) {
   console.log("Got %s command request: %s", entity.id, cmdId, params || "");
   // handle entity commands here
   // execute commands on your integration devices
@@ -80,7 +80,7 @@ const entityId = "unique-id-inside-integration";
 const entityName = "My entity";
 
 const entity = new uc.entities.MediaPlayer(
-  // entity id has to be unique, you can provide it or use uc.Entities.generateId()
+  // entity id has to be unique, you can provide it or use uc.entities.generateId()
   entityId,
   // name of the entity
   entityName,

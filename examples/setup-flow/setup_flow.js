@@ -2,9 +2,9 @@
  * Integration setup flow example.
  */
 
-// use package in production
-// const uc = require("uc-integration-api");
-import uc, { StatusCodes, CommandHandler, DriverSetupRequest, UserDataResponse, SetupAction } from "../../index.js";
+// use integration library in a client project:
+// import uc from "@unfoldedcircle/integration-api";
+import uc from "../../dist/index.js";
 
 /**
  * Dispatch driver setup requests to corresponding handlers.
@@ -12,10 +12,10 @@ import uc, { StatusCodes, CommandHandler, DriverSetupRequest, UserDataResponse, 
  * Either start the setup process or handle the provided user input data.
  * @param {uc.setup.SetupDriver} msg the setup driver request object, either DriverSetupRequest,
  *                 UserDataResponse or UserConfirmationResponse
- * @return {Promise<SetupAction>} the setup action on how to continue
+ * @return the SetupAction on how to continue
  */
 
-const driverSetupHandler = async function (msg: DriverSetupRequest | UserDataResponse): Promise<SetupAction> {
+const driverSetupHandler = async function (msg) {
   if (msg instanceof uc.setup.DriverSetupRequest) {
     return await handleDriverSetup(msg);
   }
@@ -36,10 +36,10 @@ const driverSetupHandler = async function (msg: DriverSetupRequest | UserDataRes
  *
  * Initiated by the UC Remote to set up the driver.
  * @param {uc.setup.DriverSetupRequest} msg value(s) of input fields in the first setup screen.
- * @return {Promise<uc.setup.SetupAction>} the setup action on how to continue
+ * @return the SetupAction on how to continue
  */
-async function handleDriverSetup(msg: DriverSetupRequest) {
-  // No support for reconfiguration :-)but
+async function handleDriverSetup(msg) {
+  // No support for reconfiguration :-)
   if (msg.reconfigure) {
     console.log("Ignoring driver reconfiguration request");
   }
@@ -97,9 +97,9 @@ async function handleDriverSetup(msg: DriverSetupRequest) {
  *
  * Driver setup callback to provide requested user data during the setup process.
  * @param {uc.setup.UserDataResponse} msg response data from the requested user data
- * @return {Promise<uc.setup.SetupAction>} the setup action on how to continue: SetupComplete if finished.
+ * @return the SetupAction on how to continue: SetupComplete if finished.
  */
-async function handleUserDataResponse(msg: UserDataResponse): Promise<SetupAction> {
+async function handleUserDataResponse(msg) {
   // values from all screens are returned: check in reverse order
   if ("step2.count" in msg.inputValues) {
     for (let x = 0; x < parseInt(msg.inputValues["step2.count"]); x++) {
@@ -147,14 +147,13 @@ async function handleUserDataResponse(msg: UserDataResponse): Promise<SetupActio
  *
  * Called by the integration-API if a command is sent to a configured button-entity.
  *
- * @param {uc.Entities.Entity} entity button entity
+ * @param {Entity} entity button entity
  * @param {string} cmdId command
- * @param {Object<string, *>} _params optional command parameters (not used for buttons)
- * @return {Promise<string>} status of the command
+ * @param {Object<string, *>} [_params] optional command parameters (not used for buttons)
+ * @return {Promise<uc.StatusCodes>} status of the command
  */
-const cmdHandler: CommandHandler = async function (entity, cmdId, _params): Promise<StatusCodes> {
+const cmdHandler = async function (entity, cmdId, _params) {
   console.log("Got %s command request: %s", entity.id, cmdId);
-
   return uc.StatusCodes.Ok;
 };
 

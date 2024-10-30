@@ -1,11 +1,23 @@
 # Integration Driver Examples
 
 See [integration-ts-example](https://github.com/unfoldedcircle/integration-ts-example) for a simple integration driver
-project implementing the `simulated-light` example. This project can be used as a template for writing an integration driver.
+project written in TypeScript, implementing the `simulated-light` example. It can be used as a template for writing an
+integration driver.
 
 Integrations using the Node.js API wrapper:
 
 - [Global Caché IR integration](https://github.com/unfoldedcircle/integration-globalcache)
+
+The following examples are short JavaScript snippets. Before running any examples, the TypeScript library needs to be
+compiled:
+
+```shell
+npm install
+npm run build
+```
+
+Remember to set the `DEBUG` environment variable before starting an example. Otherwise, there won't be much console output.
+See [Logging](../README.md#logging).
 
 ## Minimum required driver framework
 
@@ -24,8 +36,7 @@ This example creates one simulated light entity and handles basic commands sent 
 
 ```shell
 cd simulated-light
-npm install
-node light.js
+DEBUG=* node light.js
 ```
 
 ## remote
