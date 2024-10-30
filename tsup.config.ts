@@ -21,6 +21,19 @@ export default defineConfig([
     shims: true,
     skipNodeModulesBundle: true,
     clean: true,
-    splitting: false, // Disable code splitting
+    splitting: false,
+  },
+
+  // Configuration for the example files
+  {
+    format: ["esm"], 
+    entry: ["./examples/**/*.ts"],
+    outDir: "./dist/examples",
+    dts: false,
+    shims: true,
+    skipNodeModulesBundle: true,
+    clean: true,
+    splitting: false,
+    onSuccess: "npx copyfiles -u 1 examples/**/*.json dist/examples",
   },
 ]);
