@@ -138,13 +138,13 @@ lightEntity.setCmdHandler(lightCmdHandler);
 
 // add entity as available
 // this is important, so the core knows what entities are available
-uc.getAvailableEntities().addEntity(lightEntity);
+uc.getAvailableEntities().addAvailableEntity(lightEntity);
 
 const buttonEntity = new uc.entities.Button("my_button", "Push the button!", {
   area: "test lab",
   cmdHandler: sharedCmdHandler
 });
-uc.getAvailableEntities().addEntity(buttonEntity);
+uc.getAvailableEntities().addAvailableEntity(buttonEntity);
 
 // add a media-player entity
 const mediaPlayerEntity = new uc.entities.MediaPlayer(
@@ -169,4 +169,4 @@ const mediaPlayerEntity = new uc.entities.MediaPlayer(
   }
 );
 mediaPlayerEntity.setCmdHandler(sharedCmdHandler);
-uc.getAvailableEntities().addEntity(mediaPlayerEntity);
+uc.getAvailableEntities().addAvailableEntity(mediaPlayerEntity);

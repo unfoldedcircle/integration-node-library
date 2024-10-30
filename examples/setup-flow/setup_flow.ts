@@ -54,7 +54,7 @@ async function handleDriverSetup(msg: DriverSetupRequest) {
   if (!("expert" in msg.setupData) || msg.setupData.expert !== "true") {
     // add a single button as default action
     const button = new uc.entities.Button("button", "Button", { cmdHandler });
-    uc.addEntity(button);
+    uc.addAvailableEntity(button);
     return new uc.setup.SetupComplete();
   }
 
@@ -103,7 +103,7 @@ async function handleUserDataResponse(msg: UserDataResponse): Promise<SetupActio
   // values from all screens are returned: check in reverse order
   if ("step2.count" in msg.inputValues) {
     for (let x = 0; x < parseInt(msg.inputValues["step2.count"]); x++) {
-      uc.addEntity(new uc.entities.Button(`button${x}`, `Button ${x + 1}`, { cmdHandler }));
+      uc.addAvailableEntity(new uc.entities.Button(`button${x}`, `Button ${x + 1}`, { cmdHandler }));
     }
 
     return new uc.setup.SetupComplete();

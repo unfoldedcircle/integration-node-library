@@ -159,5 +159,5 @@ const entity = new uc.entities.Remote("remote1", "Demo remote", {
   cmdHandler
 });
 
-uc.addEntity(entity);
+uc.addAvailableEntity(entity);
 uc.init("remote.json");

@@ -469,7 +469,7 @@ class IntegrationAPI extends EventEmitter {
     entities.entity_ids.forEach((entityId: any) => {
       const entity = this.#availableEntities.getEntity(entityId);
       if (entity) {
-        this.#configuredEntities.addEntity(entity);
+        this.#configuredEntities.addAvailableEntity(entity);
       } else {
         log.warn(`WARN: cannot subscribe entity '${entityId}': entity is not available`);
       }
@@ -804,8 +804,8 @@ class IntegrationAPI extends EventEmitter {
     return this.#driverInfo.driver_url;
   }
 
-  public addEntity(entity: entities.Entity) {
-    this.#availableEntities.addEntity(entity);
+  public addAvailableEntity(entity: entities.Entity) {
+    this.#availableEntities.addAvailableEntity(entity);
   }
 
   public clearAvailableEntities(): void {

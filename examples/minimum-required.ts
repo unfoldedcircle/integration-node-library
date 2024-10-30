@@ -97,7 +97,7 @@ const entity = new uc.entities.MediaPlayer(
 );
 
 // 2. add available entity to the core
-uc.addEntity(entity);
+uc.addAvailableEntity(entity);
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 // Updating entities
