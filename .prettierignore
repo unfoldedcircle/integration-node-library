@@ -3,3 +3,4 @@ dist
 build
 *.min.js
 **/*.config.ts
+package-lock.json
