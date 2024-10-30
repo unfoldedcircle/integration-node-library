@@ -1,7 +1,7 @@
 {
-  "name": "uc-integration-api",
+  "name": "@unfoldedcircle/integration-api",
   "description": "NodeJS wrapper for the Unfolded Circle Integration API",
-  "version": "0.1.0",
+  "version": "0.2.0-dev.1",
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -46,7 +46,6 @@
     "url": "git+https://github.com/unfoldedcircle/integration-node-library.git"
   },
   "keywords": [
-    "uc",
     "unfoldedcircle",
     "remotetwo",
     "smartremote",
@@ -59,7 +58,6 @@
     "url": "https://github.com/unfoldedcircle/integration-node-library/issues"
   },
   "homepage": "https://unfoldedcircle.com",
-  "private": true,
   "engines": {
     "node": ">=16.18.0"
   }
