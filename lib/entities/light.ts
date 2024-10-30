@@ -6,97 +6,95 @@
  * @license Apache License 2.0, see LICENSE for more details.
  */
 
-import { CommandHandler, TYPES as ENTITYTYPES } from "./entity.js";
-import { toLanguageObject } from "../utils.js";
-import Entity from "./entity.js";
+import { CommandHandler, Entity, EntityType, EntityName } from "./entity.js";
 import log from "../loggers.js";
 
 /**
  * Light entity states.
  */
-enum STATES {
-  UNAVAILABLE = "UNAVAILABLE",
-  UNKNOWN = "UNKNOWN",
-  ON = "ON",
-  OFF = "OFF"
+export enum States {
+  Unavailable = "UNAVAILABLE",
+  Unknown = "UNKNOWN",
+  On = "ON",
+  Off = "OFF"
 }
 
 /**
  * Light entity features.
  */
-enum FEATURES {
-  ON_OFF = "on_off",
-  TOGGLE = "toggle",
-  DIM = "dim",
-  COLOR = "color",
-  COLOR_TEMPERATURE = "color_temperature"
+export enum Features {
+  OnOff = "on_off",
+  Toggle = "toggle",
+  Dim = "dim",
+  Color = "color",
+  ColorTemperature = "color_temperature"
 }
 
 /**
  * Light entity attributes.
  */
-enum ATTRIBUTES {
-  STATE = "state",
-  HUE = "hue",
-  SATURATION = "saturation",
-  BRIGHTNESS = "brightness",
-  COLOR_TEMPERATURE = "color_temperature"
+export enum Attributes {
+  State = "state",
+  Hue = "hue",
+  Saturation = "saturation",
+  Brightness = "brightness",
+  ColorTemperature = "color_temperature"
 }
 
 /**
  * Light entity commands.
  */
-enum COMMANDS {
-  ON = "on",
-  OFF = "off",
-  TOGGLE = "toggle"
+export enum Commands {
+  On = "on",
+  Off = "off",
+  Toggle = "toggle"
 }
 
 /**
  * Light entity device classes.
  */
-const DEVICECLASSES: Record<string, unknown> = {};
+export enum DeviceClasses {}
 
 /**
  * Light entity options.
  */
-enum OPTIONS {
-  COLOR_TEMPERATURE_STEPS = "color_temperature_steps"
+export enum Options {
+  ColorTemperatureSteps = "color_temperature_steps"
 }
 
 interface LightParams {
-  features?: string[];
-  attributes?: Partial<Record<ATTRIBUTES, STATES | number | boolean | string>>;
+  features?: Features[];
+  attributes?: Partial<Record<Attributes, States | number>>;
   deviceClass?: string;
-  options?: Partial<Record<OPTIONS, number | string | boolean>> | null;
+  options?: Partial<Record<Options, number>>;
   area?: string;
-  cmdHandler?: CommandHandler | null;
+  cmdHandler?: CommandHandler;
 }
 
 /**
  * See {@link https://github.com/unfoldedcircle/core-api/blob/main/doc/entities/entity_light.md light entity documentation}
  * for more information.
  */
-class Light extends Entity {
+export class Light extends Entity {
+  static States = States;
+  static Features = Features;
+  static Attributes = Attributes;
+  static Commands = Commands;
+  static DeviceClasses = DeviceClasses;
+  static Options = Options;
+
   /**
    * Constructs a new light entity.
    *
    * @param {string} id The entity identifier. Must be unique inside the integration driver.
-   * @param {string | Map<string, string> | Record<string, string>} name The human-readable name of the entity.
+   * @param {EntityName} name The human-readable name of the entity.
    *        Either a string, which will be mapped to English, or a Map / Object containing multiple language strings.
    * @param {LightParams} [params] Entity parameters.
    * @throws AssertionError if invalid parameters are specified.
    */
-  constructor(
-    id: string,
-    name: string | Map<string, string> | Record<string, string>,
-    { features = [], attributes = {}, deviceClass, options = null, area }: LightParams = {}
-  ) {
-    super(id, toLanguageObject(name), ENTITYTYPES.LIGHT, { features, attributes, deviceClass, options, area });
+  constructor(id: string, name: EntityName, { features, attributes, deviceClass, options, area }: LightParams = {}) {
+    super(id, name, EntityType.Light, { features, attributes, deviceClass, options, area });
 
     log.debug(`Light entity created with id: ${this.id}`);
   }
 }
-
-export default Light;
-export { STATES, FEATURES, ATTRIBUTES, COMMANDS, DEVICECLASSES, OPTIONS };

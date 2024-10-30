@@ -6,71 +6,77 @@
  * @license Apache License 2.0, see LICENSE for more details.
  */
 
-import { TYPES as ENTITYTYPES } from "./entity.js";
-import Entity from "./entity.js";
+import { Entity, EntityType, EntityName } from "./entity.js";
 import log from "../loggers.js";
 
 /**
  * Sensor entity states.
  */
-enum STATES {
-  UNAVAILABLE = "UNAVAILABLE",
-  UNKNOWN = "UNKNOWN",
-  ON = "ON"
+export enum States {
+  Unavailable = "UNAVAILABLE",
+  Unknown = "UNKNOWN",
+  On = "ON"
 }
 
 /**
  * Sensor entity features.
  */
-const FEATURES: Record<string, boolean> = {};
+export enum Features {}
 
 /**
  * Sensor entity attributes.
  */
-enum ATTRIBUTES {
-  STATE = "state",
-  VALUE = "value",
-  UNIT = "unit"
+export enum Attributes {
+  State = "state",
+  Value = "value",
+  Unit = "unit"
 }
 
 /**
  * Sensor entity commands.
  */
-const COMMANDS: Record<string, boolean> = {};
+export enum Commands {}
 
 /**
  * Sensor entity device classes.
  */
-enum DEVICECLASSES {
-  CUSTOM = "custom",
-  BATTERY = "battery",
-  CURRENT = "current",
-  ENERGY = "energy",
-  HUMIDITY = "humidity",
-  POWER = "power",
-  TEMPERATURE = "temperature",
-  VOLTAGE = "voltage"
+export enum DeviceClasses {
+  Custom = "custom",
+  Battery = "battery",
+  Current = "current",
+  Energy = "energy",
+  Humidity = "humidity",
+  Power = "power",
+  Temperature = "temperature",
+  Voltage = "voltage"
 }
 
 /**
  * Sensor entity options.
  */
-enum OPTIONS {
-  CUSTOM_UNIT = "custom_unit",
-  NATIVE_UNIT = "native_unit",
-  DECIMALS = "decimals",
-  MIN_VALUE = "min_value",
-  MAX_VALUE = "max_value"
+export enum Options {
+  CustomUnit = "custom_unit",
+  NativeUnit = "native_unit",
+  Decimals = "decimals",
+  MinValue = "min_value",
+  MaxValue = "max_value"
 }
 
 interface SensorParams {
-  attributes?: Partial<Record<ATTRIBUTES, STATES | number | boolean | string>>;
-  deviceClass?: DEVICECLASSES;
-  options?: Partial<Record<OPTIONS, number | string | boolean>> | null;
+  attributes?: Partial<Record<Attributes, States | number | string>>;
+  deviceClass?: DeviceClasses;
+  options?: Partial<Record<Options, string | number>>;
   area?: string;
 }
 
-class Sensor extends Entity {
+export class Sensor extends Entity {
+  static States = States;
+  static Features = Features;
+  static Attributes = Attributes;
+  static Commands = Commands;
+  static DeviceClasses = DeviceClasses;
+  static Options = Options;
+
   /**
    * Constructs a new sensor entity.
    *
@@ -79,16 +85,9 @@ class Sensor extends Entity {
    * @param params Entity parameters.
    * @throws AssertionError if invalid parameters are specified.
    */
-  constructor(
-    id: string,
-    name: string | Map<string, string> | Record<string, string>,
-    { attributes, deviceClass, options, area }: SensorParams = {}
-  ) {
-    super(id, name, ENTITYTYPES.SENSOR, { attributes, deviceClass, options, area });
+  constructor(id: string, name: EntityName, { attributes, deviceClass, options, area }: SensorParams = {}) {
+    super(id, name, EntityType.Sensor, { attributes, deviceClass, options, area });
 
     log.debug(`Sensor entity created with id: ${this.id}`);
   }
 }
-
-export default Sensor;
-export { STATES, FEATURES, ATTRIBUTES, COMMANDS, DEVICECLASSES, OPTIONS };

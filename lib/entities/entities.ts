@@ -5,58 +5,58 @@
  * @license Apache License 2.0, see LICENSE for more details.
  */
 
-import { TYPES as ENTITYTYPES } from "./entity.js";
+import { EntityType } from "./entity.js";
 import { EventEmitter } from "events";
-import Entity from "./entity.js";
-import Button from "./button.js";
-import Climate from "./climate.js";
-import Cover from "./cover.js";
-import Light from "./light.js";
-import MediaPlayer from "./media_player.js";
-import Remote from "./remote.js";
-import Sensor from "./sensor.js";
-import Switch from "./switch.js";
-import { EVENTS } from "../api_definitions.js";
+import { Entity } from "./entity.js";
+import { Button } from "./button.js";
+import { Climate } from "./climate.js";
+import { Cover } from "./cover.js";
+import { Light } from "./light.js";
+import { MediaPlayer } from "./media_player.js";
+import { Remote } from "./remote.js";
+import { Sensor } from "./sensor.js";
+import { Switch } from "./switch.js";
+import { Events } from "../api_definitions.js";
 import log from "../loggers.js";
 
 class Entities extends EventEmitter {
-  private storage: Record<string, Entity>;
+  #storage: { [key: string]: Entity };
 
   constructor(public id: string) {
     super();
-    this.storage = {};
+    this.#storage = {};
   }
 
   contains(id: string): boolean {
-    return !!this.storage[id];
+    return !!this.#storage[id];
   }
 
   getEntity(id: string): Entity | null {
-    if (!this.storage[id]) {
+    if (!this.#storage[id]) {
       log.warn(`ENTITIES(${this.id}): Entity does not exist: ${id}`);
       return null;
     }
-    return this.storage[id];
+    return this.#storage[id];
   }
 
   addEntity(entity: Entity): boolean {
-    if (this.storage[entity.id]) {
-      log.warn(`ENTITIES(${this.id}): Entity is already in storage: ${entity.id}`);
+    if (this.#storage[entity.id]) {
+      log.warn(`ENTITIES(${this.id}): Entity is already in #storage: ${entity.id}`);
       return false;
     }
-    this.storage[entity.id] = entity;
+    this.#storage[entity.id] = entity;
 
     log.debug(`ENTITIES(${this.id}): Entity added: ${entity.id}`);
     return true;
   }
 
   removeEntity(id: string): boolean {
-    if (!this.storage[id]) {
+    if (!this.#storage[id]) {
       log.warn(`ENTITIES(${this.id}): Entity does not exist: ${id}`);
       return false;
     }
 
-    delete this.storage[id];
+    delete this.#storage[id];
 
     log.debug(`ENTITIES(${this.id}): Entity removed: ${id}`);
     return true;
@@ -69,25 +69,18 @@ class Entities extends EventEmitter {
    * @param {Map<string, any> | Record<string, any>} attributes The attributes to merge into the entity's attributes
    * @returns {boolean} false if entity doesn't exist, true if attributes were merged.
    */
-  updateEntityAttributes(
-    id: string,
-    attributes: Map<string, object | number | string> | Record<string, object | number | string>
-  ): boolean {
+  updateEntityAttributes(id: string, attributes: { [key: string]: string | number | boolean }): boolean {
     if (!this.contains(id)) {
       return false;
     }
 
-    if (attributes instanceof Map) {
-      attributes.forEach((value, key) => {
-        this.storage[id].attributes[key] = value;
-      });
-    } else {
+    if (this.#storage[id] && this.#storage[id].attributes) {
       for (const key in attributes) {
-        this.storage[id].attributes[key] = attributes[key];
+        this.#storage[id].attributes[key] = attributes[key];
       }
     }
 
-    this.emit(EVENTS.ENTITY_ATTRIBUTES_UPDATED, id, this.storage[id].entity_type, attributes);
+    this.emit(Events.EntityAttributesUpdated, id, this.#storage[id].entity_type, attributes);
 
     return true;
   }
@@ -95,7 +88,7 @@ class Entities extends EventEmitter {
   getEntities(): Array<Record<string, object | string | null | undefined>> {
     const entities: Array<Record<string, object | string | null | undefined>> = [];
 
-    Object.entries(this.storage).forEach(([, value]) => {
+    Object.entries(this.#storage).forEach(([, value]) => {
       const entity = {
         entity_id: value.id,
         entity_type: value.entity_type,
@@ -116,7 +109,7 @@ class Entities extends EventEmitter {
   getStates(): Array<Record<string, object | string | null | undefined>> {
     const entities: Array<Record<string, object | string | null | undefined>> = [];
 
-    Object.entries(this.storage).forEach(([, value]) => {
+    Object.entries(this.#storage).forEach(([, value]) => {
       const entity = {
         entity_id: value.id,
         entity_type: value.entity_type,
@@ -131,10 +124,8 @@ class Entities extends EventEmitter {
   }
 
   clear(): void {
-    this.storage = {};
+    this.#storage = {};
   }
 }
 
-export default Entities;
-export const TYPES = ENTITYTYPES;
-export { Entity, Button, Climate, Cover, Light, MediaPlayer, Remote, Sensor, Switch };
+export { EntityType, Entities, Entity, Button, Climate, Cover, Light, MediaPlayer, Remote, Sensor, Switch };

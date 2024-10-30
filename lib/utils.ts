@@ -10,17 +10,26 @@
  *
  * An input text is either a simple string, which is mapped to the `en` language key, a Map containing language keys and
  * text values, or an Object with language key fields and text values.
- * @param {string | Map<string, string> | Record<string, string>} text
- * @return {{ [key: string]: string }}
+ * @param {string | Map<string, string> | Record<string, string> | null | undefined} text
+ * @return {{ Record<string, string> | null }}
  */
-function toLanguageObject(text: string | Map<string, string> | Record<string, string>): Record<string, string> {
-  if (typeof text === "string") {
-    return { en: text };
-  } else if (text instanceof Map) {
-    return Object.fromEntries(text);
-  } else {
-    return text;
+export function toLanguageObject(
+  text: string | Map<string, string> | Record<string, string> | null | undefined
+): Record<string, string> | null {
+  if (text) {
+    if (typeof text === "string") {
+      return { en: text };
+    }
+    if (text instanceof Map) {
+      return Object.fromEntries(text);
+    }
+    if (text instanceof Object) {
+      // TODO check if text object only contains string keys & values?
+      return text;
+    }
   }
+
+  return null;
 }
 
 /**
@@ -32,7 +41,10 @@ function toLanguageObject(text: string | Map<string, string> | Record<string, st
  * @param {string} defaultText The text to return if `text` is empty.
  * @returns {string} The default text.
  */
-function getDefaultLanguageString(text: Record<string, string>, defaultText: string = "Undefined"): string {
+export function getDefaultLanguageString(
+  text: Record<string, string> | null | undefined,
+  defaultText: string = "Undefined"
+): string {
   if (!text) {
     return defaultText;
   }
@@ -52,5 +64,3 @@ function getDefaultLanguageString(text: Record<string, string>, defaultText: str
 
   return defaultText;
 }
-
-export { toLanguageObject, getDefaultLanguageString };

@@ -8,14 +8,14 @@ name: Check Node.js code formatting
 on:
   push:
     paths:
-      - '**/*.js'
-      - '**/*.ts'
-      - '.github/**/*.yml'
-      - '.eslintrc.json'
-      - '.prettierrc'
-      - 'package-lock.json'
+      - "**/*.js"
+      - "**/*.ts"
+      - ".github/**/*.yml"
+      - ".eslintrc.json"
+      - ".prettierrc"
+      - "package-lock.json"
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
     types: [opened, synchronize, reopened]
 
 jobs:
@@ -29,7 +29,7 @@ jobs:
       - name: Setup node
         uses: actions/setup-node@v4
         with:
-          node-version-file: '.nvmrc'
+          node-version-file: ".nvmrc"
 
       - name: Cache NPM dependencies
         id: npm-cache

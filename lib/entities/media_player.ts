@@ -6,191 +6,201 @@
  * @license Apache License 2.0, see LICENSE for more details.
  */
 
-import { TYPES as ENTITYTYPES } from "./entity.js";
-import Entity from "./entity.js";
+import { Entity, EntityType, CommandHandler, EntityName } from "./entity.js";
 import log from "../loggers.js";
 
 /**
  * Media-player entity states.
  */
-enum STATES {
-  UNAVAILABLE = "UNAVAILABLE",
-  UNKNOWN = "UNKNOWN",
-  ON = "ON",
-  OFF = "OFF",
-  PLAYING = "PLAYING",
-  PAUSED = "PAUSED",
-  STANDBY = "STANDBY",
-  BUFFERING = "BUFFERING"
+export enum States {
+  Unavailable = "UNAVAILABLE",
+  Unknown = "UNKNOWN",
+  On = "ON",
+  Off = "OFF",
+  Playing = "PLAYING",
+  Paused = "PAUSED",
+  Standby = "STANDBY",
+  Buffering = "BUFFERING"
 }
 
 /**
  * Media-player entity features.
  */
-enum FEATURES {
-  ON_OFF = "on_off",
-  TOGGLE = "toggle",
-  VOLUME = "volume",
-  VOLUME_UP_DOWN = "volume_up_down",
-  MUTE_TOGGLE = "mute_toggle",
-  MUTE = "mute",
-  UNMUTE = "unmute",
-  PLAY_PAUSE = "play_pause",
-  STOP = "stop",
-  NEXT = "next",
-  PREVIOUS = "previous",
-  FAST_FORWARD = "fast_forward",
-  REWIND = "rewind",
-  REPEAT = "repeat",
-  SHUFFLE = "shuffle",
-  SEEK = "seek",
-  MEDIA_DURATION = "media_duration",
-  MEDIA_POSITION = "media_position",
-  MEDIA_TITLE = "media_title",
-  MEDIA_ARTIST = "media_artist",
-  MEDIA_ALBUM = "media_album",
-  MEDIA_IMAGE_URL = "media_image_url",
-  MEDIA_TYPE = "media_type",
-  DPAD = "dpad",
-  NUMPAD = "numpad",
-  HOME = "home",
-  MENU = "menu",
-  CONTEXT_MENU = "context_menu",
-  GUIDE = "guide",
-  INFO = "info",
-  COLOR_BUTTONS = "color_buttons",
-  CHANNEL_SWITCHER = "channel_switcher",
-  SELECT_SOURCE = "select_source",
-  SELECT_SOUND_MODE = "select_sound_mode",
-  EJECT = "eject",
-  OPEN_CLOSE = "open_close",
-  AUDIO_TRACK = "audio_track",
-  SUBTITLE = "subtitle",
-  RECORD = "record",
-  SETTINGS = "settings"
+export enum Features {
+  OnOff = "on_off",
+  Toggle = "toggle",
+  Volume = "volume",
+  VolumeUpDown = "volume_up_down",
+  MuteToggle = "mute_toggle",
+  Mute = "mute",
+  Unmute = "unmute",
+  PlayPause = "play_pause",
+  Stop = "stop",
+  Next = "next",
+  Previous = "previous",
+  FastForward = "fast_forward",
+  Rewind = "rewind",
+  Repeat = "repeat",
+  Shuffle = "shuffle",
+  Seek = "seek",
+  MediaDuration = "media_duration",
+  MediaPosition = "media_position",
+  MediaTitle = "media_title",
+  MediaArtist = "media_artist",
+  MediaAlbum = "media_album",
+  MediaImageUrl = "media_image_url",
+  MediaType = "media_type",
+  Dpad = "dpad",
+  Numpad = "numpad",
+  Home = "home",
+  Menu = "menu",
+  ContextMenu = "context_menu",
+  Guide = "guide",
+  Info = "info",
+  ColorButtons = "color_buttons",
+  ChannelSwitcher = "channel_switcher",
+  SelectSource = "select_source",
+  SelectSoundMode = "select_sound_mode",
+  Eject = "eject",
+  OpenClose = "open_close",
+  AudioTrack = "audio_track",
+  Subtitle = "subtitle",
+  Record = "record",
+  Settings = "settings"
 }
 
 /**
  * Media-player entity attributes.
  */
-enum ATTRIBUTES {
-  STATE = "state",
-  VOLUME = "volume",
-  MUTED = "muted",
-  MEDIA_DURATION = "media_duration",
-  MEDIA_POSITION = "media_position",
-  MEDIA_TYPE = "media_type",
-  MEDIA_IMAGE_URL = "media_image_url",
-  MEDIA_TITLE = "media_title",
-  MEDIA_ARTIST = "media_artist",
-  MEDIA_ALBUM = "media_album",
-  REPEAT = "repeat",
-  SHUFFLE = "shuffle",
-  SOURCE = "source",
-  SOURCE_LIST = "source_list",
-  SOUND_MODE = "sound_mode",
-  SOUND_MODE_LIST = "sound_mode_list"
+export enum Attributes {
+  State = "state",
+  Volume = "volume",
+  Muted = "muted",
+  MediaDuration = "media_duration",
+  MediaPosition = "media_position",
+  MediaType = "media_type",
+  MediaImageUrl = "media_image_url",
+  MediaTitle = "media_title",
+  MediaArtist = "media_artist",
+  MediaAlbum = "media_album",
+  Repeat = "repeat",
+  Shuffle = "shuffle",
+  Source = "source",
+  SourceList = "source_list",
+  SoundMode = "sound_mode",
+  SoundModeList = "sound_mode_list"
 }
 
 /**
  * Media-player entity commands.
  */
-enum COMMANDS {
-  ON = "on",
-  OFF = "off",
-  TOGGLE = "toggle",
-  PLAY_PAUSE = "play_pause",
-  STOP = "stop",
-  PREVIOUS = "previous",
-  NEXT = "next",
-  FAST_FORWARD = "fast_forward",
-  REWIND = "rewind",
-  SEEK = "seek",
-  VOLUME = "volume",
-  VOLUME_UP = "volume_up",
-  VOLUME_DOWN = "volume_down",
-  MUTE_TOGGLE = "mute_toggle",
-  MUTE = "mute",
-  UNMUTE = "unmute",
-  REPEAT = "repeat",
-  SHUFFLE = "shuffle",
-  CHANNEL_UP = "channel_up",
-  CHANNEL_DOWN = "channel_down",
-  CURSOR_UP = "cursor_up",
-  CURSOR_DOWN = "cursor_down",
-  CURSOR_LEFT = "cursor_left",
-  CURSOR_RIGHT = "cursor_right",
-  CURSOR_ENTER = "cursor_enter",
-  DIGIT_0 = "digit_0",
-  DIGIT_1 = "digit_1",
-  DIGIT_2 = "digit_2",
-  DIGIT_3 = "digit_3",
-  DIGIT_4 = "digit_4",
-  DIGIT_5 = "digit_5",
-  DIGIT_6 = "digit_6",
-  DIGIT_7 = "digit_7",
-  DIGIT_8 = "digit_8",
-  DIGIT_9 = "digit_9",
-  FUNCTION_RED = "function_red",
-  FUNCTION_GREEN = "function_green",
-  FUNCTION_YELLOW = "function_yellow",
-  FUNCTION_BLUE = "function_blue",
-  HOME = "home",
-  MENU = "menu",
-  CONTEXT_MENU = "context_menu",
-  GUIDE = "guide",
-  INFO = "info",
-  BACK = "back",
-  SELECT_SOURCE = "select_source",
-  SELECT_SOUND_MODE = "select_sound_mode",
-  RECORD = "record",
-  MY_RECORDINGS = "my_recordings",
-  LIVE = "live",
-  EJECT = "eject",
-  OPEN_CLOSE = "open_close",
-  AUDIO_TRACK = "audio_track",
-  SUBTITLE = "subtitle",
-  SETTINGS = "settings",
-  SEARCH = "search"
+export enum Commands {
+  On = "on",
+  Off = "off",
+  Toggle = "toggle",
+  PlayPause = "play_pause",
+  Stop = "stop",
+  Previous = "previous",
+  Next = "next",
+  FastForward = "fast_forward",
+  Rewind = "rewind",
+  Seek = "seek",
+  Volume = "volume",
+  VolumeUp = "volume_up",
+  VolumeDown = "volume_down",
+  MuteToggle = "mute_toggle",
+  Mute = "mute",
+  Unmute = "unmute",
+  Repeat = "repeat",
+  Shuffle = "shuffle",
+  ChannelUp = "channel_up",
+  ChannelDown = "channel_down",
+  CursorUp = "cursor_up",
+  CursorDown = "cursor_down",
+  CursorLeft = "cursor_left",
+  CursorRight = "cursor_right",
+  CursorEnter = "cursor_enter",
+  Digit0 = "digit_0",
+  Digit1 = "digit_1",
+  Digit2 = "digit_2",
+  Digit3 = "digit_3",
+  Digit4 = "digit_4",
+  Digit5 = "digit_5",
+  Digit6 = "digit_6",
+  Digit7 = "digit_7",
+  Digit8 = "digit_8",
+  Digit9 = "digit_9",
+  FunctionRed = "function_red",
+  FunctionGreen = "function_green",
+  FunctionYellow = "function_yellow",
+  FunctionBlue = "function_blue",
+  Home = "home",
+  Menu = "menu",
+  ContextMenu = "context_menu",
+  Guide = "guide",
+  Info = "info",
+  Back = "back",
+  SelectSource = "select_source",
+  SelectSoundMode = "select_sound_mode",
+  Record = "record",
+  MyRecordings = "my_recordings",
+  Live = "live",
+  Eject = "eject",
+  OpenClose = "open_close",
+  AudioTrack = "audio_track",
+  Subtitle = "subtitle",
+  Settings = "settings",
+  Search = "search"
 }
 
 /**
  * Media-player entity device classes.
  */
-enum DEVICECLASSES {
-  RECEIVER = "receiver",
-  SET_TOP_BOX = "set_top_box",
-  SPEAKER = "speaker",
-  STREAMING_BOX = "streaming_box",
+export enum DeviceClasses {
+  Receiver = "receiver",
+  SetTopBox = "set_top_box",
+  Speaker = "speaker",
+  StreamingBox = "streaming_box",
   TV = "tv"
 }
 
 /**
  * Media-player entity options.
  */
-enum OPTIONS {
-  SIMPLE_COMMANDS = "simple_commands",
-  VOLUME_STEPS = "volume_steps"
+export enum Options {
+  SimpleCommands = "simple_commands",
+  VolumeSteps = "volume_steps"
 }
 
 /**
  * Media types.
  */
-enum MEDIATYPE {
-  MUSIC = "MUSIC",
-  RADIO = "RADIO",
-  TVSHOW = "TVSHOW",
-  MOVIE = "MOVIE",
-  VIDEO = "VIDEO"
+export enum MediaType {
+  Music = "MUSIC",
+  Radio = "RADIO",
+  TVShow = "TVSHOW",
+  Movie = "MOVIE",
+  Video = "VIDEO"
 }
 
 /**
  * Repeat modes.
  */
-enum REPEATMODE {
-  OFF = "OFF",
-  ALL = "ALL",
-  ONE = "ONE"
+export enum RepeatMode {
+  Off = "OFF",
+  All = "ALL",
+  One = "ONE"
+}
+
+//export type CmdHandler = (entity: Entity, command: string, options?: Record<string, unknown>) => Promise<string>;
+
+interface MediaPlayerParams {
+  features?: Features[];
+  attributes?: Partial<Record<Attributes, States | RepeatMode | string | string[] | number | boolean>>;
+  deviceClass?: DeviceClasses;
+  options?: Partial<Record<Options, string[] | number>>;
+  area?: string;
+  cmdHandler?: CommandHandler;
 }
 
 /**
@@ -198,46 +208,32 @@ enum REPEATMODE {
  * for more information.
  */
 
-type CmdHandler = (entity: Entity, command: string, options?: Record<string, unknown>) => Promise<string>;
+export class MediaPlayer extends Entity {
+  static States = States;
+  static Features = Features;
+  static Attributes = Attributes;
+  static Commands = Commands;
+  static DeviceClasses = DeviceClasses;
+  static Options = Options;
+  static MediaType = MediaType;
+  static RepeatMode = RepeatMode;
 
-interface MediaPlayerParams {
-  features?: string[];
-  attributes?: Partial<Record<ATTRIBUTES, STATES | number | boolean | string[] | string>>;
-  deviceClass?: string;
-  options?: Partial<Record<OPTIONS, number | boolean>> | null;
-  area?: string;
-  cmdHandler?: CmdHandler;
-}
-
-class MediaPlayer extends Entity {
   /**
    * Constructs a new media-player entity.
    *
    * @param {string} id The entity identifier. Must be unique inside the integration driver.
-   * @param {string | Map<string, string> | Record<string, string>} name The human-readable name of the entity.
+   * @param name The human-readable name of the entity.
    *        Either a string, which will be mapped to English, or a Map / Object containing multiple language strings.
    * @param {MediaPlayerParams} [params] Entity parameters.
    * @throws AssertionError if invalid parameters are specified.
    */
   constructor(
     id: string,
-    name: string | Map<string, string> | Record<string, string>,
+    name: EntityName,
     { features, attributes, deviceClass, options, area, cmdHandler }: MediaPlayerParams = {}
   ) {
-    let entityName: string | Map<string, string>;
-    if (typeof name === "string") {
-      entityName = name;
-    } else if (name instanceof Map) {
-      entityName = name;
-    } else {
-      entityName = new Map<string, string>(Object.entries(name));
-    }
-
-    super(id, entityName, ENTITYTYPES.MEDIA_PLAYER, { features, attributes, deviceClass, options, area, cmdHandler });
+    super(id, name, EntityType.MediaPlayer, { features, attributes, deviceClass, options, area, cmdHandler });
 
     log.debug(`MediaPlayer entity created with id: ${this.id}`);
   }
 }
-
-export default MediaPlayer;
-export { STATES, FEATURES, ATTRIBUTES, COMMANDS, DEVICECLASSES, OPTIONS, MEDIATYPE, REPEATMODE };

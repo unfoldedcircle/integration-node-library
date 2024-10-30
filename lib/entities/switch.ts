@@ -6,81 +6,84 @@
  * @license Apache License 2.0, see LICENSE for more details.
  */
 
-import { CommandHandler, TYPES as ENTITYTYPES } from "./entity.js";
-import Entity from "./entity.js";
+import { CommandHandler, Entity, EntityType, EntityName } from "./entity.js";
 import log from "../loggers.js";
 
 // Switch entity states
-enum STATES {
-  UNAVAILABLE = "UNAVAILABLE",
-  UNKNOWN = "UNKNOWN",
-  ON = "ON",
-  OFF = "OFF"
+export enum States {
+  Unavailable = "UNAVAILABLE",
+  Unknown = "UNKNOWN",
+  On = "ON",
+  Off = "OFF"
 }
 
 // Switch entity features
-enum FEATURES {
-  ON_OFF = "on_off",
-  TOGGLE = "toggle"
+export enum Features {
+  OnOff = "on_off",
+  Toggle = "toggle"
 }
 
 // Switch entity attributes
-enum ATTRIBUTES {
-  STATE = "state"
+export enum Attributes {
+  State = "state"
 }
 
 // Switch entity commands
-enum COMMANDS {
-  ON = "on",
-  OFF = "off",
-  TOGGLE = "toggle"
+export enum Commands {
+  On = "on",
+  Off = "off",
+  Toggle = "toggle"
 }
 
 // Switch entity device classes
-enum DEVICECLASSES {
-  OUTLET = "outlet",
-  SWITCH = "switch"
+export enum DeviceClasses {
+  Outlet = "outlet",
+  Switch = "switch"
 }
 
 // Switch entity options
-enum OPTIONS {
-  READABLE = "readable"
+export enum Options {
+  Readable = "readable"
 }
 
 // Define types for the parameters in the constructor
 interface SwitchParams {
-  features?: string[];
-  attributes?: Partial<Record<ATTRIBUTES, STATES>>;
-  deviceClass?: DEVICECLASSES;
-  options?: Record<OPTIONS, boolean>;
+  features?: Features[];
+  attributes?: Partial<Record<Attributes, States>>;
+  deviceClass?: DeviceClasses;
+  options?: Partial<Record<Options, boolean>>;
   area?: string;
-  cmdHandler?: CommandHandler | null;
+  cmdHandler?: CommandHandler;
 }
 
 /**
  * See {@link https://github.com/unfoldedcircle/core-api/blob/main/doc/entities/entity_switch.md switch entity documentation}
  * for more information.
  */
-class Switch extends Entity {
+export class Switch extends Entity {
+  static States = States;
+  static Features = Features;
+  static Attributes = Attributes;
+  static Commands = Commands;
+  static DeviceClasses = DeviceClasses;
+  static Options = Options;
+
   /**
    * Constructs a new switch entity.
    *
    * @param {string} id The entity identifier. Must be unique inside the integration driver.
-   * @param {string | Map<string, string> | Record<string, string>} name The human-readable name of the entity.
+   * @param {EntityName} name The human-readable name of the entity.
    *        Either a string, which will be mapped to English, or a Map / Object containing multiple language strings.
    * @param {SwitchParams} [params] Entity parameters.
    * @throws AssertionError if invalid parameters are specified.
    */
   constructor(
     id: string,
-    name: string | Map<string, string> | Record<string, string>,
+    name: EntityName,
     { features, attributes, deviceClass, options, area, cmdHandler }: SwitchParams = {}
   ) {
-    super(id, name, ENTITYTYPES.SWITCH, { features, attributes, deviceClass, options, area, cmdHandler });
+    super(id, name, EntityType.Switch, { features, attributes, deviceClass, options, area, cmdHandler });
 
     log.debug(`Switch entity created with id: ${this.id}`);
   }
 }
-
-export default Switch;
-export { STATES, FEATURES, ATTRIBUTES, COMMANDS, DEVICECLASSES, OPTIONS };

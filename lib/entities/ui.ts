@@ -5,35 +5,33 @@
  * @license Apache License 2.0, see LICENSE for more details.
  */
 
-import assert from "node:assert";
-
 // Physical buttons
-enum BUTTONS {
-  BACK = "BACK",
-  HOME = "HOME",
-  VOICE = "VOICE",
-  VOLUME_UP = "VOLUME_UP",
-  VOLUME_DOWN = "VOLUME_DOWN",
-  MUTE = "MUTE",
-  DPAD_UP = "DPAD_UP",
-  DPAD_DOWN = "DPAD_DOWN",
-  DPAD_LEFT = "DPAD_LEFT",
-  DPAD_RIGHT = "DPAD_RIGHT",
-  DPAD_MIDDLE = "DPAD_MIDDLE",
-  GREEN = "GREEN",
-  YELLOW = "YELLOW",
-  RED = "RED",
-  BLUE = "BLUE",
-  CHANNEL_UP = "CHANNEL_UP",
-  CHANNEL_DOWN = "CHANNEL_DOWN",
-  PREV = "PREV",
-  PLAY = "PLAY",
-  NEXT = "NEXT",
-  POWER = "POWER"
+export enum Buttons {
+  Back = "BACK",
+  Home = "HOME",
+  Voice = "VOICE",
+  VolumeUp = "VOLUME_UP",
+  VolumeDown = "VOLUME_DOWN",
+  Mute = "MUTE",
+  DpadUp = "DPAD_UP",
+  DpadDown = "DPAD_DOWN",
+  DpadLeft = "DPAD_LEFT",
+  DpadRight = "DPAD_RIGHT",
+  DpadMiddle = "DPAD_MIDDLE",
+  Green = "GREEN",
+  Yellow = "YELLOW",
+  Red = "RED",
+  Blue = "BLUE",
+  ChannelUp = "CHANNEL_UP",
+  ChannelDown = "CHANNEL_DOWN",
+  Prev = "PREV",
+  Play = "PLAY",
+  Next = "NEXT",
+  Power = "POWER"
 }
 
 // Remote command definition for a button mapping or UI page definition.
-class EntityCommand {
+export class EntityCommand {
   cmd_id: string;
   params?: Record<string, string | number | string[]>;
 
@@ -44,20 +42,12 @@ class EntityCommand {
 }
 
 // Physical button command mapping.
-class DeviceButtonMapping {
-  button: BUTTONS;
+export class DeviceButtonMapping {
+  button: Buttons;
   short_press?: EntityCommand;
   long_press?: EntityCommand;
 
-  constructor(button: BUTTONS, shortPress?: EntityCommand, longPress?: EntityCommand) {
-    assert(
-      shortPress === undefined || shortPress instanceof EntityCommand,
-      "shortPress parameter must be an EntityCommand"
-    );
-    assert(
-      longPress === undefined || longPress instanceof EntityCommand,
-      "longPress parameter must be an EntityCommand"
-    );
+  constructor(button: Buttons, shortPress?: EntityCommand, longPress?: EntityCommand) {
     this.button = button;
     this.short_press = shortPress;
     this.long_press = longPress;
@@ -72,8 +62,8 @@ class DeviceButtonMapping {
  * @returns the created DeviceButtonMapping
  * @throws AssertionError if shortPress or longPress arguments are of a wrong type.
  */
-function createBtnMapping(
-  button: BUTTONS,
+export function createBtnMapping(
+  button: Buttons,
   short?: string | EntityCommand,
   long?: string | EntityCommand
 ): DeviceButtonMapping {
@@ -87,7 +77,7 @@ function createBtnMapping(
 }
 
 // Item size in the button grid. Default size if not specified: 1x1.
-class Size {
+export class Size {
   width: number;
   height: number;
 
@@ -98,7 +88,7 @@ class Size {
 }
 
 // Button placement in the grid with 0-based coordinates.
-class Location {
+export class Location {
   x: number;
   y: number;
 
@@ -109,7 +99,7 @@ class Location {
 }
 
 // A user interface item is either an icon or text.
-class UiItem {
+export class UiItem {
   type: "icon" | "text";
   location: Location;
   size?: Size;
@@ -122,14 +112,6 @@ class UiItem {
     location: Location,
     { size, icon, text, command }: { size?: Size; icon?: string; text?: string; command?: EntityCommand }
   ) {
-    assert(location instanceof Location, "location parameter must be of type Location");
-    assert(size === undefined || size instanceof Size, "size parameter must be of type Size");
-    assert(icon === undefined || typeof icon === "string", "icon parameter must be of type string");
-    assert(text === undefined || typeof text === "string", "text parameter must be of type string");
-    assert(
-      command === undefined || command instanceof EntityCommand,
-      "command parameter must be of type EntityCommand"
-    );
     this.type = type;
     this.location = location;
     this.size = size;
@@ -149,7 +131,13 @@ class UiItem {
  * @returns the created UiItem
  * @throws AssertionError if invalid parameters are specified.
  */
-function createUiText(text: string, x: number, y: number, command?: string | EntityCommand, size?: Size): UiItem {
+export function createUiText(
+  text: string,
+  x: number,
+  y: number,
+  command?: string | EntityCommand,
+  size?: Size
+): UiItem {
   if (typeof command === "string") {
     command = new EntityCommand(command);
   }
@@ -166,7 +154,13 @@ function createUiText(text: string, x: number, y: number, command?: string | Ent
  * @returns the created UiItem
  * @throws AssertionError if invalid parameters are specified.
  */
-function createUiIcon(icon: string, x: number, y: number, command?: string | EntityCommand, size?: Size): UiItem {
+export function createUiIcon(
+  icon: string,
+  x: number,
+  y: number,
+  command?: string | EntityCommand,
+  size?: Size
+): UiItem {
   if (typeof command === "string") {
     command = new EntityCommand(command);
   }
@@ -174,7 +168,7 @@ function createUiIcon(icon: string, x: number, y: number, command?: string | Ent
 }
 
 // Definition of a complete user interface page.
-class UiPage {
+export class UiPage {
   page_id: string;
   name: string;
   grid: Size;
@@ -195,16 +189,3 @@ class UiPage {
     this.items.push(item);
   }
 }
-
-export {
-  BUTTONS,
-  EntityCommand,
-  DeviceButtonMapping,
-  createBtnMapping,
-  Size,
-  Location,
-  UiItem,
-  createUiText,
-  createUiIcon,
-  UiPage
-};

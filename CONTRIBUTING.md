@@ -42,24 +42,26 @@ With that out of the way, here's the process of creating a pull request and maki
    Contributed code must be licensed under the Apache License 2.0 (MPL-2.0).  
    It is required to add a boilerplate copyright notice to the top of each file:
 
-    ```
-    /**
-     * {Short description what this file is for}
-     *
-     * @copyright (c) {year} {person OR org} <{email}>
-     * @license Apache License 2.0, see LICENSE for more details.
-     */
-    ```
+   ```
+   /**
+    * {Short description what this file is for}
+    *
+    * @copyright (c) {year} {person OR org} <{email}>
+    * @license Apache License 2.0, see LICENSE for more details.
+    */
+   ```
 
 3. Make sure your changes follow the configured prettier code style:
-    ```shell
-    npm run format
-    ```
+
+   ```shell
+   npm run format
+   ```
 
 4. Make sure your changes make the lints pass:
-    ```shell
-    npm run lint
-    ```
+
+   ```shell
+   npm run lint
+   ```
 
 5. Push to your fork.  
    Do not include any project configuration changes in the `.idea` folder! If you are also using an IntelliJ product,

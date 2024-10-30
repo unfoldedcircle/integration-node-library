@@ -1,39 +1,32 @@
 // use package in production
 // const uc = require("uc-integration-api");
-import uc from "../index.js";
-import MediaPlayer, { ATTRIBUTES, STATES } from "../lib/entities/media_player.js";
-import {
-  FEATURES as MEDIAPLAYER_FEATURES,
-  ATTRIBUTES as MEDIAPLAYER_ATTRIBUTES,
-  STATES as MEDIAPLAYER_STATES
-} from "../lib/entities/media_player.js";
-import { STATUS_CODES } from "http";
-import { DEVICE_STATES, EVENTS as API_EVENTS } from "../lib/api_definitions.js";
-import { CommandHandler } from "../lib/entities/entity.js";
+import uc, { CommandHandler, StatusCodes } from "../index.js";
+
+uc.init("driver.json");
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 // Handling events
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-uc.on(API_EVENTS.CONNECT, async () => {
+uc.on(uc.Events.Connect, async () => {
   // act on when the core connects to the integration
   // for example: start polling your devices
-  await uc.setDeviceState(DEVICE_STATES.CONNECTED);
+  await uc.setDeviceState(uc.DeviceStates.Connected);
 });
 
-uc.on(API_EVENTS.DISCONNECT, async () => {
+uc.on(uc.Events.Disconnect, async () => {
   // act on when the core disconnects from the integration
   // for example: stop polling your devices
-  await uc.setDeviceState(DEVICE_STATES.DISCONNECTED);
+  await uc.setDeviceState(uc.DeviceStates.Disconnected);
 });
 
-uc.on(API_EVENTS.ENTER_STANDBY, async () => {
+uc.on(uc.Events.EnterStandby, async () => {
   // act on when the remote goes to standby
 });
 
-uc.on(API_EVENTS.EXIT_STANDBY, async () => {
+uc.on(uc.Events.ExitStandby, async () => {
   // act on when the remote leaves standby
 });
 
-uc.on(API_EVENTS.SUBSCRIBE_ENTITIES, async () => {
+uc.on(uc.Events.SubscribeEntities, async () => {
   // The integration will configure entities and subscribe for entity update events.
   // The UC library automatically adds the subscribed entities
   // from the available to the configured pool.
@@ -41,7 +34,7 @@ uc.on(API_EVENTS.SUBSCRIBE_ENTITIES, async () => {
   // ...
 });
 
-uc.on(API_EVENTS.UNSUBSCRIBE_ENTITIES, async () => {
+uc.on(uc.Events.UnsubscribeEntities, async () => {
   // When the integration unsubscribed from certain entity updates,
   // the UC library automatically removes the unsubscribed entities
   // from the configured pool.
@@ -62,7 +55,7 @@ uc.on(API_EVENTS.UNSUBSCRIBE_ENTITIES, async () => {
  * @return {Promise<string>} status of the command
  */
 
-const cmdHandler: CommandHandler = async function (entity, cmdId, params): Promise<string> {
+const cmdHandler: CommandHandler = async function (entity, cmdId, params): Promise<StatusCodes> {
   console.log("Got %s command request: %s", entity.id, cmdId, params || "");
   // handle entity commands here
   // execute commands on your integration devices
@@ -73,7 +66,7 @@ const cmdHandler: CommandHandler = async function (entity, cmdId, params): Promi
 
   // you need to acknowledge if the command was successfully executed with STATUS_CODES.OK
   // or an error code
-  return STATUS_CODES.NOT_IMPLEMENTED ?? "NOT_IMPLEMENTED";
+  return uc.StatusCodes.NotImplemented;
 };
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -86,21 +79,19 @@ const entityId = "unique-id-inside-integration";
 // The entity name can either be string (which will be mapped to english), or a Map with multiple language entries.
 const entityName = "My entity";
 
-const defaultAttributes: Partial<Record<ATTRIBUTES, STATES | number>> = {
-  [MEDIAPLAYER_ATTRIBUTES.STATE]: MEDIAPLAYER_STATES.OFF,
-  [MEDIAPLAYER_ATTRIBUTES.VOLUME]: 0
-};
-
-const entity = new MediaPlayer(
+const entity = new uc.entities.MediaPlayer(
   // entity id has to be unique, you can provide it or use uc.Entities.generateId()
   entityId,
   // name of the entity
   entityName,
   {
     // define features in an array. Use the pre-defined object to choose features from
-    features: [MEDIAPLAYER_FEATURES.ON_OFF, MEDIAPLAYER_FEATURES.VOLUME],
+    features: [uc.entities.MediaPlayer.Features.OnOff, uc.entities.MediaPlayer.Features.Volume],
     // define default attributes for the entity. Use the pre-defined object to choose attributes from
-    attributes: defaultAttributes,
+    attributes: {
+      [uc.entities.MediaPlayer.Attributes.State]: uc.entities.MediaPlayer.States.Off,
+      [uc.entities.MediaPlayer.Attributes.Volume]: 0
+    },
     cmdHandler
   }
 );
@@ -113,17 +104,16 @@ uc.addEntity(entity);
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 // when your integration driver needs to update an entity based on a device change
 // keys and values are attribute key and value pairs
-const attributes = new Map([]);
+const attributes = {};
 uc.updateEntityAttributes(entityId, attributes);
 
 // for example to update a state fo a media player:
-uc.updateEntityAttributes(entityId, new Map([[MEDIAPLAYER_ATTRIBUTES.STATE, MEDIAPLAYER_STATES.PLAYING]]));
+uc.updateEntityAttributes(entityId, {
+  [uc.entities.MediaPlayer.Attributes.State]: uc.entities.MediaPlayer.States.Playing
+});
 
 // or multiple attributes at the same time
-uc.updateEntityAttributes(
-  entityId,
-  new Map([
-    [MEDIAPLAYER_ATTRIBUTES.STATE, MEDIAPLAYER_STATES.PLAYING],
-    [MEDIAPLAYER_ATTRIBUTES.MEDIA_ARTIST, "Massive Attack"]
-  ])
-);
+uc.updateEntityAttributes(entityId, {
+  [uc.entities.MediaPlayer.Attributes.State]: uc.entities.MediaPlayer.States.Playing,
+  [uc.entities.MediaPlayer.Attributes.MediaArtist]: "Massive Attack"
+});

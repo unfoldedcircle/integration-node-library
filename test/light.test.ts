@@ -1,28 +1,29 @@
 import test from "ava";
-import Light, { FEATURES, STATES, ATTRIBUTES } from "../lib/entities/light.js";
+import { Light, Features, States, Attributes } from "../lib/entities/light.js";
+import { EntityType } from "../lib/entities/entity.js";
 
 test("Light constructor without parameter object creates default Light class", (t) => {
   const entity = new Light("test", "Test Light");
 
   t.is(entity.id, "test");
   t.deepEqual(entity.name, { en: "Test Light" });
-  t.is(entity.entity_type, "light");
-  t.is(entity.device_id, null);
+  t.is(entity.entity_type, EntityType.Light);
+  t.is(entity.device_id, undefined);
   t.deepEqual(entity.features, []);
   t.deepEqual(entity.attributes, {});
   t.is(entity.device_class, undefined);
-  t.is(entity.options, null);
+  t.is(entity.options, undefined);
   t.is(entity.area, undefined);
   t.is(entity.hasCmdHandler, false);
 });
 
 test("Light constructor with parameter object", (t) => {
-  const attributes: Partial<Record<ATTRIBUTES, STATES | number | string>> = {
-    [ATTRIBUTES.STATE]: STATES.UNAVAILABLE
+  const attributes: Partial<Record<Attributes, States | number>> = {
+    [Attributes.State]: States.Unavailable
   };
 
   const entity = new Light("test", "Test Light", {
-    features: [FEATURES.COLOR_TEMPERATURE],
+    features: [Features.ColorTemperature],
     attributes,
     options: {},
     area: "Test lab"
@@ -30,8 +31,8 @@ test("Light constructor with parameter object", (t) => {
 
   t.is(entity.id, "test");
   t.deepEqual(entity.name, { en: "Test Light" });
-  t.is(entity.entity_type, "light");
-  t.is(entity.device_id, null);
+  t.is(entity.entity_type, EntityType.Light);
+  t.is(entity.device_id, undefined);
   t.deepEqual(entity.features, ["color_temperature"]);
   t.deepEqual(entity.attributes, { state: "UNAVAILABLE" });
   t.is(entity.device_class, undefined);
@@ -47,6 +48,6 @@ test("Light constructor with Object attributes", (t) => {
 
   t.is(entity.id, "test");
   t.deepEqual(entity.name, { en: "Test Light" });
-  t.is(entity.entity_type, "light");
+  t.is(entity.entity_type, EntityType.Light);
   t.deepEqual(entity.attributes, { brightness: 33 });
 });

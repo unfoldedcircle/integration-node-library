@@ -6,66 +6,55 @@
  * @license Apache License 2.0, see LICENSE for more details.
  */
 
-import { CommandHandler, TYPES as ENTITYTYPES } from "./entity.js";
+import { CommandHandler, Entity, EntityType, EntityName } from "./entity.js";
 import { DeviceButtonMapping, EntityCommand, UiPage } from "./ui.js";
-import Entity from "./entity.js";
 import log from "../loggers.js";
 import assert from "node:assert";
-
-interface RemoteParams {
-  features?: string[];
-  attributes?: Partial<Record<ATTRIBUTES, STATES>>;
-  simpleCommands?: string[];
-  buttonMapping?: Array<DeviceButtonMapping>;
-  uiPages?: Array<UiPage>;
-  area?: string;
-  cmdHandler?: CommandHandler | null;
-}
 
 /**
  * Remote entity states.
  */
-enum STATES {
-  UNAVAILABLE = "UNAVAILABLE",
-  UNKNOWN = "UNKNOWN",
-  ON = "ON",
-  OFF = "OFF"
+export enum States {
+  Unavailable = "UNAVAILABLE",
+  Unknown = "UNKNOWN",
+  On = "ON",
+  Off = "OFF"
 }
 
 /**
  * Remote-entity features.
  */
-enum FEATURES {
-  ON_OFF = "on_off",
-  TOGGLE = "toggle",
-  SEND_CMD = "send_cmd"
+export enum Features {
+  OnOff = "on_off",
+  Toggle = "toggle",
+  SendCmd = "send_cmd"
 }
 
 /**
  * Remote-entity attributes.
  */
-enum ATTRIBUTES {
-  STATE = "state"
+export enum Attributes {
+  State = "state"
 }
 
 /**
  * Remote-entity commands.
  */
-enum COMMANDS {
-  ON = "on",
-  OFF = "off",
-  TOGGLE = "toggle",
-  SEND_CMD = "send_cmd",
-  SEND_CMD_SEQUENCE = "send_cmd_sequence"
+export enum Commands {
+  On = "on",
+  Off = "off",
+  Toggle = "toggle",
+  SendCmd = "send_cmd",
+  SendCmdSequence = "send_cmd_sequence"
 }
 
 /**
  * Remote-entity options.
  */
-enum OPTIONS {
-  SIMPLE_COMMANDS = "simple_commands",
-  BUTTON_MAPPING = "button_mapping",
-  USER_INTERFACE = "user_interface"
+export enum Options {
+  SimpleCommands = "simple_commands",
+  ButtonMapping = "button_mapping",
+  UserInterface = "user_interface"
 }
 
 /**
@@ -78,24 +67,24 @@ enum OPTIONS {
  * @return EntityCommand the created EntityCommand.
  * @throws AssertionError if command is not specified or is empty.
  */
-function createSendCmd(
+export function createSendCmd(
   command: string | undefined,
   { delay, repeat, hold }: { delay?: number; repeat?: number; hold?: number } = {}
 ): EntityCommand {
-  assert(command && typeof command === "string" && command.length > 0, "command must be a string and may not be empty");
+  assert(command && command.length > 0, "command must be a string and may not be empty");
 
   const params: Record<string, string | number> = { command };
-  if (typeof delay === "number") {
+  if (delay) {
     params.delay = delay;
   }
-  if (typeof repeat === "number") {
+  if (repeat) {
     params.repeat = repeat;
   }
-  if (typeof hold === "number") {
+  if (hold) {
     params.hold = hold;
   }
 
-  return new EntityCommand(COMMANDS.SEND_CMD, params);
+  return new EntityCommand(Commands.SendCmd, params);
 }
 
 /**
@@ -107,7 +96,7 @@ function createSendCmd(
  * @return EntityCommand the created EntityCommand.
  * @throws AssertionError if sequence is not specified or doesn't contain at least one command.
  */
-function createSequenceCmd(
+export function createSequenceCmd(
   sequence: string[] | undefined,
   { delay, repeat }: { delay?: number; repeat?: number } = {}
 ): EntityCommand {
@@ -124,19 +113,26 @@ function createSequenceCmd(
     params.repeat = repeat;
   }
 
-  return new EntityCommand(COMMANDS.SEND_CMD_SEQUENCE, params);
+  return new EntityCommand(Commands.SendCmdSequence, params);
 }
 
-interface Options extends Record<string, string[] | DeviceButtonMapping[] | { pages: UiPage[] } | undefined> {
-  //interface Options {
-  [OPTIONS.SIMPLE_COMMANDS]?: string[];
-  [OPTIONS.BUTTON_MAPPING]?: DeviceButtonMapping[];
-  [OPTIONS.USER_INTERFACE]?: {
-    pages: UiPage[];
-  };
+interface RemoteParams {
+  features?: Features[];
+  attributes?: Partial<Record<Attributes, States>>;
+  simpleCommands?: string[];
+  buttonMapping?: DeviceButtonMapping[];
+  uiPages?: UiPage[];
+  area?: string;
+  cmdHandler?: CommandHandler;
 }
 
-class Remote extends Entity {
+export class Remote extends Entity {
+  static States = States;
+  static Features = Features;
+  static Attributes = Attributes;
+  static Commands = Commands;
+  static Options = Options;
+
   /**
    * Constructs a new remote-entity.
    *
@@ -147,25 +143,22 @@ class Remote extends Entity {
    */
   constructor(
     id: string,
-    name: string | Map<string, string> | Record<string, string>,
-    { features = [], attributes = {}, simpleCommands, buttonMapping, uiPages, area, cmdHandler }: RemoteParams = {}
+    name: EntityName,
+    { features, attributes, simpleCommands, buttonMapping, uiPages, area, cmdHandler }: RemoteParams = {}
   ) {
-    const options: Options = {};
+    const options: { [key: string]: string | number | boolean | object } = {};
     if (simpleCommands) {
-      options[OPTIONS.SIMPLE_COMMANDS] = simpleCommands;
+      options[Options.SimpleCommands] = simpleCommands;
     }
     if (buttonMapping) {
-      options[OPTIONS.BUTTON_MAPPING] = buttonMapping;
+      options[Options.ButtonMapping] = buttonMapping;
     }
     if (uiPages) {
-      options[OPTIONS.USER_INTERFACE] = { pages: uiPages };
+      options[Options.UserInterface] = { pages: uiPages };
     }
 
-    super(id, name, ENTITYTYPES.REMOTE, { features, attributes, options, area, cmdHandler });
+    super(id, name, EntityType.Remote, { features, attributes, options, area, cmdHandler });
 
     log.debug(`Remote entity created with id: ${this.id}`);
   }
 }
-
-export default Remote;
-export { createSendCmd, createSequenceCmd, STATES, FEATURES, ATTRIBUTES, COMMANDS, OPTIONS };
