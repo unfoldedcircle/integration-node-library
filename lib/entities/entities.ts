@@ -41,7 +41,7 @@ class Entities extends EventEmitter {
 
   addAvailableEntity(entity: Entity): boolean {
     if (this.#storage[entity.id]) {
-      log.warn(`ENTITIES(${this.id}): Entity is already in #storage: ${entity.id}`);
+      log.warn(`ENTITIES(${this.id}): Entity is already in storage: ${entity.id}`);
       return false;
     }
     this.#storage[entity.id] = entity;
