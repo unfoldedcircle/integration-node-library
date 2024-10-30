@@ -133,6 +133,9 @@ export class Remote extends Entity {
   static Commands = Commands;
   static Options = Options;
 
+  static createSendCmd = createSendCmd;
+  static createSequenceCmd = createSequenceCmd;
+
   /**
    * Constructs a new remote-entity.
    *
