@@ -84,15 +84,15 @@ We use [SemVer](http://semver.org/) for versioning. For the versions available, 
 
 ## Changelog
 
-The major changes found in each new release are listed in the [changelog](https://github.com/aitatoi/integration-node-library/blob/main/CHANGELOG.md)
+The major changes found in each new release are listed in the [changelog](https://github.com/unfoldedcircle/integration-node-library/blob/main/CHANGELOG.md)
 and under the GitHub [releases](https://github.com/unfoldedcircle/integration-node-library/releases).
 
 ## Contributions
 
-Please read our [contribution guidelines](https://github.com/aitatoi/integration-node-library/blob/main/CONTRIBUTING.md)
+Please read our [contribution guidelines](https://github.com/unfoldedcircle/integration-node-library/blob/main/CONTRIBUTING.md)
 before opening a pull request.
 
 ## License
 
 This project is licensed under the [**Apache License 2.0**](https://choosealicense.com/licenses/apache-2.0/).
-See the [LICENSE](https://github.com/aitatoi/integration-node-library/blob/main/LICENSE) file for details.
+See the [LICENSE](https://github.com/unfoldedcircle/integration-node-library/blob/main/LICENSE) file for details.
