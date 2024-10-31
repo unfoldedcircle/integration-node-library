@@ -10,7 +10,7 @@ import { CommandHandler, Entity, EntityType, EntityName } from "./entity.js";
 import log from "../loggers.js";
 
 // Climate entity states
-export enum States {
+export enum ClimateStates {
   Unavailable = "UNAVAILABLE",
   Unknown = "UNKNOWN",
   Off = "OFF",
@@ -22,7 +22,7 @@ export enum States {
 }
 
 // Climate entity features
-export enum Features {
+export enum ClimateFeatures {
   OnOff = "on_off",
   Heat = "heat",
   Cool = "cool",
@@ -33,7 +33,7 @@ export enum Features {
 }
 
 // Climate entity attributes
-export enum Attributes {
+export enum ClimateAttributes {
   State = "state",
   CurrentTemperature = "current_temperature",
   TargetTemperature = "target_temperature",
@@ -43,7 +43,7 @@ export enum Attributes {
 }
 
 // Climate entity commands
-export enum Commands {
+export enum ClimateCommands {
   On = "on",
   Off = "off",
   HvacMode = "hvac_mode",
@@ -53,10 +53,10 @@ export enum Commands {
 }
 
 // Climate entity device classes
-export enum DeviceClasses {}
+export enum ClimateDeviceClasses {}
 
 // Climate entity options
-export enum Options {
+export enum ClimateOptions {
   TemperatureUnit = "temperature_unit",
   TargetTemperatureStep = "target_temperature_step",
   MaxTemperature = "max_temperature",
@@ -70,23 +70,16 @@ export enum TemperatureUnit {
 }
 
 // Define types for the parameters in the constructor
-interface ClimateParams {
-  features?: Features[];
-  attributes?: Partial<Record<Attributes, States | number>>;
+export interface ClimateParams {
+  features?: ClimateFeatures[];
+  attributes?: Partial<Record<ClimateAttributes, ClimateStates | number>>;
   deviceClass?: string;
-  options?: Partial<Record<Options, TemperatureUnit | number>>;
+  options?: Partial<Record<ClimateOptions, TemperatureUnit | number>>;
   area?: string;
   cmdHandler?: CommandHandler;
 }
 
 export class Climate extends Entity {
-  static States = States;
-  static Features = Features;
-  static Attributes = Attributes;
-  static Commands = Commands;
-  static DeviceClasses = DeviceClasses;
-  static Options = Options;
-
   /**
    * Constructs a new climate entity.
    *

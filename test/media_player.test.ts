@@ -1,5 +1,11 @@
 import test from "ava";
-import { MediaPlayer, Options, Features, States, Attributes } from "../lib/entities/media_player.js";
+import {
+  MediaPlayer,
+  MediaPlayerOptions,
+  MediaPlayerFeatures,
+  MediaPlayerStates,
+  MediaPlayerAttributes
+} from "../lib/entities/media_player.js";
 import { EntityType } from "../lib/entities/entity.js";
 
 test("MediaPlayer constructor without parameter object creates default MediaPlayer class", (t) => {
@@ -18,17 +24,17 @@ test("MediaPlayer constructor without parameter object creates default MediaPlay
 });
 
 test("MediaPlayer constructor with parameter object", (t) => {
-  const options: Partial<Record<Options, number>> = {
-    [Options.VolumeSteps]: 10
+  const options: Partial<Record<MediaPlayerOptions, number>> = {
+    [MediaPlayerOptions.VolumeSteps]: 10
   };
 
-  const attributes: Partial<Record<Attributes, States | number>> = {
-    [Attributes.State]: States.Unavailable,
-    [Attributes.Volume]: 22
+  const attributes: Partial<Record<MediaPlayerAttributes, MediaPlayerStates | number>> = {
+    [MediaPlayerAttributes.State]: MediaPlayerStates.Unavailable,
+    [MediaPlayerAttributes.Volume]: 22
   };
 
   const entity = new MediaPlayer("test", "Test MediaPlayer", {
-    features: [Features.Menu],
+    features: [MediaPlayerFeatures.Menu],
     attributes,
     options,
     area: "Test lab"
@@ -47,10 +53,10 @@ test("MediaPlayer constructor with parameter object", (t) => {
 });
 
 test("MediaPlayer constructor with Object attributes", (t) => {
-  const defaultAttributes: Partial<Record<Attributes, number | boolean>> = {
-    [Attributes.Shuffle]: false,
-    [Attributes.Muted]: false,
-    [Attributes.Volume]: 25
+  const defaultAttributes: Partial<Record<MediaPlayerAttributes, number | boolean>> = {
+    [MediaPlayerAttributes.Shuffle]: false,
+    [MediaPlayerAttributes.Muted]: false,
+    [MediaPlayerAttributes.Volume]: 25
   };
 
   const entity = new MediaPlayer("test", "Test MediaPlayer", {

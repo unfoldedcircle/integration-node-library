@@ -5,6 +5,7 @@
 // use integration library in a client project:
 // import uc from "@unfoldedcircle/integration-api";
 import uc from "../../dist/index.js";
+import { Button } from "../../dist/index.js";
 
 /**
  * Dispatch driver setup requests to corresponding handlers.
@@ -53,7 +54,7 @@ async function handleDriverSetup(msg) {
   // please note that all values are returned as strings!
   if (!("expert" in msg.setupData) || msg.setupData.expert !== "true") {
     // add a single button as default action
-    const button = new uc.entities.Button("button", "Button", { cmdHandler });
+    const button = new Button("button", "Button", { cmdHandler });
     uc.addAvailableEntity(button);
     return new uc.setup.SetupComplete();
   }

@@ -1,5 +1,12 @@
 import test from "ava";
-import { Climate, Options, Features, States, Attributes, TemperatureUnit } from "../lib/entities/climate.js";
+import {
+  Climate,
+  ClimateOptions,
+  ClimateFeatures,
+  ClimateStates,
+  ClimateAttributes,
+  TemperatureUnit
+} from "../lib/entities/climate.js";
 import { EntityType } from "../lib/entities/entity.js";
 
 test("Climate constructor without parameter object creates default Climate class", (t) => {
@@ -18,14 +25,14 @@ test("Climate constructor without parameter object creates default Climate class
 });
 
 test("Climate constructor with parameter object", (t) => {
-  const options: Partial<Record<Options, TemperatureUnit | number>> = {
-    [Options.TemperatureUnit]: TemperatureUnit.Celsius
+  const options: Partial<Record<ClimateOptions, TemperatureUnit | number>> = {
+    [ClimateOptions.TemperatureUnit]: TemperatureUnit.Celsius
   };
 
   const entity = new Climate("test", "Test Climate", {
-    features: [Features.Cool],
+    features: [ClimateFeatures.Cool],
     attributes: {
-      [Attributes.State]: States.Unavailable
+      [ClimateAttributes.State]: ClimateStates.Unavailable
     },
     options,
     area: "Test lab"
@@ -46,7 +53,7 @@ test("Climate constructor with parameter object", (t) => {
 test("Climate constructor with Object attributes", (t) => {
   const entity = new Climate("test", "Test Climate", {
     attributes: {
-      [Attributes.State]: States.Cool
+      [ClimateAttributes.State]: ClimateStates.Cool
     }
   });
 

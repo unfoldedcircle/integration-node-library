@@ -1,6 +1,6 @@
 // use integration library in a client project:
 // import uc from "@unfoldedcircle/integration-api";
-import uc from "../index.js";
+import { uc, MediaPlayer, MediaPlayerAttributes, MediaPlayerFeatures, MediaPlayerStates } from "../index.js";
 
 uc.init("driver.json");
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -52,7 +52,7 @@ uc.on(uc.Events.UnsubscribeEntities, async () => {
  * @param {Entity} entity button entity
  * @param {string} cmdId command
  * @param {Object<string, *>} [params] optional command parameters
- * @return {Promise<uc.StatusCodes>} status of the command
+ * @return StatusCodes of the command
  */
 
 const cmdHandler = async function (entity, cmdId, params) {
@@ -79,18 +79,18 @@ const entityId = "unique-id-inside-integration";
 // The entity name can either be string (which will be mapped to english), or a Map with multiple language entries.
 const entityName = "My entity";
 
-const entity = new uc.entities.MediaPlayer(
+const entity = new MediaPlayer(
   // entity id has to be unique, you can provide it or use uc.entities.generateId()
   entityId,
   // name of the entity
   entityName,
   {
     // define features in an array. Use the pre-defined object to choose features from
-    features: [uc.entities.MediaPlayer.Features.OnOff, uc.entities.MediaPlayer.Features.Volume],
+    features: [MediaPlayerFeatures.OnOff, MediaPlayerFeatures.Volume],
     // define default attributes for the entity. Use the pre-defined object to choose attributes from
     attributes: {
-      [uc.entities.MediaPlayer.Attributes.State]: uc.entities.MediaPlayer.States.Off,
-      [uc.entities.MediaPlayer.Attributes.Volume]: 0
+      [MediaPlayerAttributes.State]: MediaPlayerStates.Off,
+      [MediaPlayerAttributes.Volume]: 0
     },
     cmdHandler
   }
@@ -109,11 +109,11 @@ uc.updateEntityAttributes(entityId, attributes);
 
 // for example to update a state fo a media player:
 uc.updateEntityAttributes(entityId, {
-  [uc.entities.MediaPlayer.Attributes.State]: uc.entities.MediaPlayer.States.Playing
+  [MediaPlayerAttributes.State]: MediaPlayerStates.Playing
 });
 
 // or multiple attributes at the same time
 uc.updateEntityAttributes(entityId, {
-  [uc.entities.MediaPlayer.Attributes.State]: uc.entities.MediaPlayer.States.Playing,
-  [uc.entities.MediaPlayer.Attributes.MediaArtist]: "Massive Attack"
+  [MediaPlayerAttributes.State]: MediaPlayerStates.Playing,
+  [MediaPlayerAttributes.MediaArtist]: "Massive Attack"
 });

@@ -10,7 +10,7 @@ import { CommandHandler, Entity, EntityType, EntityName } from "./entity.js";
 import log from "../loggers.js";
 
 // Switch entity states
-export enum States {
+export enum SwitchStates {
   Unavailable = "UNAVAILABLE",
   Unknown = "UNKNOWN",
   On = "ON",
@@ -18,40 +18,40 @@ export enum States {
 }
 
 // Switch entity features
-export enum Features {
+export enum SwitchFeatures {
   OnOff = "on_off",
   Toggle = "toggle"
 }
 
 // Switch entity attributes
-export enum Attributes {
+export enum SwitchAttributes {
   State = "state"
 }
 
 // Switch entity commands
-export enum Commands {
+export enum SwitchCommands {
   On = "on",
   Off = "off",
   Toggle = "toggle"
 }
 
 // Switch entity device classes
-export enum DeviceClasses {
+export enum SwitchDeviceClasses {
   Outlet = "outlet",
   Switch = "switch"
 }
 
 // Switch entity options
-export enum Options {
+export enum SwitchOptions {
   Readable = "readable"
 }
 
 // Define types for the parameters in the constructor
-interface SwitchParams {
-  features?: Features[];
-  attributes?: Partial<Record<Attributes, States>>;
-  deviceClass?: DeviceClasses;
-  options?: Partial<Record<Options, boolean>>;
+export interface SwitchParams {
+  features?: SwitchFeatures[];
+  attributes?: Partial<Record<SwitchAttributes, SwitchStates>>;
+  deviceClass?: SwitchDeviceClasses;
+  options?: Partial<Record<SwitchOptions, boolean>>;
   area?: string;
   cmdHandler?: CommandHandler;
 }
@@ -61,13 +61,6 @@ interface SwitchParams {
  * for more information.
  */
 export class Switch extends Entity {
-  static States = States;
-  static Features = Features;
-  static Attributes = Attributes;
-  static Commands = Commands;
-  static DeviceClasses = DeviceClasses;
-  static Options = Options;
-
   /**
    * Constructs a new switch entity.
    *

@@ -23,10 +23,8 @@ export function toLanguageObject(
     if (text instanceof Map) {
       return Object.fromEntries(text);
     }
-    if (text instanceof Object) {
-      // TODO check if text object only contains string keys & values?
-      return text;
-    }
+    // TODO check if text object only contains string keys & values?
+    return text;
   }
 
   return null;

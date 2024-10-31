@@ -1,6 +1,6 @@
 import test from "ava";
 import { EntityType } from "../lib/entities/entity.js";
-import { Sensor, Options, States, Attributes, DeviceClasses } from "../lib/entities/sensor.js";
+import { Sensor, SensorOptions, SensorStates, SensorAttributes, SensorDeviceClasses } from "../lib/entities/sensor.js";
 
 test("Sensor constructor without parameter object creates default Sensor class", (t) => {
   const entity = new Sensor("test", "Test Sensor");
@@ -18,18 +18,18 @@ test("Sensor constructor without parameter object creates default Sensor class",
 });
 
 test("Sensor constructor with parameter object", (t) => {
-  const options: Partial<Record<Options, number>> = {
-    [Options.MaxValue]: 42
+  const options: Partial<Record<SensorOptions, number>> = {
+    [SensorOptions.MaxValue]: 42
   };
 
-  const attributes: Partial<Record<Attributes, States | number>> = {
-    [Attributes.State]: States.Unavailable
+  const attributes: Partial<Record<SensorAttributes, SensorStates | number>> = {
+    [SensorAttributes.State]: SensorStates.Unavailable
   };
 
   const entity = new Sensor("test", "Test Sensor", {
     attributes,
     options,
-    deviceClass: DeviceClasses.Energy,
+    deviceClass: SensorDeviceClasses.Energy,
     area: "Test lab"
   });
 
@@ -46,10 +46,10 @@ test("Sensor constructor with parameter object", (t) => {
 });
 
 test("Sensor constructor with Object attributes", (t) => {
-  const attributes: Partial<Record<Attributes, States | number | string>> = {
-    [Attributes.State]: States.On,
-    [Attributes.Value]: 100,
-    [Attributes.Unit]: "%"
+  const attributes: Partial<Record<SensorAttributes, SensorStates | number | string>> = {
+    [SensorAttributes.State]: SensorStates.On,
+    [SensorAttributes.Value]: 100,
+    [SensorAttributes.Unit]: "%"
   };
 
   const entity = new Sensor("test", "Test Sensor", {

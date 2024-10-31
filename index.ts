@@ -21,11 +21,89 @@ import setup, {
   UserDataResponse,
   SetupAction
 } from "./lib/api_definitions.js";
+
 import type { CommandHandler } from "./lib/entities/entity.js";
 
 import * as ui from "./lib/entities/ui.js";
 import * as api from "./lib/api_definitions.js";
-import * as entities from "./lib/entities/entities.js";
+// import * as entities from "./lib/entities/entities.js";
+import { Entities } from "./lib/entities/entities.js";
+
+import { Entity, EntityType } from "./lib/entities/entity.js";
+
+import { Button, ButtonAttributes, ButtonCommands, ButtonStates, ButtonParams } from "./lib/entities/button.js";
+import {
+  Climate,
+  ClimateAttributes,
+  ClimateCommands,
+  ClimateFeatures,
+  ClimateOptions,
+  ClimateStates,
+  ClimateParams,
+  ClimateDeviceClasses,
+  TemperatureUnit
+} from "./lib/entities/climate.js";
+import {
+  Cover,
+  CoverAttributes,
+  CoverCommands,
+  CoverFeatures,
+  CoverDeviceClasses,
+  CoverStates,
+  CoverParams,
+  CoverOptions
+} from "./lib/entities/cover.js";
+import {
+  Light,
+  LightAttributes,
+  LightStates,
+  LightCommands,
+  LightFeatures,
+  LightParams,
+  LightOptions,
+  LightDeviceClasses
+} from "./lib/entities/light.js";
+import {
+  MediaPlayer,
+  MediaPlayerCommands,
+  MediaPlayerAttributes,
+  MediaPlayerFeatures,
+  MediaPlayerOptions,
+  MediaPlayerParams,
+  MediaPlayerStates,
+  MediaPlayerDeviceClasses,
+  MediaType,
+  RepeatMode
+} from "./lib/entities/media_player.js";
+import {
+  Remote,
+  RemoteAttributes,
+  RemoteCommands,
+  RemoteFeatures,
+  RemoteOptions,
+  RemoteParams,
+  RemoteStates
+} from "./lib/entities/remote.js";
+import {
+  Sensor,
+  SensorAttributes,
+  SensorDeviceClasses,
+  SensorOptions,
+  SensorStates,
+  SensorFeatures,
+  SensorCommands,
+  SensorParams
+} from "./lib/entities/sensor.js";
+import {
+  Switch,
+  SwitchOptions,
+  SwitchDeviceClasses,
+  SwitchCommands,
+  SwitchFeatures,
+  SwitchStates,
+  SwitchAttributes,
+  SwitchParams
+} from "./lib/entities/switch.js";
 
 interface Developer {
   name: string;
@@ -49,8 +127,8 @@ class IntegrationAPI extends EventEmitter {
   #server: WebSocket.Server;
   #clients: Map<WebSocket, any>;
   #setupHandler: any;
-  #availableEntities: entities.Entities;
-  #configuredEntities: entities.Entities;
+  #availableEntities: Entities;
+  #configuredEntities: Entities;
 
   constructor() {
     super();
@@ -68,8 +146,8 @@ class IntegrationAPI extends EventEmitter {
     this.#clients = new Map();
 
     // create storage for available and configured entities
-    this.#availableEntities = new entities.Entities("available");
-    this.#configuredEntities = new entities.Entities("configured");
+    this.#availableEntities = new Entities("available");
+    this.#configuredEntities = new Entities("configured");
 
     // connect to update events for entity attributes
     this.#configuredEntities.on(api.Events.EntityAttributesUpdated, async (entityId, entityType, attributes) => {
@@ -792,11 +870,11 @@ class IntegrationAPI extends EventEmitter {
     await this.#sendEvent(wsHandle.wsId, api.MsgEvents.DriverSetupChange, msgData, api.EventCategory.Device);
   }
 
-  public getConfiguredEntities(): entities.Entities {
+  public getConfiguredEntities(): Entities {
     return this.#configuredEntities;
   }
 
-  public getAvailableEntities(): entities.Entities {
+  public getAvailableEntities(): Entities {
     return this.#availableEntities;
   }
 
@@ -804,7 +882,7 @@ class IntegrationAPI extends EventEmitter {
     return this.#driverInfo.driver_url;
   }
 
-  public addAvailableEntity(entity: entities.Entity) {
+  public addAvailableEntity(entity: Entity) {
     this.#availableEntities.addAvailableEntity(entity);
   }
 
@@ -830,7 +908,7 @@ const uc = Object.assign(new IntegrationAPI(), {
   DeviceStates,
   Events,
   StatusCodes,
-  entities,
+  // entities,
   setup,
   ui,
   api
@@ -839,11 +917,78 @@ const uc = Object.assign(new IntegrationAPI(), {
   DeviceStates: typeof DeviceStates;
   Events: typeof Events;
   StatusCodes: typeof StatusCodes;
-  entities: typeof entities;
+  // entities: typeof entities;
   setup: typeof setup;
   ui: typeof ui;
   api: typeof api;
 };
 
 export default uc;
-export type { CommandHandler, StatusCodes, DriverSetupRequest, UserDataResponse, SetupAction };
+export type { CommandHandler };
+export { Entity, EntityType, StatusCodes, DriverSetupRequest, UserDataResponse, SetupAction };
+
+export { Button, ButtonAttributes, ButtonCommands, ButtonStates, ButtonParams };
+export {
+  Climate,
+  ClimateAttributes,
+  ClimateCommands,
+  ClimateFeatures,
+  ClimateOptions,
+  ClimateStates,
+  ClimateParams,
+  ClimateDeviceClasses,
+  TemperatureUnit
+};
+export {
+  Cover,
+  CoverAttributes,
+  CoverCommands,
+  CoverFeatures,
+  CoverDeviceClasses,
+  CoverStates,
+  CoverParams,
+  CoverOptions
+};
+export {
+  Light,
+  LightAttributes,
+  LightStates,
+  LightCommands,
+  LightFeatures,
+  LightParams,
+  LightOptions,
+  LightDeviceClasses
+};
+export {
+  MediaPlayer,
+  MediaPlayerCommands,
+  MediaPlayerAttributes,
+  MediaPlayerFeatures,
+  MediaPlayerOptions,
+  MediaPlayerParams,
+  MediaPlayerStates,
+  MediaPlayerDeviceClasses,
+  MediaType,
+  RepeatMode
+};
+export { Remote, RemoteAttributes, RemoteCommands, RemoteFeatures, RemoteOptions, RemoteParams, RemoteStates };
+export {
+  Sensor,
+  SensorAttributes,
+  SensorDeviceClasses,
+  SensorOptions,
+  SensorStates,
+  SensorFeatures,
+  SensorCommands,
+  SensorParams
+};
+export {
+  Switch,
+  SwitchOptions,
+  SwitchDeviceClasses,
+  SwitchCommands,
+  SwitchFeatures,
+  SwitchStates,
+  SwitchAttributes,
+  SwitchParams
+};

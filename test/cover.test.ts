@@ -1,5 +1,5 @@
 import test from "ava";
-import { Cover, Features, Attributes, States } from "../lib/entities/cover.js";
+import { Cover, CoverFeatures, CoverAttributes, CoverStates } from "../lib/entities/cover.js";
 import { EntityType } from "../lib/entities/entity.js";
 
 test("Cover constructor without parameter object creates default Cover class", (t) => {
@@ -18,12 +18,12 @@ test("Cover constructor without parameter object creates default Cover class", (
 });
 
 test("Cover constructor with parameter object", (t) => {
-  const attributes: Partial<Record<Attributes, States | number>> = {
-    [Attributes.State]: States.Unavailable
+  const attributes: Partial<Record<CoverAttributes, CoverStates | number>> = {
+    [CoverAttributes.State]: CoverStates.Unavailable
   };
 
   const entity = new Cover("test", "Test Cover", {
-    features: [Features.Tilt],
+    features: [CoverFeatures.Tilt],
     attributes,
     options: {},
     area: "Test lab"

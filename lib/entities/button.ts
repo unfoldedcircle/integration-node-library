@@ -9,21 +9,21 @@
 import { CommandHandler, Entity, EntityType, EntityName } from "./entity.js";
 import log from "../loggers.js";
 
-export enum States {
+export enum ButtonStates {
   Unavailable = "UNAVAILABLE",
   Available = "AVAILABLE"
 }
 
-export enum Attributes {
+export enum ButtonAttributes {
   State = "state"
 }
 
-export enum Commands {
+export enum ButtonCommands {
   Push = "push"
 }
 
-interface ButtonParams {
-  state?: States;
+export interface ButtonParams {
+  state?: ButtonStates;
   area?: string;
   cmdHandler?: CommandHandler;
 }
@@ -33,10 +33,6 @@ interface ButtonParams {
  * for more information.
  */
 export class Button extends Entity {
-  static States = States;
-  static Attributes = Attributes;
-  static Commands = Commands;
-
   /**
    * Constructs a new button entity.
    *
@@ -49,7 +45,7 @@ export class Button extends Entity {
    * @param {ButtonParams} [params] Entity parameters.
    * @throws AssertionError if invalid parameters are specified.
    */
-  constructor(id: string, name: EntityName, { state = States.Available, area, cmdHandler }: ButtonParams = {}) {
+  constructor(id: string, name: EntityName, { state = ButtonStates.Available, area, cmdHandler }: ButtonParams = {}) {
     super(id, name, EntityType.Button, {
       features: ["press"],
       attributes: {

@@ -5,21 +5,12 @@
  * @license Apache License 2.0, see LICENSE for more details.
  */
 
-import { EntityType } from "./entity.js";
 import { EventEmitter } from "events";
 import { Entity } from "./entity.js";
-import { Button } from "./button.js";
-import { Climate } from "./climate.js";
-import { Cover } from "./cover.js";
-import { Light } from "./light.js";
-import { MediaPlayer } from "./media_player.js";
-import { Remote } from "./remote.js";
-import { Sensor } from "./sensor.js";
-import { Switch } from "./switch.js";
 import { Events } from "../api_definitions.js";
 import log from "../loggers.js";
 
-class Entities extends EventEmitter {
+export class Entities extends EventEmitter {
   #storage: { [key: string]: Entity };
 
   constructor(public id: string) {
@@ -127,5 +118,3 @@ class Entities extends EventEmitter {
     this.#storage = {};
   }
 }
-
-export { EntityType, Entities, Entity, Button, Climate, Cover, Light, MediaPlayer, Remote, Sensor, Switch };

@@ -10,7 +10,7 @@ import { CommandHandler, Entity, EntityType, EntityName } from "./entity.js";
 import log from "../loggers.js";
 
 // Cover entity states
-export enum States {
+export enum CoverStates {
   Unavailable = "UNAVAILABLE",
   Unknown = "UNKNOWN",
   Opening = "OPENING",
@@ -20,7 +20,7 @@ export enum States {
 }
 
 // Cover entity features
-export enum Features {
+export enum CoverFeatures {
   Open = "open",
   Close = "close",
   Stop = "stop",
@@ -31,14 +31,14 @@ export enum Features {
 }
 
 // Cover entity attributes
-export enum Attributes {
+export enum CoverAttributes {
   State = "state",
   Position = "position",
   TiltPosition = "tilt_position"
 }
 
 // Cover entity commands
-export enum Commands {
+export enum CoverCommands {
   Open = "open",
   Close = "close",
   Stop = "stop",
@@ -50,7 +50,7 @@ export enum Commands {
 }
 
 // Cover entity device classes
-export enum DeviceClasses {
+export enum CoverDeviceClasses {
   Blind = "blind",
   Curtain = "curtain",
   Garage = "garage",
@@ -61,26 +61,19 @@ export enum DeviceClasses {
 }
 
 // Cover entity options
-export enum Options {}
+export enum CoverOptions {}
 
 // Define types for the parameters in the constructor
-interface CoverParams {
-  features?: Features[];
-  attributes?: Partial<Record<Attributes, States | number>>;
-  deviceClass?: DeviceClasses;
+export interface CoverParams {
+  features?: CoverFeatures[];
+  attributes?: Partial<Record<CoverAttributes, CoverStates | number>>;
+  deviceClass?: CoverDeviceClasses;
   options?: { [key: string]: string };
   area?: string;
   cmdHandler?: CommandHandler;
 }
 
 export class Cover extends Entity {
-  static States = States;
-  static Features = Features;
-  static Attributes = Attributes;
-  static Commands = Commands;
-  static DeviceClasses = DeviceClasses;
-  static Options = Options;
-
   /**
    * Constructs a new cover entity.
    *
