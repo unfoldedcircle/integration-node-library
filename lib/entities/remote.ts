@@ -14,7 +14,7 @@ import assert from "node:assert";
 /**
  * Remote entity states.
  */
-export enum States {
+export enum RemoteStates {
   Unavailable = "UNAVAILABLE",
   Unknown = "UNKNOWN",
   On = "ON",
@@ -24,7 +24,7 @@ export enum States {
 /**
  * Remote-entity features.
  */
-export enum Features {
+export enum RemoteFeatures {
   OnOff = "on_off",
   Toggle = "toggle",
   SendCmd = "send_cmd"
@@ -33,14 +33,14 @@ export enum Features {
 /**
  * Remote-entity attributes.
  */
-export enum Attributes {
+export enum RemoteAttributes {
   State = "state"
 }
 
 /**
  * Remote-entity commands.
  */
-export enum Commands {
+export enum RemoteCommands {
   On = "on",
   Off = "off",
   Toggle = "toggle",
@@ -51,7 +51,7 @@ export enum Commands {
 /**
  * Remote-entity options.
  */
-export enum Options {
+export enum RemoteOptions {
   SimpleCommands = "simple_commands",
   ButtonMapping = "button_mapping",
   UserInterface = "user_interface"
@@ -84,7 +84,7 @@ export function createSendCmd(
     params.hold = hold;
   }
 
-  return new EntityCommand(Commands.SendCmd, params);
+  return new EntityCommand(RemoteCommands.SendCmd, params);
 }
 
 /**
@@ -106,19 +106,19 @@ export function createSequenceCmd(
   );
 
   const params: Record<string, string[] | number> = { sequence };
-  if (typeof delay === "number") {
+  if (delay !== undefined) {
     params.delay = delay;
   }
-  if (typeof repeat === "number") {
+  if (repeat !== undefined) {
     params.repeat = repeat;
   }
 
-  return new EntityCommand(Commands.SendCmdSequence, params);
+  return new EntityCommand(RemoteCommands.SendCmdSequence, params);
 }
 
-interface RemoteParams {
-  features?: Features[];
-  attributes?: Partial<Record<Attributes, States>>;
+export interface RemoteParams {
+  features?: RemoteFeatures[];
+  attributes?: Partial<Record<RemoteAttributes, RemoteStates>>;
   simpleCommands?: string[];
   buttonMapping?: DeviceButtonMapping[];
   uiPages?: UiPage[];
@@ -127,12 +127,7 @@ interface RemoteParams {
 }
 
 export class Remote extends Entity {
-  static States = States;
-  static Features = Features;
-  static Attributes = Attributes;
-  static Commands = Commands;
-  static Options = Options;
-
+  // TODO this doesn't look right, and we have a double export!
   static createSendCmd = createSendCmd;
   static createSequenceCmd = createSequenceCmd;
 
@@ -151,13 +146,13 @@ export class Remote extends Entity {
   ) {
     const options: { [key: string]: string | number | boolean | object } = {};
     if (simpleCommands) {
-      options[Options.SimpleCommands] = simpleCommands;
+      options[RemoteOptions.SimpleCommands] = simpleCommands;
     }
     if (buttonMapping) {
-      options[Options.ButtonMapping] = buttonMapping;
+      options[RemoteOptions.ButtonMapping] = buttonMapping;
     }
     if (uiPages) {
-      options[Options.UserInterface] = { pages: uiPages };
+      options[RemoteOptions.UserInterface] = { pages: uiPages };
     }
 
     super(id, name, EntityType.Remote, { features, attributes, options, area, cmdHandler });

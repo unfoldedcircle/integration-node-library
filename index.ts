@@ -13,19 +13,11 @@ import { WebSocketServer } from "ws";
 import { EventEmitter } from "events";
 
 import { toLanguageObject, getDefaultLanguageString } from "./lib/utils.js";
-import setup, {
-  DeviceStates,
-  Events,
-  StatusCodes,
-  DriverSetupRequest,
-  UserDataResponse,
-  SetupAction
-} from "./lib/api_definitions.js";
-import type { CommandHandler } from "./lib/entities/entity.js";
 
 import * as ui from "./lib/entities/ui.js";
 import * as api from "./lib/api_definitions.js";
-import * as entities from "./lib/entities/entities.js";
+import { Entities } from "./lib/entities/entities.js";
+import { Entity } from "./lib/entities/entity.js";
 
 interface Developer {
   name: string;
@@ -49,8 +41,8 @@ class IntegrationAPI extends EventEmitter {
   #server: WebSocket.Server;
   #clients: Map<WebSocket, any>;
   #setupHandler: any;
-  #availableEntities: entities.Entities;
-  #configuredEntities: entities.Entities;
+  #availableEntities: Entities;
+  #configuredEntities: Entities;
 
   constructor() {
     super();
@@ -68,8 +60,8 @@ class IntegrationAPI extends EventEmitter {
     this.#clients = new Map();
 
     // create storage for available and configured entities
-    this.#availableEntities = new entities.Entities("available");
-    this.#configuredEntities = new entities.Entities("configured");
+    this.#availableEntities = new Entities("available");
+    this.#configuredEntities = new Entities("configured");
 
     // connect to update events for entity attributes
     this.#configuredEntities.on(api.Events.EntityAttributesUpdated, async (entityId, entityType, attributes) => {
@@ -88,10 +80,7 @@ class IntegrationAPI extends EventEmitter {
    * @param {string|object} driverConfig either a string to specify the driver configuration file path, or an object holding the configuration
    * @param [setupHandler] optional driver setup handler if the driver metadata contains a setup_data_schema object
    */
-  init(
-    driverConfig: string | object,
-    setupHandler?: (msg: DriverSetupRequest | UserDataResponse) => Promise<SetupAction>
-  ) {
+  init(driverConfig: string | object, setupHandler?: (msg: api.SetupDriver) => Promise<api.SetupAction>) {
     this.#setupHandler = setupHandler;
     const integrationInterface = process.env.UC_INTEGRATION_INTERFACE;
     const integrationPort = process.env.UC_INTEGRATION_HTTP_PORT;
@@ -251,7 +240,7 @@ class IntegrationAPI extends EventEmitter {
 
   // TODO return send result, connection.send error handling
   // send a response to a request
-  async #sendResponse(wsId: string, id: any, msg: any, msgData: any, statusCode = uc.StatusCodes.Ok) {
+  async #sendResponse(wsId: string, id: any, msg: any, msgData: any, statusCode = api.StatusCodes.Ok) {
     const json = {
       kind: "resp",
       req_id: id,
@@ -623,11 +612,13 @@ class IntegrationAPI extends EventEmitter {
     // new #setupHandler logic as in Python integration library
     let result = false;
     try {
-      let action = new api.SetupError();
+      let action;
       if (data.input_values) {
         action = await this.#setupHandler(new api.UserDataResponse(data.input_values));
       } else if (data.confirm) {
         action = await this.#setupHandler(new api.UserConfirmationResponse(data.confirm));
+      } else {
+        action = new api.SetupError();
       }
 
       if (action instanceof api.RequestUserInput) {
@@ -792,11 +783,11 @@ class IntegrationAPI extends EventEmitter {
     await this.#sendEvent(wsHandle.wsId, api.MsgEvents.DriverSetupChange, msgData, api.EventCategory.Device);
   }
 
-  public getConfiguredEntities(): entities.Entities {
+  public getConfiguredEntities(): Entities {
     return this.#configuredEntities;
   }
 
-  public getAvailableEntities(): entities.Entities {
+  public getAvailableEntities(): Entities {
     return this.#availableEntities;
   }
 
@@ -804,7 +795,7 @@ class IntegrationAPI extends EventEmitter {
     return this.#driverInfo.driver_url;
   }
 
-  public addAvailableEntity(entity: entities.Entity) {
+  public addAvailableEntity(entity: Entity) {
     this.#availableEntities.addAvailableEntity(entity);
   }
 
@@ -825,25 +816,17 @@ function createDriverInfo(driverConfig: object): DriverInfo {
   throw new Error("Function not implemented.");
 }
 
-const uc = Object.assign(new IntegrationAPI(), {
-  IntegrationAPI,
-  DeviceStates,
-  Events,
-  StatusCodes,
-  entities,
-  setup,
-  ui,
-  api
-}) as IntegrationAPI & {
-  IntegrationAPI: typeof IntegrationAPI;
-  DeviceStates: typeof DeviceStates;
-  Events: typeof Events;
-  StatusCodes: typeof StatusCodes;
-  entities: typeof entities;
-  setup: typeof setup;
-  ui: typeof ui;
-  api: typeof api;
-};
+export { api, ui, IntegrationAPI };
 
-export default uc;
-export type { CommandHandler, StatusCodes, DriverSetupRequest, UserDataResponse, SetupAction };
+export * from "./lib/entities/ui.js";
+export * from "./lib/api_definitions.js";
+
+export * from "./lib/entities/entity.js";
+export * from "./lib/entities/button.js";
+export * from "./lib/entities/climate.js";
+export * from "./lib/entities/cover.js";
+export * from "./lib/entities/light.js";
+export * from "./lib/entities/media_player.js";
+export * from "./lib/entities/remote.js";
+export * from "./lib/entities/sensor.js";
+export * from "./lib/entities/switch.js";

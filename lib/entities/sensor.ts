@@ -12,7 +12,7 @@ import log from "../loggers.js";
 /**
  * Sensor entity states.
  */
-export enum States {
+export enum SensorStates {
   Unavailable = "UNAVAILABLE",
   Unknown = "UNKNOWN",
   On = "ON"
@@ -21,12 +21,12 @@ export enum States {
 /**
  * Sensor entity features.
  */
-export enum Features {}
+export enum SensorFeatures {}
 
 /**
  * Sensor entity attributes.
  */
-export enum Attributes {
+export enum SensorAttributes {
   State = "state",
   Value = "value",
   Unit = "unit"
@@ -35,12 +35,12 @@ export enum Attributes {
 /**
  * Sensor entity commands.
  */
-export enum Commands {}
+export enum SensorCommands {}
 
 /**
  * Sensor entity device classes.
  */
-export enum DeviceClasses {
+export enum SensorDeviceClasses {
   Custom = "custom",
   Battery = "battery",
   Current = "current",
@@ -54,7 +54,7 @@ export enum DeviceClasses {
 /**
  * Sensor entity options.
  */
-export enum Options {
+export enum SensorOptions {
   CustomUnit = "custom_unit",
   NativeUnit = "native_unit",
   Decimals = "decimals",
@@ -62,21 +62,14 @@ export enum Options {
   MaxValue = "max_value"
 }
 
-interface SensorParams {
-  attributes?: Partial<Record<Attributes, States | number | string>>;
-  deviceClass?: DeviceClasses;
-  options?: Partial<Record<Options, string | number>>;
+export interface SensorParams {
+  attributes?: Partial<Record<SensorAttributes, SensorStates | number | string>>;
+  deviceClass?: SensorDeviceClasses;
+  options?: Partial<Record<SensorOptions, string | number>>;
   area?: string;
 }
 
 export class Sensor extends Entity {
-  static States = States;
-  static Features = Features;
-  static Attributes = Attributes;
-  static Commands = Commands;
-  static DeviceClasses = DeviceClasses;
-  static Options = Options;
-
   /**
    * Constructs a new sensor entity.
    *

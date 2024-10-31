@@ -239,19 +239,3 @@ export class SetupError extends SetupAction {
 export class SetupComplete extends SetupAction {
   // Marks setup as complete
 }
-
-const setup = {
-  IntegrationSetupError,
-  SetupDriver,
-  DriverSetupRequest,
-  UserDataResponse,
-  UserConfirmationResponse,
-  AbortDriverSetup,
-  SetupAction,
-  RequestUserInput,
-  RequestUserConfirmation,
-  SetupError,
-  SetupComplete
-};
-
-export default setup;

@@ -12,7 +12,7 @@ import log from "../loggers.js";
 /**
  * Light entity states.
  */
-export enum States {
+export enum LightStates {
   Unavailable = "UNAVAILABLE",
   Unknown = "UNKNOWN",
   On = "ON",
@@ -22,7 +22,7 @@ export enum States {
 /**
  * Light entity features.
  */
-export enum Features {
+export enum LightFeatures {
   OnOff = "on_off",
   Toggle = "toggle",
   Dim = "dim",
@@ -33,7 +33,7 @@ export enum Features {
 /**
  * Light entity attributes.
  */
-export enum Attributes {
+export enum LightAttributes {
   State = "state",
   Hue = "hue",
   Saturation = "saturation",
@@ -44,7 +44,7 @@ export enum Attributes {
 /**
  * Light entity commands.
  */
-export enum Commands {
+export enum LightCommands {
   On = "on",
   Off = "off",
   Toggle = "toggle"
@@ -53,20 +53,20 @@ export enum Commands {
 /**
  * Light entity device classes.
  */
-export enum DeviceClasses {}
+export enum LightDeviceClasses {}
 
 /**
  * Light entity options.
  */
-export enum Options {
+export enum LightOptions {
   ColorTemperatureSteps = "color_temperature_steps"
 }
 
-interface LightParams {
-  features?: Features[];
-  attributes?: Partial<Record<Attributes, States | number>>;
+export interface LightParams {
+  features?: LightFeatures[];
+  attributes?: Partial<Record<LightAttributes, LightStates | number>>;
   deviceClass?: string;
-  options?: Partial<Record<Options, number>>;
+  options?: Partial<Record<LightOptions, number>>;
   area?: string;
   cmdHandler?: CommandHandler;
 }
@@ -76,13 +76,6 @@ interface LightParams {
  * for more information.
  */
 export class Light extends Entity {
-  static States = States;
-  static Features = Features;
-  static Attributes = Attributes;
-  static Commands = Commands;
-  static DeviceClasses = DeviceClasses;
-  static Options = Options;
-
   /**
    * Constructs a new light entity.
    *

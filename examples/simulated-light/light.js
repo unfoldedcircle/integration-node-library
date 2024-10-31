@@ -1,19 +1,33 @@
 // use integration library in a client project:
-// import uc from "@unfoldedcircle/integration-api";
+// import * as uc from "@unfoldedcircle/integration-api";
 // This example is also available as a full client project: https://github.com/unfoldedcircle/integration-ts-example
-import uc from "../../dist/index.js";
+import * as uc from "../../dist/index.js";
+// individual classes and enums can also be imported
+import {
+  ButtonCommands,
+  LightAttributes,
+  LightStates,
+  LightFeatures,
+  LightCommands,
+  MediaPlayerAttributes,
+  MediaPlayerFeatures,
+  MediaPlayerStates,
+  MediaPlayerDeviceClasses
+} from "../../dist/index.js";
 
-uc.init("light-driver.json");
+const driver = new uc.IntegrationAPI();
 
-uc.on(uc.Events.Connect, async () => {
-  await uc.setDeviceState(uc.DeviceStates.Connected);
+driver.init("light-driver.json");
+
+driver.on(uc.Events.Connect, async () => {
+  await driver.setDeviceState(uc.DeviceStates.Connected);
 });
 
-uc.on(uc.Events.Disconnect, async () => {
-  await uc.setDeviceState(uc.DeviceStates.Disconnected);
+driver.on(uc.Events.Disconnect, async () => {
+  await driver.setDeviceState(uc.DeviceStates.Disconnected);
 });
 
-uc.on(uc.Events.SubscribeEntities, async (entityIds) => {
+driver.on(uc.Events.SubscribeEntities, async (entityIds) => {
   // the integration will configure entities and subscribe for entity update events
   // the UC library automatically adds the subscribed entities
   // from available to configured
@@ -23,7 +37,7 @@ uc.on(uc.Events.SubscribeEntities, async (entityIds) => {
   });
 });
 
-uc.on(uc.Events.UnsubscribeEntities, async (entityIds) => {
+driver.on(uc.Events.UnsubscribeEntities, async (entityIds) => {
   // when the integration unsubscribed from certain entity updates,
   // the UC library automatically remove the unsubscribed entities
   // from configured
@@ -45,12 +59,12 @@ uc.on(uc.Events.UnsubscribeEntities, async (entityIds) => {
  */
 const sharedCmdHandler = async function (entity, cmdId, params) {
   // let's add some hacky action to the button!
-  if (entity.id === "my_button" && cmdId === uc.entities.Button.Commands.Push) {
+  if (entity.id === "my_button" && cmdId === ButtonCommands.Push) {
     console.log("Got %s push request: toggling light", entity.id);
     // trigger a light command
-    const lightEntity = uc.getConfiguredEntities().getEntity("my_unique_light_id");
+    const lightEntity = driver.getConfiguredEntities().getEntity("my_unique_light_id");
     if (lightEntity) {
-      await lightCmdHandler(lightEntity, uc.entities.Light.Commands.Toggle, undefined);
+      await lightCmdHandler(lightEntity, LightCommands.Toggle, undefined);
     }
     return uc.StatusCodes.Ok;
   }
@@ -82,34 +96,34 @@ const lightCmdHandler = async function (entity, cmdId, params) {
   // in this example we just update the entity, but in reality, you'd turn on the light with your integration
   // and handle the events separately for updating the configured entities
   switch (cmdId) {
-    case uc.entities.Light.Commands.Toggle:
-      if (entity.attributes?.state === uc.entities.Light.States.Off) {
-        uc.getConfiguredEntities().updateEntityAttributes(entity.id, {
-          [uc.entities.Light.Attributes.State]: uc.entities.Light.States.On,
-          [uc.entities.Light.Attributes.Brightness]: 255
+    case LightCommands.Toggle:
+      if (entity.attributes?.state === LightStates.Off) {
+        driver.getConfiguredEntities().updateEntityAttributes(entity.id, {
+          [LightAttributes.State]: LightStates.On,
+          [LightAttributes.Brightness]: 255
         });
-      } else if (entity.attributes?.state === uc.entities.Light.States.On) {
-        uc.getConfiguredEntities().updateEntityAttributes(entity.id, {
-          [uc.entities.Light.Attributes.State]: uc.entities.Light.States.Off,
-          [uc.entities.Light.Attributes.Brightness]: 0
+      } else if (entity.attributes?.state === LightStates.On) {
+        driver.getConfiguredEntities().updateEntityAttributes(entity.id, {
+          [LightAttributes.State]: LightStates.Off,
+          [LightAttributes.Brightness]: 0
         });
       }
       break;
-    case uc.entities.Light.Commands.On:
+    case LightCommands.On:
       // params is optional! Use a default if not provided.
       // A real lamp might store the last brightness value, otherwise the integration could also keep track of the last value.
-      uc.getConfiguredEntities().updateEntityAttributes(entity.id, {
-        [uc.entities.Light.Attributes.State]: uc.entities.Light.States.On,
-        [uc.entities.Light.Attributes.Brightness]: params && params.brightness ? params.brightness : 127
+      driver.getConfiguredEntities().updateEntityAttributes(entity.id, {
+        [LightAttributes.State]: LightStates.On,
+        [LightAttributes.Brightness]: params && params.brightness ? params.brightness : 127
       });
-      uc.getConfiguredEntities().updateEntityAttributes("test_mediaplayer", {
-        [uc.entities.MediaPlayer.Attributes.Volume]: 24
+      driver.getConfiguredEntities().updateEntityAttributes("test_mediaplayer", {
+        [MediaPlayerAttributes.Volume]: 24
       });
       break;
-    case uc.entities.Light.Commands.Off:
-      uc.getConfiguredEntities().updateEntityAttributes(entity.id, {
-        [uc.entities.Light.Attributes.State]: uc.entities.Light.States.Off,
-        [uc.entities.Light.Attributes.Brightness]: 0
+    case LightCommands.Off:
+      driver.getConfiguredEntities().updateEntityAttributes(entity.id, {
+        [LightAttributes.State]: LightStates.Off,
+        [LightAttributes.Brightness]: 0
       });
       break;
     default:
@@ -123,50 +137,50 @@ const lightCmdHandler = async function (entity, cmdId, params) {
 // normally you'd create this where your driver exposed the available entities
 // The entity name can either be string (which will be mapped to english), or a Map with multiple language entries.
 const name = {
-  ["de"]: "Mein Lieblingslicht",
-  ["en"]: "My favorite light"
+  de: "Mein Lieblingslicht",
+  en: "My favorite light"
 };
 
-const lightEntity = new uc.entities.Light("my_unique_light_id", name, {
-  features: [uc.entities.Light.Features.OnOff, uc.entities.Light.Features.Dim],
+const lightEntity = new uc.Light("my_unique_light_id", name, {
+  features: [LightFeatures.OnOff, LightFeatures.Dim],
   attributes: {
-    [uc.entities.Light.Attributes.State]: uc.entities.Light.States.Off,
-    [uc.entities.Light.Attributes.Brightness]: 0
+    [LightAttributes.State]: LightStates.Off,
+    [LightAttributes.Brightness]: 0
   }
 });
 lightEntity.setCmdHandler(lightCmdHandler);
 
 // add entity as available
 // this is important, so the core knows what entities are available
-uc.addAvailableEntity(lightEntity);
+driver.addAvailableEntity(lightEntity);
 
-const buttonEntity = new uc.entities.Button("my_button", "Push the button!", {
+const buttonEntity = new uc.Button("my_button", "Push the button!", {
   area: "test lab",
   cmdHandler: sharedCmdHandler
 });
-uc.addAvailableEntity(buttonEntity);
+driver.addAvailableEntity(buttonEntity);
 
 // add a media-player entity
-const mediaPlayerEntity = new uc.entities.MediaPlayer(
+const mediaPlayerEntity = new uc.MediaPlayer(
   "test_mediaplayer",
   { en: "Foobar MediaPlayer" },
   {
     features: [
-      uc.entities.MediaPlayer.Features.OnOff,
-      uc.entities.MediaPlayer.Features.Dpad,
-      uc.entities.MediaPlayer.Features.Home,
-      uc.entities.MediaPlayer.Features.Menu,
-      uc.entities.MediaPlayer.Features.ChannelSwitcher,
-      uc.entities.MediaPlayer.Features.SelectSource,
-      uc.entities.MediaPlayer.Features.ColorButtons,
-      uc.entities.MediaPlayer.Features.PlayPause
+      MediaPlayerFeatures.OnOff,
+      MediaPlayerFeatures.Dpad,
+      MediaPlayerFeatures.Home,
+      MediaPlayerFeatures.Menu,
+      MediaPlayerFeatures.ChannelSwitcher,
+      MediaPlayerFeatures.SelectSource,
+      MediaPlayerFeatures.ColorButtons,
+      MediaPlayerFeatures.PlayPause
     ],
     attributes: {
-      [uc.entities.MediaPlayer.Attributes.State]: uc.entities.MediaPlayer.States.Off,
-      [uc.entities.MediaPlayer.Attributes.SourceList]: ["Radio", "Streaming", "Favorite 1", "Favorite 2", "Favorite 3"]
+      [MediaPlayerAttributes.State]: MediaPlayerStates.Off,
+      [MediaPlayerAttributes.SourceList]: ["Radio", "Streaming", "Favorite 1", "Favorite 2", "Favorite 3"]
     },
-    deviceClass: uc.entities.MediaPlayer.DeviceClasses.StreamingBox
+    deviceClass: MediaPlayerDeviceClasses.StreamingBox
   }
 );
 mediaPlayerEntity.setCmdHandler(sharedCmdHandler);
-uc.addAvailableEntity(mediaPlayerEntity);
+driver.addAvailableEntity(mediaPlayerEntity);

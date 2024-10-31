@@ -1,9 +1,15 @@
 import test from "ava";
-import { createSequenceCmd, createSendCmd, Features, States, Attributes } from "../lib/entities/remote.js";
+import {
+  createSequenceCmd,
+  createSendCmd,
+  RemoteFeatures,
+  RemoteStates,
+  RemoteAttributes
+} from "../lib/entities/remote.js";
 import { EntityCommand } from "../lib/entities/ui.js";
 import { AssertionError } from "node:assert";
-import { Remote } from "../lib/entities/entities.js";
-import { EntityType } from "../lib/entities/entities.js";
+import { Remote } from "../lib/entities/remote.js";
+import { EntityType } from "../lib/entities/entity.js";
 
 test("createSequenceCmd with an undefined sequence throws an assert", (t) => {
   t.throws(
@@ -105,12 +111,12 @@ test("Remote constructor without parameter object creates default remote class",
 });
 
 test("Remote constructor with parameter object", (t) => {
-  const attributes: Partial<Record<Attributes, States>> = {
-    [Attributes.State]: States.On
+  const attributes: Partial<Record<RemoteAttributes, RemoteStates>> = {
+    [RemoteAttributes.State]: RemoteStates.On
   };
 
   const remote = new Remote("test", "Test Remote", {
-    features: [Features.SendCmd],
+    features: [RemoteFeatures.SendCmd],
     attributes,
     simpleCommands: ["foobar", "foo", "bar"],
     area: "Test lab"
@@ -130,7 +136,7 @@ test("Remote constructor with parameter object", (t) => {
 
 test("Remote constructor with Object attributes", (t) => {
   const entity = new Remote("test", "Test Remote", {
-    attributes: { state: States.Unavailable }
+    attributes: { state: RemoteStates.Unavailable }
   });
 
   t.is(entity.id, "test");

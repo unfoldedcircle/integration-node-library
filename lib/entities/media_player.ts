@@ -12,7 +12,7 @@ import log from "../loggers.js";
 /**
  * Media-player entity states.
  */
-export enum States {
+export enum MediaPlayerStates {
   Unavailable = "UNAVAILABLE",
   Unknown = "UNKNOWN",
   On = "ON",
@@ -26,7 +26,7 @@ export enum States {
 /**
  * Media-player entity features.
  */
-export enum Features {
+export enum MediaPlayerFeatures {
   OnOff = "on_off",
   Toggle = "toggle",
   Volume = "volume",
@@ -72,7 +72,7 @@ export enum Features {
 /**
  * Media-player entity attributes.
  */
-export enum Attributes {
+export enum MediaPlayerAttributes {
   State = "state",
   Volume = "volume",
   Muted = "muted",
@@ -94,7 +94,7 @@ export enum Attributes {
 /**
  * Media-player entity commands.
  */
-export enum Commands {
+export enum MediaPlayerCommands {
   On = "on",
   Off = "off",
   Toggle = "toggle",
@@ -156,7 +156,7 @@ export enum Commands {
 /**
  * Media-player entity device classes.
  */
-export enum DeviceClasses {
+export enum MediaPlayerDeviceClasses {
   Receiver = "receiver",
   SetTopBox = "set_top_box",
   Speaker = "speaker",
@@ -167,7 +167,7 @@ export enum DeviceClasses {
 /**
  * Media-player entity options.
  */
-export enum Options {
+export enum MediaPlayerOptions {
   SimpleCommands = "simple_commands",
   VolumeSteps = "volume_steps"
 }
@@ -194,11 +194,13 @@ export enum RepeatMode {
 
 //export type CmdHandler = (entity: Entity, command: string, options?: Record<string, unknown>) => Promise<string>;
 
-interface MediaPlayerParams {
-  features?: Features[];
-  attributes?: Partial<Record<Attributes, States | RepeatMode | string | string[] | number | boolean>>;
-  deviceClass?: DeviceClasses;
-  options?: Partial<Record<Options, string[] | number>>;
+export interface MediaPlayerParams {
+  features?: MediaPlayerFeatures[];
+  attributes?: Partial<
+    Record<MediaPlayerAttributes, MediaPlayerStates | RepeatMode | string | string[] | number | boolean>
+  >;
+  deviceClass?: MediaPlayerDeviceClasses;
+  options?: Partial<Record<MediaPlayerOptions, string[] | number>>;
   area?: string;
   cmdHandler?: CommandHandler;
 }
@@ -209,15 +211,6 @@ interface MediaPlayerParams {
  */
 
 export class MediaPlayer extends Entity {
-  static States = States;
-  static Features = Features;
-  static Attributes = Attributes;
-  static Commands = Commands;
-  static DeviceClasses = DeviceClasses;
-  static Options = Options;
-  static MediaType = MediaType;
-  static RepeatMode = RepeatMode;
-
   /**
    * Constructs a new media-player entity.
    *

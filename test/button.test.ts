@@ -1,5 +1,5 @@
 import test from "ava";
-import { Button, States } from "../lib/entities/button.js";
+import { Button, ButtonStates } from "../lib/entities/button.js";
 import { EntityType } from "../lib/entities/entity.js";
 
 test("Button constructor without parameter object creates default Button class", (t) => {
@@ -19,7 +19,7 @@ test("Button constructor without parameter object creates default Button class",
 
 test("Button constructor with parameter object", (t) => {
   const entity = new Button("test", "Test Button", {
-    state: States.Unavailable,
+    state: ButtonStates.Unavailable,
     area: "Test lab"
   });
 
