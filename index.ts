@@ -519,7 +519,7 @@ class IntegrationAPI extends EventEmitter {
       this.emit(api.Events.EntityCommand, wsHandle, data.entity_id, data.entity_type, data.cmd_id, data.params);
     } else {
       const result = await entity.command(cmdId, "params" in data ? data.params : undefined);
-      await this.acknowledgeCommand(wsHandle);
+      await this.acknowledgeCommand(wsHandle, result);
     }
   }
 
