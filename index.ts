@@ -7,7 +7,8 @@
 import os from "os";
 import fs from "fs";
 import log from "./lib/loggers.js";
-import Bonjour from "bonjour-service";
+import BonjourModule from "bonjour-service";
+const Bonjour = BonjourModule.default;
 import WebSocket from "ws";
 import { WebSocketServer } from "ws";
 import { EventEmitter } from "events";
@@ -127,7 +128,15 @@ class IntegrationAPI extends EventEmitter {
     this.#driverInfo.driver_url = this.#getDriverUrl(this.#driverInfo.driver_url, port);
 
     if (!disableMdnsPublish) {
-      let bonjour = new Bonjour.default();
+      let bonjour;
+      if (integrationInterface) {
+        // TODO open issue, no longer to set advertisement network interface: https://github.com/onlxltd/bonjour-service/issues/58
+        // bonjour = new Bonjour({ interface: integrationInterface });
+        bonjour = new Bonjour();
+      } else {
+        bonjour = new Bonjour();
+      }
+
       log.debug("Starting mdns advertising");
 
       // Make sure to advertise a .local hostname. It seems that bonjour just blindly takes the hostname, short or FQDN.
