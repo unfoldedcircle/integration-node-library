@@ -127,6 +127,7 @@ export interface RemoteParams {
 }
 
 export class Remote extends Entity {
+  // TODO this doesn't look right, and we have a double export!
   static createSendCmd = createSendCmd;
   static createSequenceCmd = createSequenceCmd;
 

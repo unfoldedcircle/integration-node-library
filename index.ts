@@ -13,97 +13,11 @@ import { WebSocketServer } from "ws";
 import { EventEmitter } from "events";
 
 import { toLanguageObject, getDefaultLanguageString } from "./lib/utils.js";
-import setup, {
-  DeviceStates,
-  Events,
-  StatusCodes,
-  DriverSetupRequest,
-  UserDataResponse,
-  SetupAction
-} from "./lib/api_definitions.js";
-
-import type { CommandHandler } from "./lib/entities/entity.js";
 
 import * as ui from "./lib/entities/ui.js";
 import * as api from "./lib/api_definitions.js";
-// import * as entities from "./lib/entities/entities.js";
 import { Entities } from "./lib/entities/entities.js";
-
-import { Entity, EntityType } from "./lib/entities/entity.js";
-
-import { Button, ButtonAttributes, ButtonCommands, ButtonStates, ButtonParams } from "./lib/entities/button.js";
-import {
-  Climate,
-  ClimateAttributes,
-  ClimateCommands,
-  ClimateFeatures,
-  ClimateOptions,
-  ClimateStates,
-  ClimateParams,
-  ClimateDeviceClasses,
-  TemperatureUnit
-} from "./lib/entities/climate.js";
-import {
-  Cover,
-  CoverAttributes,
-  CoverCommands,
-  CoverFeatures,
-  CoverDeviceClasses,
-  CoverStates,
-  CoverParams,
-  CoverOptions
-} from "./lib/entities/cover.js";
-import {
-  Light,
-  LightAttributes,
-  LightStates,
-  LightCommands,
-  LightFeatures,
-  LightParams,
-  LightOptions,
-  LightDeviceClasses
-} from "./lib/entities/light.js";
-import {
-  MediaPlayer,
-  MediaPlayerCommands,
-  MediaPlayerAttributes,
-  MediaPlayerFeatures,
-  MediaPlayerOptions,
-  MediaPlayerParams,
-  MediaPlayerStates,
-  MediaPlayerDeviceClasses,
-  MediaType,
-  RepeatMode
-} from "./lib/entities/media_player.js";
-import {
-  Remote,
-  RemoteAttributes,
-  RemoteCommands,
-  RemoteFeatures,
-  RemoteOptions,
-  RemoteParams,
-  RemoteStates
-} from "./lib/entities/remote.js";
-import {
-  Sensor,
-  SensorAttributes,
-  SensorDeviceClasses,
-  SensorOptions,
-  SensorStates,
-  SensorFeatures,
-  SensorCommands,
-  SensorParams
-} from "./lib/entities/sensor.js";
-import {
-  Switch,
-  SwitchOptions,
-  SwitchDeviceClasses,
-  SwitchCommands,
-  SwitchFeatures,
-  SwitchStates,
-  SwitchAttributes,
-  SwitchParams
-} from "./lib/entities/switch.js";
+import { Entity } from "./lib/entities/entity.js";
 
 interface Developer {
   name: string;
@@ -166,10 +80,7 @@ class IntegrationAPI extends EventEmitter {
    * @param {string|object} driverConfig either a string to specify the driver configuration file path, or an object holding the configuration
    * @param [setupHandler] optional driver setup handler if the driver metadata contains a setup_data_schema object
    */
-  init(
-    driverConfig: string | object,
-    setupHandler?: (msg: DriverSetupRequest | UserDataResponse) => Promise<SetupAction>
-  ) {
+  init(driverConfig: string | object, setupHandler?: (msg: api.SetupDriver) => Promise<api.SetupAction>) {
     this.#setupHandler = setupHandler;
     const integrationInterface = process.env.UC_INTEGRATION_INTERFACE;
     const integrationPort = process.env.UC_INTEGRATION_HTTP_PORT;
@@ -329,7 +240,7 @@ class IntegrationAPI extends EventEmitter {
 
   // TODO return send result, connection.send error handling
   // send a response to a request
-  async #sendResponse(wsId: string, id: any, msg: any, msgData: any, statusCode = uc.StatusCodes.Ok) {
+  async #sendResponse(wsId: string, id: any, msg: any, msgData: any, statusCode = api.StatusCodes.Ok) {
     const json = {
       kind: "resp",
       req_id: id,
@@ -701,11 +612,13 @@ class IntegrationAPI extends EventEmitter {
     // new #setupHandler logic as in Python integration library
     let result = false;
     try {
-      let action = new api.SetupError();
+      let action;
       if (data.input_values) {
         action = await this.#setupHandler(new api.UserDataResponse(data.input_values));
       } else if (data.confirm) {
         action = await this.#setupHandler(new api.UserConfirmationResponse(data.confirm));
+      } else {
+        action = new api.SetupError();
       }
 
       if (action instanceof api.RequestUserInput) {
@@ -903,92 +816,17 @@ function createDriverInfo(driverConfig: object): DriverInfo {
   throw new Error("Function not implemented.");
 }
 
-const uc = Object.assign(new IntegrationAPI(), {
-  IntegrationAPI,
-  DeviceStates,
-  Events,
-  StatusCodes,
-  // entities,
-  setup,
-  ui,
-  api
-}) as IntegrationAPI & {
-  IntegrationAPI: typeof IntegrationAPI;
-  DeviceStates: typeof DeviceStates;
-  Events: typeof Events;
-  StatusCodes: typeof StatusCodes;
-  // entities: typeof entities;
-  setup: typeof setup;
-  ui: typeof ui;
-  api: typeof api;
-};
+export { api, ui, IntegrationAPI };
 
-export default uc;
-export type { CommandHandler };
-export { Entity, EntityType, StatusCodes, DriverSetupRequest, UserDataResponse, SetupAction };
+export * from "./lib/entities/ui.js";
+export * from "./lib/api_definitions.js";
 
-export { Button, ButtonAttributes, ButtonCommands, ButtonStates, ButtonParams };
-export {
-  Climate,
-  ClimateAttributes,
-  ClimateCommands,
-  ClimateFeatures,
-  ClimateOptions,
-  ClimateStates,
-  ClimateParams,
-  ClimateDeviceClasses,
-  TemperatureUnit
-};
-export {
-  Cover,
-  CoverAttributes,
-  CoverCommands,
-  CoverFeatures,
-  CoverDeviceClasses,
-  CoverStates,
-  CoverParams,
-  CoverOptions
-};
-export {
-  Light,
-  LightAttributes,
-  LightStates,
-  LightCommands,
-  LightFeatures,
-  LightParams,
-  LightOptions,
-  LightDeviceClasses
-};
-export {
-  MediaPlayer,
-  MediaPlayerCommands,
-  MediaPlayerAttributes,
-  MediaPlayerFeatures,
-  MediaPlayerOptions,
-  MediaPlayerParams,
-  MediaPlayerStates,
-  MediaPlayerDeviceClasses,
-  MediaType,
-  RepeatMode
-};
-export { Remote, RemoteAttributes, RemoteCommands, RemoteFeatures, RemoteOptions, RemoteParams, RemoteStates };
-export {
-  Sensor,
-  SensorAttributes,
-  SensorDeviceClasses,
-  SensorOptions,
-  SensorStates,
-  SensorFeatures,
-  SensorCommands,
-  SensorParams
-};
-export {
-  Switch,
-  SwitchOptions,
-  SwitchDeviceClasses,
-  SwitchCommands,
-  SwitchFeatures,
-  SwitchStates,
-  SwitchAttributes,
-  SwitchParams
-};
+export * from "./lib/entities/entity.js";
+export * from "./lib/entities/button.js";
+export * from "./lib/entities/climate.js";
+export * from "./lib/entities/cover.js";
+export * from "./lib/entities/light.js";
+export * from "./lib/entities/media_player.js";
+export * from "./lib/entities/remote.js";
+export * from "./lib/entities/sensor.js";
+export * from "./lib/entities/switch.js";

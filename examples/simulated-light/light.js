@@ -1,32 +1,33 @@
 // use integration library in a client project:
-// import uc from "@unfoldedcircle/integration-api";
+// import * as uc from "@unfoldedcircle/integration-api";
 // This example is also available as a full client project: https://github.com/unfoldedcircle/integration-ts-example
-import uc from "../../dist/index.js";
+import * as uc from "../../dist/index.js";
+// individual classes and enums can also be imported
 import {
   ButtonCommands,
-  Light,
   LightAttributes,
   LightStates,
   LightFeatures,
   LightCommands,
-  MediaPlayer,
   MediaPlayerAttributes,
   MediaPlayerFeatures,
   MediaPlayerStates,
   MediaPlayerDeviceClasses
 } from "../../dist/index.js";
 
-uc.init("light-driver.json");
+const driver = new uc.IntegrationAPI();
 
-uc.on(uc.Events.Connect, async () => {
-  await uc.setDeviceState(uc.DeviceStates.Connected);
+driver.init("light-driver.json");
+
+driver.on(uc.Events.Connect, async () => {
+  await driver.setDeviceState(uc.DeviceStates.Connected);
 });
 
-uc.on(uc.Events.Disconnect, async () => {
-  await uc.setDeviceState(uc.DeviceStates.Disconnected);
+driver.on(uc.Events.Disconnect, async () => {
+  await driver.setDeviceState(uc.DeviceStates.Disconnected);
 });
 
-uc.on(uc.Events.SubscribeEntities, async (entityIds) => {
+driver.on(uc.Events.SubscribeEntities, async (entityIds) => {
   // the integration will configure entities and subscribe for entity update events
   // the UC library automatically adds the subscribed entities
   // from available to configured
@@ -36,7 +37,7 @@ uc.on(uc.Events.SubscribeEntities, async (entityIds) => {
   });
 });
 
-uc.on(uc.Events.UnsubscribeEntities, async (entityIds) => {
+driver.on(uc.Events.UnsubscribeEntities, async (entityIds) => {
   // when the integration unsubscribed from certain entity updates,
   // the UC library automatically remove the unsubscribed entities
   // from configured
@@ -61,7 +62,7 @@ const sharedCmdHandler = async function (entity, cmdId, params) {
   if (entity.id === "my_button" && cmdId === ButtonCommands.Push) {
     console.log("Got %s push request: toggling light", entity.id);
     // trigger a light command
-    const lightEntity = uc.getConfiguredEntities().getEntity("my_unique_light_id");
+    const lightEntity = driver.getConfiguredEntities().getEntity("my_unique_light_id");
     if (lightEntity) {
       await lightCmdHandler(lightEntity, LightCommands.Toggle, undefined);
     }
@@ -97,12 +98,12 @@ const lightCmdHandler = async function (entity, cmdId, params) {
   switch (cmdId) {
     case LightCommands.Toggle:
       if (entity.attributes?.state === LightStates.Off) {
-        uc.getConfiguredEntities().updateEntityAttributes(entity.id, {
+        driver.getConfiguredEntities().updateEntityAttributes(entity.id, {
           [LightAttributes.State]: LightStates.On,
           [LightAttributes.Brightness]: 255
         });
       } else if (entity.attributes?.state === LightStates.On) {
-        uc.getConfiguredEntities().updateEntityAttributes(entity.id, {
+        driver.getConfiguredEntities().updateEntityAttributes(entity.id, {
           [LightAttributes.State]: LightStates.Off,
           [LightAttributes.Brightness]: 0
         });
@@ -111,16 +112,16 @@ const lightCmdHandler = async function (entity, cmdId, params) {
     case LightCommands.On:
       // params is optional! Use a default if not provided.
       // A real lamp might store the last brightness value, otherwise the integration could also keep track of the last value.
-      uc.getConfiguredEntities().updateEntityAttributes(entity.id, {
+      driver.getConfiguredEntities().updateEntityAttributes(entity.id, {
         [LightAttributes.State]: LightStates.On,
         [LightAttributes.Brightness]: params && params.brightness ? params.brightness : 127
       });
-      uc.getConfiguredEntities().updateEntityAttributes("test_mediaplayer", {
+      driver.getConfiguredEntities().updateEntityAttributes("test_mediaplayer", {
         [MediaPlayerAttributes.Volume]: 24
       });
       break;
     case LightCommands.Off:
-      uc.getConfiguredEntities().updateEntityAttributes(entity.id, {
+      driver.getConfiguredEntities().updateEntityAttributes(entity.id, {
         [LightAttributes.State]: LightStates.Off,
         [LightAttributes.Brightness]: 0
       });
@@ -140,7 +141,7 @@ const name = {
   en: "My favorite light"
 };
 
-const lightEntity = new Light("my_unique_light_id", name, {
+const lightEntity = new uc.Light("my_unique_light_id", name, {
   features: [LightFeatures.OnOff, LightFeatures.Dim],
   attributes: {
     [LightAttributes.State]: LightStates.Off,
@@ -151,16 +152,16 @@ lightEntity.setCmdHandler(lightCmdHandler);
 
 // add entity as available
 // this is important, so the core knows what entities are available
-uc.addAvailableEntity(lightEntity);
+driver.addAvailableEntity(lightEntity);
 
-const buttonEntity = new uc.entities.Button("my_button", "Push the button!", {
+const buttonEntity = new uc.Button("my_button", "Push the button!", {
   area: "test lab",
   cmdHandler: sharedCmdHandler
 });
-uc.addAvailableEntity(buttonEntity);
+driver.addAvailableEntity(buttonEntity);
 
 // add a media-player entity
-const mediaPlayerEntity = new MediaPlayer(
+const mediaPlayerEntity = new uc.MediaPlayer(
   "test_mediaplayer",
   { en: "Foobar MediaPlayer" },
   {
@@ -182,4 +183,4 @@ const mediaPlayerEntity = new MediaPlayer(
   }
 );
 mediaPlayerEntity.setCmdHandler(sharedCmdHandler);
-uc.addAvailableEntity(mediaPlayerEntity);
+driver.addAvailableEntity(mediaPlayerEntity);

@@ -1,32 +1,36 @@
 // use integration library in a client project:
-// import uc from "@unfoldedcircle/integration-api";
-import { uc, MediaPlayer, MediaPlayerAttributes, MediaPlayerFeatures, MediaPlayerStates } from "../index.js";
+// import * as uc from "@unfoldedcircle/integration-api";
+import * as uc from "../dist/index.js";
+import { MediaPlayerAttributes, MediaPlayerFeatures, MediaPlayerStates } from "../dist/index.js";
 
-uc.init("driver.json");
+const driver = new uc.IntegrationAPI();
+
+driver.init("driver.json");
+
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 // Handling events
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-uc.on(uc.Events.Connect, async () => {
+driver.on(uc.Events.Connect, async () => {
   // act on when the core connects to the integration
   // for example: start polling your devices
-  await uc.setDeviceState(uc.DeviceStates.Connected);
+  await driver.setDeviceState(uc.DeviceStates.Connected);
 });
 
-uc.on(uc.Events.Disconnect, async () => {
+driver.on(uc.Events.Disconnect, async () => {
   // act on when the core disconnects from the integration
   // for example: stop polling your devices
-  await uc.setDeviceState(uc.DeviceStates.Disconnected);
+  await driver.setDeviceState(uc.DeviceStates.Disconnected);
 });
 
-uc.on(uc.Events.EnterStandby, async () => {
+driver.on(uc.Events.EnterStandby, async () => {
   // act on when the remote goes to standby
 });
 
-uc.on(uc.Events.ExitStandby, async () => {
+driver.on(uc.Events.ExitStandby, async () => {
   // act on when the remote leaves standby
 });
 
-uc.on(uc.Events.SubscribeEntities, async () => {
+driver.on(uc.Events.SubscribeEntities, async () => {
   // The integration will configure entities and subscribe for entity update events.
   // The UC library automatically adds the subscribed entities
   // from the available to the configured pool.
@@ -34,7 +38,7 @@ uc.on(uc.Events.SubscribeEntities, async () => {
   // ...
 });
 
-uc.on(uc.Events.UnsubscribeEntities, async () => {
+driver.on(uc.Events.UnsubscribeEntities, async () => {
   // When the integration unsubscribed from certain entity updates,
   // the UC library automatically removes the unsubscribed entities
   // from the configured pool.
@@ -79,8 +83,8 @@ const entityId = "unique-id-inside-integration";
 // The entity name can either be string (which will be mapped to english), or a Map with multiple language entries.
 const entityName = "My entity";
 
-const entity = new MediaPlayer(
-  // entity id has to be unique, you can provide it or use uc.entities.generateId()
+const entity = new uc.MediaPlayer(
+  // entity id has to be unique, you can provide it or use driver.entities.generateId()
   entityId,
   // name of the entity
   entityName,
@@ -97,7 +101,7 @@ const entity = new MediaPlayer(
 );
 
 // 2. add available entity to the core
-uc.addAvailableEntity(entity);
+driver.addAvailableEntity(entity);
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 // Updating entities
@@ -105,15 +109,15 @@ uc.addAvailableEntity(entity);
 // when your integration driver needs to update an entity based on a device change
 // keys and values are attribute key and value pairs
 const attributes = {};
-uc.updateEntityAttributes(entityId, attributes);
+driver.updateEntityAttributes(entityId, attributes);
 
 // for example to update a state fo a media player:
-uc.updateEntityAttributes(entityId, {
+driver.updateEntityAttributes(entityId, {
   [MediaPlayerAttributes.State]: MediaPlayerStates.Playing
 });
 
 // or multiple attributes at the same time
-uc.updateEntityAttributes(entityId, {
+driver.updateEntityAttributes(entityId, {
   [MediaPlayerAttributes.State]: MediaPlayerStates.Playing,
   [MediaPlayerAttributes.MediaArtist]: "Massive Attack"
 });

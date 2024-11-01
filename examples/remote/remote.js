@@ -1,9 +1,11 @@
 // use integration library in a client project:
-// import uc from "@unfoldedcircle/integration-api";
-import uc from "../../dist/index.js";
+// import * as uc from "@unfoldedcircle/integration-api";
+import * as uc from "../../dist/index.js";
 import { Remote, RemoteStates, RemoteCommands, RemoteAttributes, RemoteFeatures } from "../../dist/index.js";
 
 import fs from "fs";
+
+const driver = new uc.IntegrationAPI();
 
 // Simple commands supported by this example remote entity
 const supportedCommands = [
@@ -78,19 +80,19 @@ const cmdHandler = async function (entity, cmdId, params = {}) {
     const newState = {
       [RemoteAttributes.State]: state
     };
-    uc.getConfiguredEntities().updateEntityAttributes(entity.id, newState);
+    driver.getConfiguredEntities().updateEntityAttributes(entity.id, newState);
   }
 
   return uc.StatusCodes.Ok;
 };
 
 // Event listener for connection event
-uc.on(uc.Events.Connect, async () => {
-  await uc.setDeviceState(uc.DeviceStates.Connected);
+driver.on(uc.Events.Connect, async () => {
+  await driver.setDeviceState(uc.DeviceStates.Connected);
 });
 
-uc.on(uc.Events.Disconnect, async () => {
-  await uc.setDeviceState(uc.DeviceStates.Disconnected);
+driver.on(uc.Events.Disconnect, async () => {
+  await driver.setDeviceState(uc.DeviceStates.Disconnected);
 });
 
 // Create button mappings
@@ -161,5 +163,5 @@ const entity = new Remote("remote1", "Demo remote", {
   cmdHandler
 });
 
-uc.addAvailableEntity(entity);
-uc.init("remote.json");
+driver.addAvailableEntity(entity);
+driver.init("remote.json");
