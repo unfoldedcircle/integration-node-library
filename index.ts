@@ -181,7 +181,7 @@ class IntegrationAPI extends EventEmitter {
       this.#authentication(wsId, true);
 
       connection.on("message", async (message) => {
-        await this.#messageReceived(wsId, String(message));
+        await this.#messageReceived(wsId, message.toString());
       });
 
       connection.on("close", () => {
@@ -235,9 +235,9 @@ class IntegrationAPI extends EventEmitter {
    * Retrieve the corresponding WebSocket connection from an identifier.
    *
    * @param {string} id The websocket identifier.
-   * @returns {any | null} The WebSocket connection or null if not found.
+   * @returns {WebSocket | null} The WebSocket connection or null if not found.
    */
-  #getWsConnection(id: string): any | null {
+  #getWsConnection(id: string): WebSocket | null {
     for (const [connection, metadata] of this.#clients.entries()) {
       if (metadata.id === id) {
         return connection;
@@ -248,17 +248,17 @@ class IntegrationAPI extends EventEmitter {
   }
 
   /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-  async #sendOkResult(wsId: string, id: any, msgData = {}) {
+  async #sendOkResult(wsId: string, id: number, msgData = {}) {
     await this.#sendResponse(wsId, id, "result", msgData, 200);
   }
 
-  async #sendErrorResult(wsId: string, id: any, statusCode = 500, msgData = {}) {
+  async #sendErrorResult(wsId: string, id: number, statusCode = 500, msgData = {}) {
     await this.#sendResponse(wsId, id, "result", msgData, statusCode);
   }
 
   // TODO return send result, connection.send error handling
   // send a response to a request
-  async #sendResponse(wsId: string, id: any, msg: any, msgData: any, statusCode = api.StatusCodes.Ok) {
+  async #sendResponse(wsId: string, id: number, msg: string, msgData: any, statusCode = api.StatusCodes.Ok) {
     const json = {
       kind: "resp",
       req_id: id,
@@ -268,7 +268,7 @@ class IntegrationAPI extends EventEmitter {
     };
 
     const connection = this.#getWsConnection(wsId);
-    if (connection != null) {
+    if (connection) {
       const response = JSON.stringify(json);
       this.#log_json_message(json, `[${wsId}] <- `);
 
@@ -318,7 +318,7 @@ class IntegrationAPI extends EventEmitter {
     };
 
     const connection = this.#getWsConnection(wsId);
-    if (connection != null) {
+    if (connection) {
       const response = JSON.stringify(json);
       this.#log_json_message(json, `[${wsId}] <- `);
 
@@ -451,7 +451,7 @@ class IntegrationAPI extends EventEmitter {
   /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
   // private methods
-  #authentication(wsId: string, success: any) {
+  #authentication(wsId: string, success: boolean) {
     this.#sendResponse(
       wsId,
       0,
@@ -473,7 +473,7 @@ class IntegrationAPI extends EventEmitter {
   }
 
   async #subscribeEvents(entities: any) {
-    entities.entity_ids.forEach((entityId: any) => {
+    entities.entity_ids.forEach((entityId: string) => {
       const entity = this.#availableEntities.getEntity(entityId);
       if (entity) {
         this.#configuredEntities.addAvailableEntity(entity);
@@ -489,7 +489,7 @@ class IntegrationAPI extends EventEmitter {
     // remove entities from registered entities
     let res = true;
 
-    entities.entity_ids.forEach((entityId: any) => {
+    entities.entity_ids.forEach((entityId: string) => {
       if (!this.#configuredEntities.removeEntity(entityId)) {
         res = false;
       }
@@ -506,6 +506,7 @@ class IntegrationAPI extends EventEmitter {
   }
 
   async #entityCommand(wsId: string, reqId: any, data: any) {
+    // TODO define reusable wsHandle type
     const wsHandle = { wsId, reqId };
 
     if (!data) {
@@ -514,8 +515,8 @@ class IntegrationAPI extends EventEmitter {
       return;
     }
 
-    const entityId = data.entity_id; // "entity_id" in data ? data.entity_id : undefined;
-    const cmdId = data.cmd_id; // "cmd_id" in data ? data.cmd_id : undefined;
+    const entityId = data.entity_id;
+    const cmdId = data.cmd_id;
     if (!entityId || !cmdId) {
       log.warn("Ignoring command: missing entity_id or cmd_id");
       await this.acknowledgeCommand(wsHandle, api.StatusCodes.BadRequest);
@@ -541,7 +542,12 @@ class IntegrationAPI extends EventEmitter {
     }
   }
 
-  async #setupDriver(wsId: string, reqId: any, data: { setup_data: { [key: string]: string }; reconfigure: boolean }) {
+  async #setupDriver(
+    wsId: string,
+    reqId: number,
+    data: { setup_data: { [key: string]: string }; reconfigure?: boolean }
+  ) {
+    // TODO define reusable wsHandle type
     const wsHandle = { wsId, reqId };
 
     if (this.#setupHandler) {
@@ -552,7 +558,7 @@ class IntegrationAPI extends EventEmitter {
       log.error("Aborting setup_driver: called with empty msg_data");
       return false;
     }
-    const reconfigure = data.reconfigure ? data.reconfigure : false;
+    const reconfigure = data.reconfigure ?? false;
 
     // legacy: emit event, so the driver can act on it
     if (!this.#setupHandler) {
@@ -599,9 +605,10 @@ class IntegrationAPI extends EventEmitter {
 
   async #setDriverUserData(
     wsId: string,
-    reqId: any,
+    reqId: number,
     data: { input_values: { [key: string]: string }; confirm: boolean }
   ) {
+    // TODO define reusable wsHandle type
     const wsHandle = { wsId, reqId };
 
     if (this.#setupHandler) {
@@ -673,6 +680,7 @@ class IntegrationAPI extends EventEmitter {
 
   /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
   getDriverVersion() {
+    // TODO use getDefaultName function to get name: en might not be defined!
     return {
       name: this.#driverInfo.name.en,
       version: {
@@ -682,7 +690,7 @@ class IntegrationAPI extends EventEmitter {
     };
   }
 
-  async setDeviceState(state: any) {
+  async setDeviceState(state: api.DeviceStates) {
     this.#state = state;
 
     await this.#broadcastEvent(
@@ -700,7 +708,11 @@ class IntegrationAPI extends EventEmitter {
    * @param {Object} wsHandle The WebSocket handle received in the ENTITY_COMMAND event.
    * @param {api.StatusCodes} statusCode The status code. Defaults to OK 200.
    */
-  async acknowledgeCommand(wsHandle: { wsId: string; reqId: any }, statusCode: api.StatusCodes = api.StatusCodes.Ok) {
+  // TODO define reusable wsHandle type
+  async acknowledgeCommand(
+    wsHandle: { wsId: string; reqId: number },
+    statusCode: api.StatusCodes = api.StatusCodes.Ok
+  ) {
     await this.#sendResponse(wsHandle.wsId, wsHandle.reqId, "result", {}, statusCode);
   }
 
@@ -709,7 +721,8 @@ class IntegrationAPI extends EventEmitter {
    *
    * @param {Object} wsHandle The WebSocket handle received in the `EVENTS.SETUP_DRIVER` event.
    */
-  async driverSetupProgress(wsHandle: any) {
+  // TODO define reusable wsHandle type
+  async driverSetupProgress(wsHandle: { wsId: string; reqId: number }) {
     const msgData = {
       event_type: "SETUP",
       state: "SETUP"
@@ -727,7 +740,7 @@ class IntegrationAPI extends EventEmitter {
    * @param msg2 An optional message to display in the request screen below `msg1` or `image`. Either a string or a language map.
    */
   async requestDriverSetupUserConfirmation(
-    wsHandle: { wsId: string; reqId?: any }, // TODO fix / define type
+    wsHandle: { wsId: string; reqId?: number }, // TODO is reqId optional? -> define reusable wsHandle type
     title: string | Map<string, string> | Record<string, string>,
     msg1?: string | Map<string, string> | Record<string, string>,
     image?: string,
@@ -756,7 +769,7 @@ class IntegrationAPI extends EventEmitter {
    * @param {Array<object>} settings Array of input field definition objects. See Integration-API specification.
    */
   async requestDriverSetupUserInput(
-    wsHandle: { wsId: string; reqId?: any }, // TODO fix / define type
+    wsHandle: { wsId: string; reqId?: number }, // TODO is reqId optional? -> define reusable wsHandle type
     title: string | Map<string, string> | { [key: string]: string },
     settings: { [key: string]: any }[]
   ) {
@@ -781,7 +794,7 @@ class IntegrationAPI extends EventEmitter {
    * @param {Object} wsHandle The WebSocket handle received in the `EVENTS.SETUP_DRIVER` event.
    */
   async driverSetupComplete(
-    wsHandle: { wsId: string; reqId?: any } // TODO fix / define type
+    wsHandle: { wsId: string; reqId?: number } // TODO is reqId optional? -> define reusable wsHandle type
   ) {
     const msgData = {
       event_type: "STOP",
