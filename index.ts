@@ -152,7 +152,7 @@ class IntegrationAPI extends EventEmitter {
         txt: {
           name: getDefaultLanguageString(this.#driverInfo.name, "Unknown driver"),
           ver: this.#driverInfo.version,
-          developer: this.#driverInfo.developer?.name || "",
+          developer: this.#driverInfo.developer?.name || ""
         }
       });
     }
@@ -577,9 +577,9 @@ class IntegrationAPI extends EventEmitter {
         await this.requestDriverSetupUserConfirmation(
           wsHandle,
           action.title,
-          String(action.header),
-          undefined,
-          String(action.footer)
+          action.header,
+          action.image,
+          action.footer
         );
         result = true;
       } else if (action instanceof api.SetupComplete) {
@@ -650,9 +650,9 @@ class IntegrationAPI extends EventEmitter {
         await this.requestDriverSetupUserConfirmation(
           wsHandle,
           action.title,
-          String(action.header),
-          undefined,
-          String(action.footer)
+          action.header,
+          action.image,
+          action.footer
         );
         result = true;
       } else if (action instanceof api.SetupComplete) {
