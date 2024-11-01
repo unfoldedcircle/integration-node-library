@@ -19,18 +19,25 @@ import * as api from "./lib/api_definitions.js";
 import { Entities } from "./lib/entities/entities.js";
 import { Entity } from "./lib/entities/entity.js";
 
-interface Developer {
-  name: string;
+export interface Developer {
+  name?: string;
+  url?: string;
+  email?: string;
 }
 
-interface DriverInfo {
-  driver_url: string | undefined;
-  port: number;
+export interface DriverInfo {
   driver_id: string;
   name: Record<string, string>;
+  driver_url?: string;
+  port?: number;
   version: string;
-  developer: Developer;
-  min_core_api: string | null;
+  min_core_api?: string;
+  icon?: string;
+  description?: Record<string, string>;
+  developer?: Developer;
+  home_page?: string;
+  setup_data_schema?: object;
+  release_date?: string;
 }
 
 class IntegrationAPI extends EventEmitter {
@@ -77,10 +84,10 @@ class IntegrationAPI extends EventEmitter {
 
   /**
    * Initialize the library
-   * @param {string|object} driverConfig either a string to specify the driver configuration file path, or an object holding the configuration
+   * @param {string|DriverInfo} driverConfig either a string to specify the driver configuration file path, or an object holding the configuration
    * @param [setupHandler] optional driver setup handler if the driver metadata contains a setup_data_schema object
    */
-  init(driverConfig: string | object, setupHandler?: (msg: api.SetupDriver) => Promise<api.SetupAction>) {
+  init(driverConfig: string | DriverInfo, setupHandler?: (msg: api.SetupDriver) => Promise<api.SetupAction>) {
     this.#setupHandler = setupHandler;
     const integrationInterface = process.env.UC_INTEGRATION_INTERFACE;
     const integrationPort = process.env.UC_INTEGRATION_HTTP_PORT;
@@ -106,13 +113,18 @@ class IntegrationAPI extends EventEmitter {
         log.error(`Error parsing driver info: ${e}`);
         throw Error("Error parsing driver info");
       }
-    } else if (typeof driverConfig === "object") {
-      this.#driverInfo = createDriverInfo(driverConfig);
     } else {
-      throw Error("Unsupported driverConfig");
+      this.#driverInfo = driverConfig;
     }
 
-    this.#driverInfo.driver_url = this.#getDriverUrl(this.#driverInfo.driver_url, this.#driverInfo.port);
+    let port;
+    if (integrationPort) {
+      port = parseInt(integrationPort, 10);
+    } else {
+      port = this.#driverInfo.port || 9090;
+    }
+
+    this.#driverInfo.driver_url = this.#getDriverUrl(this.#driverInfo.driver_url, port);
 
     if (!disableMdnsPublish) {
       let bonjour = new Bonjour.default();
@@ -127,27 +139,24 @@ class IntegrationAPI extends EventEmitter {
         name: this.#driverInfo.driver_id,
         host: hostname,
         type: "uc-integration",
-        port: Number(integrationPort) || this.#driverInfo.port || 9090,
+        port,
         txt: {
           name: getDefaultLanguageString(this.#driverInfo.name, "Unknown driver"),
           ver: this.#driverInfo.version,
-          developer: this.#driverInfo.developer.name
+          developer: this.#driverInfo.developer?.name || "",
         }
       });
     }
 
     // TODO #5 handle startup errors if e.g. port is already in use
     // setup websocket #server - remote-core will connect to this
-    const port = integrationPort || this.#driverInfo.port || 9090;
     if (integrationInterface) {
       this.#server = new WebSocketServer({
         host: integrationInterface,
-        port: Number(port)
+        port
       });
     } else {
-      this.#server = new WebSocketServer({
-        port: Number(port)
-      });
+      this.#server = new WebSocketServer({ port });
     }
 
     this.#server.on("connection", (connection, req) => {
@@ -201,7 +210,7 @@ class IntegrationAPI extends EventEmitter {
    * @param port The WebSocket #server port number.
    * @returns The WebSocket #server url which should be returned in `driver_metadata` or undefined to use advertised URL.
    */
-  #getDriverUrl(url: string | undefined, port: Number): string | undefined {
+  #getDriverUrl(url: string | undefined, port: number): string | undefined {
     if (url) {
       if (url.startsWith("ws://") || url.startsWith("wss://")) {
         return url;
@@ -817,10 +826,6 @@ class IntegrationAPI extends EventEmitter {
   public updateEntityAttributes(entityId: string, attributes: { [key: string]: string | number | boolean }): boolean {
     return this.#configuredEntities.updateEntityAttributes(entityId, attributes);
   }
-}
-
-function createDriverInfo(driverConfig: object): DriverInfo {
-  throw new Error("Function not implemented.");
 }
 
 export { api, ui, IntegrationAPI };
