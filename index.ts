@@ -100,7 +100,7 @@ class IntegrationAPI extends EventEmitter {
     if (typeof driverConfig === "string") {
       this.#driverPath = driverConfig;
 
-      let raw: string | Buffer;
+      let raw: Buffer;
       try {
         raw = fs.readFileSync(this.#driverPath);
       } catch (e) {
@@ -108,7 +108,7 @@ class IntegrationAPI extends EventEmitter {
       }
 
       try {
-        this.#driverInfo = JSON.parse(String(raw));
+        this.#driverInfo = JSON.parse(raw.toString());
         log.debug("Driver info loaded");
       } catch (e) {
         log.error(`Error parsing driver info: ${e}`);
