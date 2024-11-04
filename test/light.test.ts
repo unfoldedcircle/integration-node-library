@@ -1,5 +1,5 @@
 import test from "ava";
-import { Light, Features, States, Attributes } from "../lib/entities/light.js";
+import { Light, LightFeatures, LightStates, LightAttributes } from "../lib/entities/light.js";
 import { EntityType } from "../lib/entities/entity.js";
 
 test("Light constructor without parameter object creates default Light class", (t) => {
@@ -18,12 +18,12 @@ test("Light constructor without parameter object creates default Light class", (
 });
 
 test("Light constructor with parameter object", (t) => {
-  const attributes: Partial<Record<Attributes, States | number>> = {
-    [Attributes.State]: States.Unavailable
+  const attributes: Partial<Record<LightAttributes, LightStates | number>> = {
+    [LightAttributes.State]: LightStates.Unavailable
   };
 
   const entity = new Light("test", "Test Light", {
-    features: [Features.ColorTemperature],
+    features: [LightFeatures.ColorTemperature],
     attributes,
     options: {},
     area: "Test lab"

@@ -7,50 +7,60 @@
 import os from "os";
 import fs from "fs";
 import log from "./lib/loggers.js";
-import Bonjour from "bonjour-service";
+import BonjourModule from "bonjour-service";
+const Bonjour = BonjourModule.default;
 import WebSocket from "ws";
 import { WebSocketServer } from "ws";
 import { EventEmitter } from "events";
 
 import { toLanguageObject, getDefaultLanguageString } from "./lib/utils.js";
-import setup, {
-  DeviceStates,
-  Events,
-  StatusCodes,
-  DriverSetupRequest,
-  UserDataResponse,
-  SetupAction
-} from "./lib/api_definitions.js";
-import type { CommandHandler } from "./lib/entities/entity.js";
 
 import * as ui from "./lib/entities/ui.js";
 import * as api from "./lib/api_definitions.js";
-import * as entities from "./lib/entities/entities.js";
+import { Entities } from "./lib/entities/entities.js";
+import { Entity } from "./lib/entities/entity.js";
 
-interface Developer {
-  name: string;
+export interface Developer {
+  name?: string;
+  url?: string;
+  email?: string;
 }
 
-interface DriverInfo {
-  driver_url: string | undefined;
-  port: number;
+export interface DriverInfo {
   driver_id: string;
   name: Record<string, string>;
+  driver_url?: string;
+  port?: number;
   version: string;
-  developer: Developer;
-  min_core_api: string | null;
+  min_core_api?: string;
+  icon?: string;
+  description?: Record<string, string>;
+  developer?: Developer;
+  home_page?: string;
+  setup_data_schema?: object;
+  release_date?: string;
 }
 
+/**
+ * Internal WebSocket handle.
+ */
+export type WsHandle = {
+  // WebSocket ID
+  wsId: string;
+  // Integration-API request message ID
+  reqId: number;
+};
+
 class IntegrationAPI extends EventEmitter {
-  #configDirPath: string;
+  readonly #configDirPath: string;
   #driverPath: string;
   #driverInfo!: DriverInfo;
   #state: api.DeviceStates;
   #server: WebSocket.Server;
   #clients: Map<WebSocket, any>;
-  #setupHandler: any;
-  #availableEntities: entities.Entities;
-  #configuredEntities: entities.Entities;
+  #setupHandler?: (msg: api.SetupDriver) => Promise<api.SetupAction>;
+  readonly #availableEntities: Entities;
+  readonly #configuredEntities: Entities;
 
   constructor() {
     super();
@@ -68,8 +78,8 @@ class IntegrationAPI extends EventEmitter {
     this.#clients = new Map();
 
     // create storage for available and configured entities
-    this.#availableEntities = new entities.Entities("available");
-    this.#configuredEntities = new entities.Entities("configured");
+    this.#availableEntities = new Entities("available");
+    this.#configuredEntities = new Entities("configured");
 
     // connect to update events for entity attributes
     this.#configuredEntities.on(api.Events.EntityAttributesUpdated, async (entityId, entityType, attributes) => {
@@ -85,13 +95,10 @@ class IntegrationAPI extends EventEmitter {
 
   /**
    * Initialize the library
-   * @param {string|object} driverConfig either a string to specify the driver configuration file path, or an object holding the configuration
+   * @param {string|DriverInfo} driverConfig either a string to specify the driver configuration file path, or an object holding the configuration
    * @param [setupHandler] optional driver setup handler if the driver metadata contains a setup_data_schema object
    */
-  init(
-    driverConfig: string | object,
-    setupHandler?: (msg: DriverSetupRequest | UserDataResponse) => Promise<SetupAction>
-  ) {
+  init(driverConfig: string | DriverInfo, setupHandler?: (msg: api.SetupDriver) => Promise<api.SetupAction>) {
     this.#setupHandler = setupHandler;
     const integrationInterface = process.env.UC_INTEGRATION_INTERFACE;
     const integrationPort = process.env.UC_INTEGRATION_HTTP_PORT;
@@ -103,7 +110,7 @@ class IntegrationAPI extends EventEmitter {
     if (typeof driverConfig === "string") {
       this.#driverPath = driverConfig;
 
-      let raw: string | Buffer;
+      let raw: Buffer;
       try {
         raw = fs.readFileSync(this.#driverPath);
       } catch (e) {
@@ -111,22 +118,35 @@ class IntegrationAPI extends EventEmitter {
       }
 
       try {
-        this.#driverInfo = JSON.parse(String(raw));
+        this.#driverInfo = JSON.parse(raw.toString());
         log.debug("Driver info loaded");
       } catch (e) {
         log.error(`Error parsing driver info: ${e}`);
         throw Error("Error parsing driver info");
       }
-    } else if (typeof driverConfig === "object") {
-      this.#driverInfo = createDriverInfo(driverConfig);
     } else {
-      throw Error("Unsupported driverConfig");
+      this.#driverInfo = driverConfig;
     }
 
-    this.#driverInfo.driver_url = this.#getDriverUrl(this.#driverInfo.driver_url, this.#driverInfo.port);
+    let port;
+    if (integrationPort) {
+      port = parseInt(integrationPort, 10);
+    } else {
+      port = this.#driverInfo.port || 9090;
+    }
+
+    this.#driverInfo.driver_url = this.#getDriverUrl(this.#driverInfo.driver_url, port);
 
     if (!disableMdnsPublish) {
-      let bonjour = new Bonjour.default();
+      let bonjour;
+      if (integrationInterface) {
+        // TODO open issue, no longer to set advertisement network interface: https://github.com/onlxltd/bonjour-service/issues/58
+        // bonjour = new Bonjour({ interface: integrationInterface });
+        bonjour = new Bonjour();
+      } else {
+        bonjour = new Bonjour();
+      }
+
       log.debug("Starting mdns advertising");
 
       // Make sure to advertise a .local hostname. It seems that bonjour just blindly takes the hostname, short or FQDN.
@@ -138,27 +158,24 @@ class IntegrationAPI extends EventEmitter {
         name: this.#driverInfo.driver_id,
         host: hostname,
         type: "uc-integration",
-        port: Number(integrationPort) || this.#driverInfo.port || 9090,
+        port,
         txt: {
           name: getDefaultLanguageString(this.#driverInfo.name, "Unknown driver"),
           ver: this.#driverInfo.version,
-          developer: this.#driverInfo.developer.name
+          developer: this.#driverInfo.developer?.name || ""
         }
       });
     }
 
     // TODO #5 handle startup errors if e.g. port is already in use
     // setup websocket #server - remote-core will connect to this
-    const port = integrationPort || this.#driverInfo.port || 9090;
     if (integrationInterface) {
       this.#server = new WebSocketServer({
         host: integrationInterface,
-        port: Number(port)
+        port
       });
     } else {
-      this.#server = new WebSocketServer({
-        port: Number(port)
-      });
+      this.#server = new WebSocketServer({ port });
     }
 
     this.#server.on("connection", (connection, req) => {
@@ -174,7 +191,7 @@ class IntegrationAPI extends EventEmitter {
       this.#authentication(wsId, true);
 
       connection.on("message", async (message) => {
-        await this.#messageReceived(wsId, String(message));
+        await this.#messageReceived(wsId, message.toString());
       });
 
       connection.on("close", () => {
@@ -208,11 +225,11 @@ class IntegrationAPI extends EventEmitter {
    * - If starting with `ws://` or `wss://` the url is returned as defined.
    * - Otherwise: build URL from OS hostname and given port number.
    *
-   * @param {string} url The WebSocket url. Usually defined in the driver.json file. May be null or empty.
-   * @param {number} port The WebSocket #server port number.
-   * @returns {string} The WebSocket #server url which should be returned in `driver_metadata`.
+   * @param url The WebSocket url. Usually defined in the driver.json file. May be null or empty.
+   * @param port The WebSocket #server port number.
+   * @returns The WebSocket #server url which should be returned in `driver_metadata` or undefined to use advertised URL.
    */
-  #getDriverUrl(url: string | undefined, port: Number) {
+  #getDriverUrl(url: string | undefined, port: number): string | undefined {
     if (url) {
       if (url.startsWith("ws://") || url.startsWith("wss://")) {
         return url;
@@ -228,9 +245,9 @@ class IntegrationAPI extends EventEmitter {
    * Retrieve the corresponding WebSocket connection from an identifier.
    *
    * @param {string} id The websocket identifier.
-   * @returns {any | null} The WebSocket connection or null if not found.
+   * @returns {WebSocket | null} The WebSocket connection or null if not found.
    */
-  #getWsConnection(id: string): any | null {
+  #getWsConnection(id: string): WebSocket | null {
     for (const [connection, metadata] of this.#clients.entries()) {
       if (metadata.id === id) {
         return connection;
@@ -241,33 +258,33 @@ class IntegrationAPI extends EventEmitter {
   }
 
   /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-  async #sendOkResult(wsId: any, id: any, msgData = {}) {
-    await this.#sendResponse(wsId, id, "result", msgData, 200);
+  async #sendOkResult(wsHandle: WsHandle, msgData = {}) {
+    await this.#sendResponse(wsHandle, "result", msgData, 200);
   }
 
-  async #sendErrorResult(wsId: any, id: any, statusCode = 500, msgData = {}) {
-    await this.#sendResponse(wsId, id, "result", msgData, statusCode);
+  async #sendErrorResult(wsHandle: WsHandle, statusCode = 500, msgData = {}) {
+    await this.#sendResponse(wsHandle, "result", msgData, statusCode);
   }
 
   // TODO return send result, connection.send error handling
   // send a response to a request
-  async #sendResponse(wsId: string, id: any, msg: any, msgData: any, statusCode = uc.StatusCodes.Ok) {
+  async #sendResponse(wsHandle: WsHandle, msg: string, msgData: any, statusCode = api.StatusCodes.Ok) {
     const json = {
       kind: "resp",
-      req_id: id,
+      req_id: wsHandle.reqId,
       code: statusCode,
       msg,
       msg_data: msgData
     };
 
-    const connection = this.#getWsConnection(wsId);
-    if (connection != null) {
+    const connection = this.#getWsConnection(wsHandle.wsId);
+    if (connection) {
       const response = JSON.stringify(json);
-      this.#log_json_message(json, `[${wsId}] <- `);
+      this.#log_json_message(json, `[${wsHandle.wsId}] <- `);
 
       connection.send(response);
     } else {
-      log.warn(`[${wsId}] Error sending response: connection no longer established`);
+      log.warn(`[${wsHandle.wsId}] Error sending response: connection no longer established`);
     }
   }
 
@@ -311,7 +328,7 @@ class IntegrationAPI extends EventEmitter {
     };
 
     const connection = this.#getWsConnection(wsId);
-    if (connection != null) {
+    if (connection) {
       const response = JSON.stringify(json);
       this.#log_json_message(json, `[${wsId}] <- `);
 
@@ -338,61 +355,62 @@ class IntegrationAPI extends EventEmitter {
     const kind = json.kind;
     const id = json.id;
     const msg = json.msg;
+    const wsHandle: WsHandle = { wsId, reqId: id };
     const msgData = json.msg_data;
 
     if (kind === "req") {
       switch (msg) {
         case api.Messages.GetDriverVersion:
-          await this.#sendResponse(wsId, id, api.MsgEvents.DriverVersion, this.getDriverVersion());
+          await this.#sendResponse(wsHandle, api.MsgEvents.DriverVersion, this.getDriverVersion());
           break;
 
         case api.Messages.GetDeviceState:
-          await this.#sendResponse(wsId, id, api.MsgEvents.DeviceState, this.#getDeviceState());
+          await this.#sendResponse(wsHandle, api.MsgEvents.DeviceState, this.#getDeviceState());
           break;
 
         case api.Messages.getAvailableEntities:
-          await this.#sendResponse(wsId, id, api.MsgEvents.AvailableEntities, {
+          await this.#sendResponse(wsHandle, api.MsgEvents.AvailableEntities, {
             available_entities: this.#getAvailableEntities()
           });
           break;
 
         case api.Messages.GetEntityStates:
-          await this.#sendResponse(wsId, id, api.MsgEvents.EntityStates, this.#getEntityStates());
+          await this.#sendResponse(wsHandle, api.MsgEvents.EntityStates, this.#getEntityStates());
           break;
 
         case api.Messages.EntityCommand:
-          await this.#entityCommand(wsId, id, msgData);
+          await this.#entityCommand(wsHandle, msgData);
           break;
 
         case api.Messages.SubscribeEvents:
           await this.#subscribeEvents(msgData);
-          await this.#sendOkResult(wsId, id);
+          await this.#sendOkResult(wsHandle);
           break;
 
         case api.Messages.UnsubscribeEvents:
           await this.#unSubscribeEvents(msgData);
-          await this.#sendOkResult(wsId, id);
+          await this.#sendOkResult(wsHandle);
           break;
 
         case api.Messages.GetDriverMetadata:
-          await this.#sendResponse(wsId, id, api.MsgEvents.DriverMetadata, this.#driverInfo);
+          await this.#sendResponse(wsHandle, api.MsgEvents.DriverMetadata, this.#driverInfo);
           break;
 
         case api.Messages.SetupDriver:
-          if (!(await this.#setupDriver(wsId, id, msgData))) {
-            await this.driverSetupError({ wsId, id });
+          if (!(await this.#setupDriver(wsHandle, msgData))) {
+            await this.driverSetupError(wsHandle);
           }
           break;
 
         case api.Messages.SetDriverUserData:
-          if (!(await this.#setDriverUserData(wsId, id, msgData))) {
-            await this.driverSetupError({ wsId, id });
+          if (!(await this.#setDriverUserData(wsHandle, msgData))) {
+            await this.driverSetupError(wsHandle);
           }
           break;
 
         default:
           log.warn(`[${wsId}] Unhandled request: ${msg}`);
-          await this.#sendErrorResult(wsId, id);
+          await this.#sendErrorResult(wsHandle);
           break;
       }
     } else if (kind === "event") {
@@ -444,10 +462,9 @@ class IntegrationAPI extends EventEmitter {
   /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
   // private methods
-  #authentication(wsId: string, success: any) {
+  #authentication(wsId: string, success: boolean) {
     this.#sendResponse(
-      wsId,
-      0,
+      { wsId, reqId: 0 },
       api.Messages.Authentication,
       {},
       success ? api.StatusCodes.Ok : api.StatusCodes.Unauthorized
@@ -466,7 +483,7 @@ class IntegrationAPI extends EventEmitter {
   }
 
   async #subscribeEvents(entities: any) {
-    entities.entity_ids.forEach((entityId: any) => {
+    entities.entity_ids.forEach((entityId: string) => {
       const entity = this.#availableEntities.getEntity(entityId);
       if (entity) {
         this.#configuredEntities.addAvailableEntity(entity);
@@ -482,7 +499,7 @@ class IntegrationAPI extends EventEmitter {
     // remove entities from registered entities
     let res = true;
 
-    entities.entity_ids.forEach((entityId: any) => {
+    entities.entity_ids.forEach((entityId: string) => {
       if (!this.#configuredEntities.removeEntity(entityId)) {
         res = false;
       }
@@ -498,17 +515,15 @@ class IntegrationAPI extends EventEmitter {
     return this.#configuredEntities.getStates();
   }
 
-  async #entityCommand(wsId: any, reqId: any, data: any) {
-    const wsHandle = { wsId, reqId };
-
+  async #entityCommand(wsHandle: WsHandle, data: any) {
     if (!data) {
       log.warn("Ignoring entity command: called with empty msg_data");
       await this.acknowledgeCommand(wsHandle, api.StatusCodes.BadRequest);
       return;
     }
 
-    const entityId = data.entity_id; // "entity_id" in data ? data.entity_id : undefined;
-    const cmdId = data.cmd_id; // "cmd_id" in data ? data.cmd_id : undefined;
+    const entityId = data.entity_id;
+    const cmdId = data.cmd_id;
     if (!entityId || !cmdId) {
       log.warn("Ignoring command: missing entity_id or cmd_id");
       await this.acknowledgeCommand(wsHandle, api.StatusCodes.BadRequest);
@@ -530,13 +545,11 @@ class IntegrationAPI extends EventEmitter {
       this.emit(api.Events.EntityCommand, wsHandle, data.entity_id, data.entity_type, data.cmd_id, data.params);
     } else {
       const result = await entity.command(cmdId, "params" in data ? data.params : undefined);
-      await this.acknowledgeCommand(wsHandle);
+      await this.acknowledgeCommand(wsHandle, result);
     }
   }
 
-  async #setupDriver(wsId: any, reqId: any, data: { setup_data: { [key: string]: string }; reconfigure: boolean }) {
-    const wsHandle = { wsId, reqId };
-
+  async #setupDriver(wsHandle: WsHandle, data: { setup_data: { [key: string]: string }; reconfigure?: boolean }) {
     if (this.#setupHandler) {
       await this.acknowledgeCommand(wsHandle);
     }
@@ -545,7 +558,7 @@ class IntegrationAPI extends EventEmitter {
       log.error("Aborting setup_driver: called with empty msg_data");
       return false;
     }
-    const reconfigure = data.reconfigure ? data.reconfigure : false;
+    const reconfigure = data.reconfigure ?? false;
 
     // legacy: emit event, so the driver can act on it
     if (!this.#setupHandler) {
@@ -570,13 +583,13 @@ class IntegrationAPI extends EventEmitter {
         await this.requestDriverSetupUserConfirmation(
           wsHandle,
           action.title,
-          String(action.header),
-          undefined,
-          String(action.footer)
+          action.header,
+          action.image,
+          action.footer
         );
         result = true;
       } else if (action instanceof api.SetupComplete) {
-        await this.driverSetupComplete(String(wsHandle));
+        await this.driverSetupComplete(wsHandle);
         result = true;
       } else if (action instanceof api.SetupError) {
         await this.driverSetupError(wsHandle, action.errorType);
@@ -590,9 +603,7 @@ class IntegrationAPI extends EventEmitter {
     return result;
   }
 
-  async #setDriverUserData(wsId: any, reqId: any, data: { input_values: { [key: string]: string }; confirm: boolean }) {
-    const wsHandle = { wsId, reqId };
-
+  async #setDriverUserData(wsHandle: WsHandle, data: { input_values: { [key: string]: string }; confirm: boolean }) {
     if (this.#setupHandler) {
       await this.acknowledgeCommand(wsHandle);
     }
@@ -623,11 +634,13 @@ class IntegrationAPI extends EventEmitter {
     // new #setupHandler logic as in Python integration library
     let result = false;
     try {
-      let action = new api.SetupError();
+      let action;
       if (data.input_values) {
         action = await this.#setupHandler(new api.UserDataResponse(data.input_values));
       } else if (data.confirm) {
         action = await this.#setupHandler(new api.UserConfirmationResponse(data.confirm));
+      } else {
+        action = new api.SetupError();
       }
 
       if (action instanceof api.RequestUserInput) {
@@ -637,13 +650,13 @@ class IntegrationAPI extends EventEmitter {
         await this.requestDriverSetupUserConfirmation(
           wsHandle,
           action.title,
-          String(action.header),
-          undefined,
-          String(action.footer)
+          action.header,
+          action.image,
+          action.footer
         );
         result = true;
       } else if (action instanceof api.SetupComplete) {
-        await this.driverSetupComplete(wsHandle.wsId);
+        await this.driverSetupComplete(wsHandle);
         result = true;
       } else if (action instanceof api.SetupError) {
         await this.driverSetupError(wsHandle, action.errorType);
@@ -661,7 +674,7 @@ class IntegrationAPI extends EventEmitter {
   /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
   getDriverVersion() {
     return {
-      name: this.#driverInfo.name.en,
+      name: getDefaultLanguageString(this.#driverInfo.name),
       version: {
         api: this.#driverInfo.min_core_api,
         driver: this.#driverInfo.version
@@ -669,7 +682,7 @@ class IntegrationAPI extends EventEmitter {
     };
   }
 
-  async setDeviceState(state: any) {
+  async setDeviceState(state: api.DeviceStates) {
     this.#state = state;
 
     await this.#broadcastEvent(
@@ -684,19 +697,19 @@ class IntegrationAPI extends EventEmitter {
   /**
    * Acknowledge a received command event it was successfully executed or not.
    *
-   * @param {Object} wsHandle The WebSocket handle received in the ENTITY_COMMAND event.
-   * @param {Number} statusCode The status code. Defaults to OK 200.
+   * @param {WsHandle} wsHandle The WebSocket handle received in the ENTITY_COMMAND event.
+   * @param {api.StatusCodes} statusCode The status code. Defaults to OK 200.
    */
-  async acknowledgeCommand(wsHandle: { wsId: any; reqId: any }, statusCode = api.StatusCodes.Ok) {
-    await this.#sendResponse(wsHandle.wsId, wsHandle.reqId, "result", {}, statusCode);
+  async acknowledgeCommand(wsHandle: WsHandle, statusCode: api.StatusCodes = api.StatusCodes.Ok) {
+    await this.#sendResponse(wsHandle, "result", {}, statusCode);
   }
 
   /**
    * Send a setup progress message during the driver setup flow.
    *
-   * @param {Object} wsHandle The WebSocket handle received in the `EVENTS.SETUP_DRIVER` event.
+   * @param {WsHandle} wsHandle The WebSocket handle received in the `EVENTS.SETUP_DRIVER` event.
    */
-  async driverSetupProgress(wsHandle: any) {
+  async driverSetupProgress(wsHandle: WsHandle) {
     const msgData = {
       event_type: "SETUP",
       state: "SETUP"
@@ -707,19 +720,20 @@ class IntegrationAPI extends EventEmitter {
   /**
    * Request a user confirmation during the driver setup flow.
    *
-   * @param {Object} wsHandle The WebSocket handle received in the `EVENTS.SETUP_DRIVER` event.
-   * @param {string|Map} title A human-readable title of the request screen. Either a string, which will be mapped to english, or a Map containing multiple language strings.
-   * @param {string|Map} msg1 The optional message to display in the request screen. Either a string or a language map.
-   * @param {string} image An optional base64 encoded image to display below `msg1`.
-   * @param {string|Map} msg2 An optional message to display in the request screen below `msg1` or `image`. Either a string or a language map.
+   * @param wsHandle The WebSocket handle received in the `EVENTS.SETUP_DRIVER` event.
+   * @param title A human-readable title of the request screen. Either a string, which will be mapped to english, or a Map containing multiple language strings.
+   * @param msg1 The optional message to display in the request screen. Either a string or a language map.
+   * @param image An optional base64 encoded image to display below `msg1`.
+   * @param msg2 An optional message to display in the request screen below `msg1` or `image`. Either a string or a language map.
    */
   async requestDriverSetupUserConfirmation(
-    wsHandle: { wsId: any; reqId?: any },
-    title: string | Map<string, string> | { [key: string]: string },
-    msg1: string,
-    image = undefined,
-    msg2: string
+    wsHandle: WsHandle,
+    title: string | Map<string, string> | Record<string, string>,
+    msg1?: string | Map<string, string> | Record<string, string>,
+    image?: string,
+    msg2?: string | Map<string, string> | Record<string, string>
   ) {
+    // Note: method cannot be private: used in old integration drivers which don't use the setupHandler yet
     const msgData = {
       event_type: "SETUP",
       state: "WAIT_USER_ACTION",
@@ -738,15 +752,16 @@ class IntegrationAPI extends EventEmitter {
   /**
    * Request user input during the driver setup flow.
    *
-   * @param {Object} wsHandle The WebSocket handle received in the `EVENTS.SETUP_DRIVER` event.
+   * @param {WsHandle} wsHandle The WebSocket handle received in the `EVENTS.SETUP_DRIVER` event.
    * @param {string|Map<string, string>|Object<string, string>} title A human-readable title of the request screen. Either a string, which will be mapped to english, or a Map / Object containing multiple language strings.
    * @param {Array<object>} settings Array of input field definition objects. See Integration-API specification.
    */
   async requestDriverSetupUserInput(
-    wsHandle: { wsId: any; reqId?: any },
+    wsHandle: WsHandle,
     title: string | Map<string, string> | { [key: string]: string },
     settings: { [key: string]: any }[]
   ) {
+    // Note: method cannot be private: used in old integration drivers which don't use the setupHandler yet
     const msgData = {
       event_type: "SETUP",
       state: "WAIT_USER_ACTION",
@@ -765,14 +780,15 @@ class IntegrationAPI extends EventEmitter {
    *
    * Further setup flow messages will be ignored by the Remote.
    *
-   * @param {string} wsHandle The WebSocket handle received in the `EVENTS.SETUP_DRIVER` event.
+   * @param {WsHandle} wsHandle The WebSocket handle received in the `EVENTS.SETUP_DRIVER` event.
    */
-  async driverSetupComplete(wsHandle: string) {
+  async driverSetupComplete(wsHandle: WsHandle) {
+    // Note: method cannot be private: used in old integration drivers which don't use the setupHandler yet
     const msgData = {
       event_type: "STOP",
       state: "OK"
     };
-    await this.#sendEvent(wsHandle, api.MsgEvents.DriverSetupChange, msgData, api.EventCategory.Device);
+    await this.#sendEvent(wsHandle.wsId, api.MsgEvents.DriverSetupChange, msgData, api.EventCategory.Device);
   }
 
   /**
@@ -780,10 +796,11 @@ class IntegrationAPI extends EventEmitter {
    *
    * Further setup flow messages will be ignored by the Remote.
    *
-   * @param {Object} wsHandle The WebSocket handle received in the `EVENTS.SETUP_DRIVER` event.
+   * @param {WsHandle} wsHandle The WebSocket handle received in the `EVENTS.SETUP_DRIVER` event.
    * @param {string} error The error reason. TODO create enum.
    */
-  async driverSetupError(wsHandle: { wsId: any; id?: any; reqId?: any }, error: string = "OTHER") {
+  async driverSetupError(wsHandle: WsHandle, error: string = "OTHER") {
+    // Note: method cannot be private: used in old integration drivers which don't use the setupHandler yet
     const msgData = {
       event_type: "STOP",
       state: "ERROR",
@@ -792,19 +809,20 @@ class IntegrationAPI extends EventEmitter {
     await this.#sendEvent(wsHandle.wsId, api.MsgEvents.DriverSetupChange, msgData, api.EventCategory.Device);
   }
 
-  public getConfiguredEntities(): entities.Entities {
+  public getConfiguredEntities(): Entities {
     return this.#configuredEntities;
   }
 
-  public getAvailableEntities(): entities.Entities {
+  public getAvailableEntities(): Entities {
     return this.#availableEntities;
   }
 
+  // TODO required? most of the time driver_url is not set!
   public getDriverUrl(): string | undefined {
-    return this.#driverInfo.driver_url;
+    return this.#driverInfo?.driver_url;
   }
 
-  public addAvailableEntity(entity: entities.Entity) {
+  public addAvailableEntity(entity: Entity) {
     this.#availableEntities.addAvailableEntity(entity);
   }
 
@@ -821,29 +839,17 @@ class IntegrationAPI extends EventEmitter {
   }
 }
 
-function createDriverInfo(driverConfig: object): DriverInfo {
-  throw new Error("Function not implemented.");
-}
+export { api, ui, IntegrationAPI };
 
-const uc = Object.assign(new IntegrationAPI(), {
-  IntegrationAPI,
-  DeviceStates,
-  Events,
-  StatusCodes,
-  entities,
-  setup,
-  ui,
-  api
-}) as IntegrationAPI & {
-  IntegrationAPI: typeof IntegrationAPI;
-  DeviceStates: typeof DeviceStates;
-  Events: typeof Events;
-  StatusCodes: typeof StatusCodes;
-  entities: typeof entities;
-  setup: typeof setup;
-  ui: typeof ui;
-  api: typeof api;
-};
+export * from "./lib/entities/ui.js";
+export * from "./lib/api_definitions.js";
 
-export default uc;
-export type { CommandHandler, StatusCodes, DriverSetupRequest, UserDataResponse, SetupAction };
+export * from "./lib/entities/entity.js";
+export * from "./lib/entities/button.js";
+export * from "./lib/entities/climate.js";
+export * from "./lib/entities/cover.js";
+export * from "./lib/entities/light.js";
+export * from "./lib/entities/media_player.js";
+export * from "./lib/entities/remote.js";
+export * from "./lib/entities/sensor.js";
+export * from "./lib/entities/switch.js";

@@ -1,6 +1,6 @@
 import test from "ava";
 import { EntityType } from "../lib/entities/entity.js";
-import { Switch, Options, Features, Attributes, States } from "../lib/entities/switch.js";
+import { Switch, SwitchOptions, SwitchFeatures, SwitchAttributes, SwitchStates } from "../lib/entities/switch.js";
 
 test("Switch constructor without parameter object creates default Switch class", (t) => {
   const entity = new Switch("test", "Test Switch");
@@ -18,16 +18,16 @@ test("Switch constructor without parameter object creates default Switch class",
 });
 
 test("Switch constructor with parameter object", (t) => {
-  const options: Record<Options, boolean> = {
-    [Options.Readable]: true
+  const options: Record<SwitchOptions, boolean> = {
+    [SwitchOptions.Readable]: true
   };
 
-  const attributes: Partial<Record<Attributes, States>> = {
-    [Attributes.State]: States.Unavailable
+  const attributes: Partial<Record<SwitchAttributes, SwitchStates>> = {
+    [SwitchAttributes.State]: SwitchStates.Unavailable
   };
 
   const entity = new Switch("test", "Test Switch", {
-    features: [Features.Toggle],
+    features: [SwitchFeatures.Toggle],
     attributes,
     options,
     area: "Test lab"
@@ -47,7 +47,7 @@ test("Switch constructor with parameter object", (t) => {
 
 test("Switch constructor with Object attributes", (t) => {
   const entity = new Switch("test", "Test Switch", {
-    attributes: { state: States.Off }
+    attributes: { state: SwitchStates.Off }
   });
 
   t.is(entity.id, "test");

@@ -1,8 +1,11 @@
 // use integration library in a client project:
-// import uc from "@unfoldedcircle/integration-api";
-import uc from "../../dist/index.js";
+// import * as uc from "@unfoldedcircle/integration-api";
+import * as uc from "../../dist/index.js";
+import { Remote, RemoteStates, RemoteCommands, RemoteAttributes, RemoteFeatures } from "../../dist/index.js";
 
 import fs from "fs";
+
+const driver = new uc.IntegrationAPI();
 
 // Simple commands supported by this example remote entity
 const supportedCommands = [
@@ -40,19 +43,16 @@ const cmdHandler = async function (entity, cmdId, params = {}) {
 
   let state = null;
   switch (cmdId) {
-    case uc.entities.Remote.Commands.On:
-      state = uc.entities.Remote.States.On;
+    case RemoteCommands.On:
+      state = RemoteStates.On;
       break;
-    case uc.entities.Remote.Commands.Off:
-      state = uc.entities.Remote.States.Off;
+    case RemoteCommands.Off:
+      state = RemoteStates.Off;
       break;
-    case uc.entities.Remote.Commands.Toggle:
-      state =
-        entity.attributes?.[uc.entities.Remote.Attributes.State] === uc.entities.Remote.States.Off
-          ? uc.entities.Remote.States.On
-          : uc.entities.Remote.States.Off;
+    case RemoteCommands.Toggle:
+      state = entity.attributes?.[RemoteAttributes.State] === RemoteStates.Off ? RemoteStates.On : RemoteStates.Off;
       break;
-    case uc.entities.Remote.Commands.SendCmd: {
+    case RemoteCommands.SendCmd: {
       const command = params.command ?? "";
       if (!supportedCommands.includes(command)) {
         console.error(`Unknown command: ${command}`);
@@ -64,7 +64,7 @@ const cmdHandler = async function (entity, cmdId, params = {}) {
       console.log(`Command: ${command} (repeat=${repeat}, delay=${delay}, hold=${hold})`);
       break;
     }
-    case uc.entities.Remote.Commands.SendCmdSequence: {
+    case RemoteCommands.SendCmdSequence: {
       const sequence = params.sequence;
       const seqRepeat = params.repeat || 1;
       const seqDelay = params.delay || 0;
@@ -78,21 +78,21 @@ const cmdHandler = async function (entity, cmdId, params = {}) {
 
   if (state) {
     const newState = {
-      [uc.entities.Remote.Attributes.State]: state
+      [RemoteAttributes.State]: state
     };
-    uc.getConfiguredEntities().updateEntityAttributes(entity.id, newState);
+    driver.getConfiguredEntities().updateEntityAttributes(entity.id, newState);
   }
 
   return uc.StatusCodes.Ok;
 };
 
 // Event listener for connection event
-uc.on(uc.Events.Connect, async () => {
-  await uc.setDeviceState(uc.DeviceStates.Connected);
+driver.on(uc.Events.Connect, async () => {
+  await driver.setDeviceState(uc.DeviceStates.Connected);
 });
 
-uc.on(uc.Events.Disconnect, async () => {
-  await uc.setDeviceState(uc.DeviceStates.Disconnected);
+driver.on(uc.Events.Disconnect, async () => {
+  await driver.setDeviceState(uc.DeviceStates.Disconnected);
 });
 
 // Create button mappings
@@ -105,10 +105,10 @@ const createButtonMappings = () => {
     uc.ui.createBtnMapping(uc.ui.Buttons.DpadDown, "CURSOR_DOWN"),
     uc.ui.createBtnMapping(uc.ui.Buttons.DpadLeft, "CURSOR_LEFT"),
     uc.ui.createBtnMapping(uc.ui.Buttons.DpadRight, "CURSOR_RIGHT"),
-    uc.ui.createBtnMapping(uc.ui.Buttons.DpadMiddle, uc.entities.Remote.createSendCmd("CONTEXT_MENU", { hold: 100 })),
+    uc.ui.createBtnMapping(uc.ui.Buttons.DpadMiddle, uc.createRemoteSendCmd("CONTEXT_MENU", { hold: 100 })),
     uc.ui.createBtnMapping(
       uc.ui.Buttons.Blue,
-      uc.entities.Remote.createSequenceCmd(["CURSOR_UP", "CURSOR_RIGHT", "CURSOR_DOWN", "CURSOR_LEFT"], { delay: 200 })
+      uc.createRemoteSequenceCmd(["CURSOR_UP", "CURSOR_RIGHT", "CURSOR_DOWN", "CURSOR_LEFT"], { delay: 200 })
     ),
     uc.ui.createBtnMapping(uc.ui.Buttons.Power, new uc.ui.EntityCommand("remote.toggle"))
   ];
@@ -133,7 +133,7 @@ const createUi = () => {
       "Pump up the volume!",
       0,
       0,
-      uc.entities.Remote.createSendCmd("VOLUME_UP", { repeat: 5 }),
+      uc.createRemoteSendCmd("VOLUME_UP", { repeat: 5 }),
       new uc.ui.Size(4, 2)
     )
   );
@@ -142,7 +142,7 @@ const createUi = () => {
       "Test sequence",
       0,
       4,
-      uc.entities.Remote.createSequenceCmd(["CURSOR_UP", "CURSOR_RIGHT", "CURSOR_DOWN", "CURSOR_LEFT"], { delay: 200 }),
+      uc.createRemoteSequenceCmd(["CURSOR_UP", "CURSOR_RIGHT", "CURSOR_DOWN", "CURSOR_LEFT"], { delay: 200 }),
       new uc.ui.Size(4, 1)
     )
   );
@@ -154,14 +154,14 @@ const createUi = () => {
 
 // -- startup driver
 
-const entity = new uc.entities.Remote("remote1", "Demo remote", {
-  features: [uc.entities.Remote.Features.OnOff, uc.entities.Remote.Features.Toggle],
-  attributes: { [uc.entities.Remote.Attributes.State]: uc.entities.Remote.States.Off },
+const entity = new Remote("remote1", "Demo remote", {
+  features: [RemoteFeatures.OnOff, RemoteFeatures.Toggle],
+  attributes: { [RemoteAttributes.State]: RemoteStates.Off },
   simpleCommands: supportedCommands,
   buttonMapping: createButtonMappings(),
   uiPages: createUi(),
   cmdHandler
 });
 
-uc.addAvailableEntity(entity);
-uc.init("remote.json");
+driver.addAvailableEntity(entity);
+driver.init("remote.json");
