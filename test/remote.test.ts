@@ -6,7 +6,6 @@ import {
   RemoteStates,
   RemoteAttributes
 } from "../lib/entities/remote.js";
-import { EntityCommand } from "../lib/entities/ui.js";
 import { AssertionError } from "node:assert";
 import { Remote } from "../lib/entities/remote.js";
 import { EntityType } from "../lib/entities/entity.js";
