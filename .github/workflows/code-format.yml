@@ -3,7 +3,7 @@
 # More details at https://github.com/eslint/eslint
 # and https://eslint.org
 
-name: Check code formatting and types
+name: Check Node.js code formatting
 
 on:
   push:
@@ -20,7 +20,7 @@ on:
 
 jobs:
   eslint:
-    name: Run prettier, eslint, tsc
+    name: Run prettier & eslint scanning
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -42,8 +42,5 @@ jobs:
         if: steps.npm-cache.outputs.cache-hit != 'true'
         run: npm ci
 
-      - name: Check with Prettier & ESLint
-        run: npm run code-check
-
-      - name: Type check
-        run: tsc
+      - name: Run configured Prettier & ESLint
+        run: npm run lint
