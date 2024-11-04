@@ -673,9 +673,8 @@ class IntegrationAPI extends EventEmitter {
 
   /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
   getDriverVersion() {
-    // TODO use getDefaultName function to get name: en might not be defined!
     return {
-      name: this.#driverInfo.name.en,
+      name: getDefaultLanguageString(this.#driverInfo.name),
       version: {
         api: this.#driverInfo.min_core_api,
         driver: this.#driverInfo.version
