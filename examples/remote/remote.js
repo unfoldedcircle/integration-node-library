@@ -105,10 +105,10 @@ const createButtonMappings = () => {
     uc.ui.createBtnMapping(uc.ui.Buttons.DpadDown, "CURSOR_DOWN"),
     uc.ui.createBtnMapping(uc.ui.Buttons.DpadLeft, "CURSOR_LEFT"),
     uc.ui.createBtnMapping(uc.ui.Buttons.DpadRight, "CURSOR_RIGHT"),
-    uc.ui.createBtnMapping(uc.ui.Buttons.DpadMiddle, Remote.createSendCmd("CONTEXT_MENU", { hold: 100 })),
+    uc.ui.createBtnMapping(uc.ui.Buttons.DpadMiddle, uc.createRemoteSendCmd("CONTEXT_MENU", { hold: 100 })),
     uc.ui.createBtnMapping(
       uc.ui.Buttons.Blue,
-      Remote.createSequenceCmd(["CURSOR_UP", "CURSOR_RIGHT", "CURSOR_DOWN", "CURSOR_LEFT"], { delay: 200 })
+      uc.createRemoteSequenceCmd(["CURSOR_UP", "CURSOR_RIGHT", "CURSOR_DOWN", "CURSOR_LEFT"], { delay: 200 })
     ),
     uc.ui.createBtnMapping(uc.ui.Buttons.Power, new uc.ui.EntityCommand("remote.toggle"))
   ];
@@ -133,7 +133,7 @@ const createUi = () => {
       "Pump up the volume!",
       0,
       0,
-      Remote.createSendCmd("VOLUME_UP", { repeat: 5 }),
+      uc.createRemoteSendCmd("VOLUME_UP", { repeat: 5 }),
       new uc.ui.Size(4, 2)
     )
   );
@@ -142,7 +142,7 @@ const createUi = () => {
       "Test sequence",
       0,
       4,
-      Remote.createSequenceCmd(["CURSOR_UP", "CURSOR_RIGHT", "CURSOR_DOWN", "CURSOR_LEFT"], { delay: 200 }),
+      uc.createRemoteSequenceCmd(["CURSOR_UP", "CURSOR_RIGHT", "CURSOR_DOWN", "CURSOR_LEFT"], { delay: 200 }),
       new uc.ui.Size(4, 1)
     )
   );

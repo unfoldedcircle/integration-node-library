@@ -67,11 +67,11 @@ export enum RemoteOptions {
  * @return EntityCommand the created EntityCommand.
  * @throws AssertionError if command is not specified or is empty.
  */
-export function createSendCmd(
-  command: string | undefined,
+export function createRemoteSendCmd(
+  command: string,
   { delay, repeat, hold }: { delay?: number; repeat?: number; hold?: number } = {}
 ): EntityCommand {
-  assert(command && command.length > 0, "command must be a string and may not be empty");
+  assert(command && command.length > 0, "command may not be empty");
 
   const params: Record<string, string | number> = { command };
   if (delay) {
@@ -96,12 +96,12 @@ export function createSendCmd(
  * @return EntityCommand the created EntityCommand.
  * @throws AssertionError if sequence is not specified or doesn't contain at least one command.
  */
-export function createSequenceCmd(
-  sequence: string[] | undefined,
+export function createRemoteSequenceCmd(
+  sequence: string[],
   { delay, repeat }: { delay?: number; repeat?: number } = {}
 ): EntityCommand {
   assert(
-    sequence && Array.isArray(sequence) && sequence.length > 0,
+    Array.isArray(sequence) && sequence.length > 0,
     "sequence array must be specified and contain at least one command"
   );
 
@@ -127,10 +127,6 @@ export interface RemoteParams {
 }
 
 export class Remote extends Entity {
-  // TODO this doesn't look right, and we have a double export!
-  static createSendCmd = createSendCmd;
-  static createSequenceCmd = createSequenceCmd;
-
   /**
    * Constructs a new remote-entity.
    *

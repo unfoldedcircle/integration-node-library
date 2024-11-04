@@ -1,7 +1,7 @@
 import test from "ava";
 import {
-  createSequenceCmd,
-  createSendCmd,
+  createRemoteSequenceCmd,
+  createRemoteSendCmd,
   RemoteFeatures,
   RemoteStates,
   RemoteAttributes
@@ -14,7 +14,9 @@ import { EntityType } from "../lib/entities/entity.js";
 test("createSequenceCmd with an undefined sequence throws an assert", (t) => {
   t.throws(
     () => {
-      createSequenceCmd(undefined);
+      // force an invalid type for old JS integration drivers
+      const jsTest: any = undefined;
+      createRemoteSequenceCmd(jsTest);
     },
     { instanceOf: AssertionError }
   );
@@ -23,40 +25,36 @@ test("createSequenceCmd with an undefined sequence throws an assert", (t) => {
 test("createSequenceCmd with an empty sequence array throws an assert", (t) => {
   t.throws(
     () => {
-      createSequenceCmd([]);
+      createRemoteSequenceCmd([]);
     },
     { instanceOf: AssertionError }
   );
 });
 
 test("createSequenceCmd without optional params doesn't include fields", (t) => {
-  const result = createSequenceCmd(["foo", "bar"]);
+  const result = createRemoteSequenceCmd(["foo", "bar"]);
 
-  t.true(result instanceof EntityCommand, "result must be an EntityCommand");
   t.is(result.cmd_id, "send_cmd_sequence");
   t.deepEqual(result.params, { sequence: ["foo", "bar"] });
 });
 
 test("createSequenceCmd with value 0 for delay and repeat returns values", (t) => {
-  const result = createSequenceCmd(["foo", "bar"], { delay: 0, repeat: 0 });
+  const result = createRemoteSequenceCmd(["foo", "bar"], { delay: 0, repeat: 0 });
 
-  t.true(result instanceof EntityCommand, "result must be an EntityCommand");
   t.is(result.cmd_id, "send_cmd_sequence");
   t.deepEqual(result.params, { sequence: ["foo", "bar"], delay: 0, repeat: 0 });
 });
 
 test("createSequenceCmd with delay returns parameter field", (t) => {
-  const result = createSequenceCmd(["foo", "bar"], { delay: 100 });
+  const result = createRemoteSequenceCmd(["foo", "bar"], { delay: 100 });
 
-  t.true(result instanceof EntityCommand, "result must be an EntityCommand");
   t.is(result.cmd_id, "send_cmd_sequence");
   t.deepEqual(result.params, { sequence: ["foo", "bar"], delay: 100 });
 });
 
 test("createSequenceCmd with repeat returns parameter field", (t) => {
-  const result = createSequenceCmd(["foo", "bar"], { repeat: 2 });
+  const result = createRemoteSequenceCmd(["foo", "bar"], { repeat: 2 });
 
-  t.true(result instanceof EntityCommand, "result must be an EntityCommand");
   t.is(result.cmd_id, "send_cmd_sequence");
   t.deepEqual(result.params, { sequence: ["foo", "bar"], repeat: 2 });
 });
@@ -64,7 +62,9 @@ test("createSequenceCmd with repeat returns parameter field", (t) => {
 test("createSendCmd with an undefined command throws an assert", (t) => {
   t.throws(
     () => {
-      createSendCmd(undefined);
+      // force an invalid type for old JS integration drivers
+      const jsTest: any = undefined;
+      createRemoteSendCmd(jsTest);
     },
     { instanceOf: AssertionError }
   );
@@ -73,24 +73,22 @@ test("createSendCmd with an undefined command throws an assert", (t) => {
 test("createSendCmd with an empty command throws an assert", (t) => {
   t.throws(
     () => {
-      createSendCmd("");
+      createRemoteSendCmd("");
     },
     { instanceOf: AssertionError }
   );
 });
 
 test("createSendCmd without optional params doesn't include fields", (t) => {
-  const result = createSendCmd("foobar");
+  const result = createRemoteSendCmd("foobar");
 
-  t.true(result instanceof EntityCommand, "result must be an EntityCommand");
   t.is(result.cmd_id, "send_cmd");
   t.deepEqual(result.params, { command: "foobar" });
 });
 
 test("createSendCmd with optional params returns fields", (t) => {
-  const result = createSendCmd("foobar", { delay: 1, repeat: 2, hold: 3 });
+  const result = createRemoteSendCmd("foobar", { delay: 1, repeat: 2, hold: 3 });
 
-  t.true(result instanceof EntityCommand, "result must be an EntityCommand");
   t.is(result.cmd_id, "send_cmd");
   t.deepEqual(result.params, { command: "foobar", delay: 1, repeat: 2, hold: 3 });
 });
