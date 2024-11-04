@@ -5,7 +5,9 @@
 This library simplifies writing Node.js based integrations for the [Unfolded Circle Remote devices](https://www.unfoldedcircle.com/)
 by wrapping the [WebSocket Integration-API](https://github.com/unfoldedcircle/core-api/tree/main/integration-api).
 
-It's a beta release (in our eyes). Breaking changes are to be expected and missing features will be continuously added.
+It's a beta release (in our eyes). Breaking changes are to be expected and missing features will be continuously added.  
+Since JavaScript & TypeScript are not our main languages, certain things might not be the "JS-way" ☺️ Let us know how to
+improve the library!
 
 Not supported:
 

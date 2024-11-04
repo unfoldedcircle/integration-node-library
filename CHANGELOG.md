@@ -12,7 +12,19 @@ _Changes in the next release_
 ### Breaking changes
 
 - Package name change to `@unfoldedcircle/integration-api`. Use a scoped name for npmjs publishing.
-- Using enums for all entity options, features etc. using UpperCamelCase
+- Changed to ES modules.
+- Removed the default package export with an IntegrationAPI instance.
+  - All objects are now exported at the root module level.
+  - An instance of IntegrationAPI must be done manually.
+- Using enums for all entity options, features etc. using UpperCamelCase and the entity name as prefix.
+
+Example of how to initialize the integration wrapper and start the WebSocket server:
+```ts
+import * as uc from "@unfoldedcircle/integration-api";
+
+const driver = new uc.IntegrationAPI();
+driver.init("driver.json");
+```
 
 ### Changed
 
