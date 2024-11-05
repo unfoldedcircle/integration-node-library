@@ -19,6 +19,7 @@ _Changes in the next release_
 - Using enums for all entity options, features etc. using UpperCamelCase and the entity name as prefix.
 
 Example of how to initialize the integration wrapper and start the WebSocket server:
+
 ```ts
 import * as uc from "@unfoldedcircle/integration-api";
 
