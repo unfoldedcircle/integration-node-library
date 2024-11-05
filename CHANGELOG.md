@@ -9,13 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 _Changes in the next release_
 
+---
+
+## 0.2.0-beta - 2024-11-05
+
 ### Breaking changes
 
-- Package name change to `@unfoldedcircle/integration-api`. Use a scoped name for npmjs publishing.
+- Package name change to `@unfoldedcircle/integration-api`.
 - Changed to ES modules.
 - Removed the default package export with an IntegrationAPI instance.
   - All objects are now exported at the root module level.
-  - An instance of IntegrationAPI must be done manually.
+  - An instance of IntegrationAPI must be created manually.
 - Using enums for all entity options, features etc. using UpperCamelCase and the entity name as prefix.
 
 Example of how to initialize the integration wrapper and start the WebSocket server:
@@ -30,8 +34,7 @@ driver.init("driver.json");
 ### Changed
 
 - TypeScript conversion.
-
----
+- Initial NPM package `@unfoldedcircle/integration-api`.
 
 ## 0.1.0-beta - 2024-08-21
 
