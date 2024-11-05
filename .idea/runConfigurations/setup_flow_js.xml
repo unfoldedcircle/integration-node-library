@@ -1,0 +1,8 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="setup_flow.js" type="NodeJSConfigurationType" nameIsGenerated="true" path-to-js-file="setup_flow.js" working-dir="$PROJECT_DIR$/examples/setup-flow">
+    <envs>
+      <env name="DEBUG" value="ucapi:*" />
+    </envs>
+    <method v="2" />
+  </configuration>
+</component>
