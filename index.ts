@@ -8,41 +8,23 @@ import os from "os";
 import fs from "fs";
 import log from "./lib/loggers.js";
 import BonjourModule from "bonjour-service";
-const Bonjour = BonjourModule.default;
-import WebSocket from "ws";
-import { WebSocketServer } from "ws";
+import WebSocket, { WebSocketServer } from "ws";
 import { EventEmitter } from "events";
 
-import { toLanguageObject, getDefaultLanguageString } from "./lib/utils.js";
+import { getDefaultLanguageString, toLanguageObject } from "./lib/utils.js";
 
 import * as ui from "./lib/entities/ui.js";
 import * as api from "./lib/api_definitions.js";
 import { Entities } from "./lib/entities/entities.js";
 import { Entity } from "./lib/entities/entity.js";
 
-export interface Developer {
-  name?: string;
-  url?: string;
-  email?: string;
-}
-
-export interface DriverInfo {
-  driver_id: string;
-  name: Record<string, string>;
-  driver_url?: string;
-  port?: number;
-  version: string;
-  min_core_api?: string;
-  icon?: string;
-  description?: Record<string, string>;
-  developer?: Developer;
-  home_page?: string;
-  setup_data_schema?: object;
-  release_date?: string;
-}
+const Bonjour = BonjourModule.default;
 
 /**
  * Internal WebSocket handle.
+ *
+ * This is for legacy integration drivers not yet using the setup handler callback.
+ * Do not use for new drivers!
  */
 export type WsHandle = {
   // WebSocket ID
@@ -51,13 +33,20 @@ export type WsHandle = {
   reqId: number;
 };
 
+// WebSocket client connection metadata.
+// More could be added in the future, e.g. authentication info etc
+type WsClientMetadata = {
+  // unique client identifier
+  id: string;
+  authenticated: boolean;
+};
+
 class IntegrationAPI extends EventEmitter {
   readonly #configDirPath: string;
-  #driverPath: string;
-  #driverInfo!: DriverInfo;
+  #driverInfo!: api.DriverInfo;
   #state: api.DeviceStates;
-  #server: WebSocket.Server;
-  #clients: Map<WebSocket, any>;
+  #server?: WebSocket.Server;
+  #clients: Map<WebSocket, WsClientMetadata>;
   #setupHandler?: (msg: api.SetupDriver) => Promise<api.SetupAction>;
   readonly #availableEntities: Entities;
   readonly #configuredEntities: Entities;
@@ -65,14 +54,10 @@ class IntegrationAPI extends EventEmitter {
   constructor() {
     super();
 
-    this.#server = new WebSocketServer({ noServer: true });
-
-    this.#driverPath = "driver.json";
-
     // directory to store configuration files
     this.#configDirPath = process.env.UC_CONFIG_HOME || process.env.HOME || "./";
 
-    // set default #state to connected
+    // set default state
     this.#state = api.DeviceStates.Disconnected;
 
     this.#clients = new Map();
@@ -94,11 +79,12 @@ class IntegrationAPI extends EventEmitter {
   }
 
   /**
-   * Initialize the library
-   * @param {string|DriverInfo} driverConfig either a string to specify the driver configuration file path, or an object holding the configuration
+   * Initialize the library, start mDNS advertisement and WebSocket server.
+   *
+   * @param {string|api.DriverInfo} driverConfig either a string to specify the driver configuration file path, or an object holding the configuration
    * @param [setupHandler] optional driver setup handler if the driver metadata contains a setup_data_schema object
    */
-  init(driverConfig: string | DriverInfo, setupHandler?: (msg: api.SetupDriver) => Promise<api.SetupAction>) {
+  init(driverConfig: string | api.DriverInfo, setupHandler?: (msg: api.SetupDriver) => Promise<api.SetupAction>) {
     this.#setupHandler = setupHandler;
     const integrationInterface = process.env.UC_INTEGRATION_INTERFACE;
     const integrationPort = process.env.UC_INTEGRATION_HTTP_PORT;
@@ -108,13 +94,11 @@ class IntegrationAPI extends EventEmitter {
 
     // load driver information from either a file path or object.
     if (typeof driverConfig === "string") {
-      this.#driverPath = driverConfig;
-
       let raw: Buffer;
       try {
-        raw = fs.readFileSync(this.#driverPath);
+        raw = fs.readFileSync(driverConfig);
       } catch (e) {
-        throw Error(`Cannot load ${this.#driverPath}: ${e}`);
+        throw Error(`Cannot load ${driverConfig}: ${e}`);
       }
 
       try {
@@ -183,9 +167,7 @@ class IntegrationAPI extends EventEmitter {
 
       log.info(`[${wsId}] WS: New connection`);
 
-      // more metadata in the future, e.g. authentication info etc
-      const metadata = { id: wsId, authenticated: true };
-
+      const metadata: WsClientMetadata = { id: wsId, authenticated: true };
       this.#clients.set(connection, metadata);
 
       this.#authentication(wsId, true);
@@ -214,20 +196,23 @@ class IntegrationAPI extends EventEmitter {
     );
   }
 
+  /**
+   * @returns path for storing driver configuration files.
+   */
   public getConfigDirPath(): string {
     return this.#configDirPath;
   }
 
   /**
-   * Rewrite WebSocket #server URL to include in the `driver_metadata` response.
+   * Rewrite WebSocket server URL to include in the `driver_metadata` response.
    *
    * - If null or empty: null is returned and propagated to the metadata. The remote uses the mDNS information.
    * - If starting with `ws://` or `wss://` the url is returned as defined.
    * - Otherwise: build URL from OS hostname and given port number.
    *
    * @param url The WebSocket url. Usually defined in the driver.json file. May be null or empty.
-   * @param port The WebSocket #server port number.
-   * @returns The WebSocket #server url which should be returned in `driver_metadata` or undefined to use advertised URL.
+   * @param port The WebSocket server port number.
+   * @returns The WebSocket server url which should be returned in `driver_metadata` or undefined to use advertised URL.
    */
   #getDriverUrl(url: string | undefined, port: number): string | undefined {
     if (url) {
@@ -449,7 +434,7 @@ class IntegrationAPI extends EventEmitter {
    * fields to limit log output.
    * The `msg_data` object may either be a single object or an array of objects.
    *
-   * @param {Record<string, any>} json The JSON message to log.
+   * @param {object} json The JSON message to log.
    * @param {string} prefix Prefix text to add before the JSON message.
    */
   #log_json_message(json: object, prefix: string) {
@@ -511,7 +496,7 @@ class IntegrationAPI extends EventEmitter {
   }
 
   #getEntityStates() {
-    // simply return entity #states from configured entities
+    // simply return entity states from configured entities
     return this.#configuredEntities.getStates();
   }
 
@@ -569,7 +554,7 @@ class IntegrationAPI extends EventEmitter {
       return true;
     }
 
-    // new #setupHandler logic as in Python integration library
+    // new setup-handler logic as in Python integration library
     let result = false;
     try {
       const action = await this.#setupHandler(new api.DriverSetupRequest(reconfigure, data.setup_data));

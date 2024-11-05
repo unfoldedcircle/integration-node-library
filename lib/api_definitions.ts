@@ -239,3 +239,24 @@ export class SetupError extends SetupAction {
 export class SetupComplete extends SetupAction {
   // Marks setup as complete
 }
+
+export interface Developer {
+  name?: string;
+  url?: string;
+  email?: string;
+}
+
+export interface DriverInfo {
+  driver_id: string;
+  name: Record<string, string>;
+  driver_url?: string;
+  port?: number;
+  version: string;
+  min_core_api?: string;
+  icon?: string;
+  description?: Record<string, string>;
+  developer?: Developer;
+  home_page?: string;
+  setup_data_schema?: object;
+  release_date?: string;
+}
