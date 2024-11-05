@@ -7,7 +7,7 @@
  * @license Apache License 2.0, see LICENSE for more details.
  */
 
-const debugModule = require("debug");
+import debugModule from "debug";
 
 const log = {
   msgTrace: debugModule("ucapi:msg"),
@@ -17,4 +17,4 @@ const log = {
   error: debugModule("ucapi:error")
 };
 
-module.exports = log;
+export default log;

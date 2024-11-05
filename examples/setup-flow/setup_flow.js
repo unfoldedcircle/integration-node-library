@@ -1,25 +1,42 @@
 /**
  * Integration setup flow example.
  */
-"use strict";
 
-// use package in production
-// const uc = require("uc-integration-api");
-const uc = require("../../index");
+// use integration library in a client project:
+// import * as uc from "@unfoldedcircle/integration-api";
+import * as uc from "../../dist/index.js";
+
+const driver = new uc.IntegrationAPI();
+
+/**
+ * Push button command handler.
+ *
+ * Called by the integration-API if a command is sent to a configured button-entity.
+ *
+ * @param {Entity} entity button entity
+ * @param {string} cmdId command
+ * @param {Object<string, *>} [_params] optional command parameters (not used for buttons)
+ * @return status of the command
+ */
+const cmdHandler = async function (entity, cmdId, _params) {
+  console.log("Got %s command request: %s", entity.id, cmdId);
+  return uc.StatusCodes.Ok;
+};
 
 /**
  * Dispatch driver setup requests to corresponding handlers.
  *
  * Either start the setup process or handle the provided user input data.
- * @param {uc.setup.SetupDriver} msg the setup driver request object, either DriverSetupRequest,
+ * @param {uc.SetupDriver} msg the setup driver request object, either DriverSetupRequest,
  *                 UserDataResponse or UserConfirmationResponse
- * @return {Promise<uc.setup.SetupAction>} the setup action on how to continue
+ * @return the SetupAction on how to continue
  */
-async function driverSetupHandler(msg) {
-  if (msg instanceof uc.setup.DriverSetupRequest) {
+
+const driverSetupHandler = async function (msg) {
+  if (msg instanceof uc.DriverSetupRequest) {
     return await handleDriverSetup(msg);
   }
-  if (msg instanceof uc.setup.UserDataResponse) {
+  if (msg instanceof uc.UserDataResponse) {
     return await handleUserDataResponse(msg);
   }
 
@@ -28,15 +45,15 @@ async function driverSetupHandler(msg) {
   //     return handle_user_confirmation(msg)
   // }
 
-  return new uc.setup.SetupError();
-}
+  return new uc.SetupError();
+};
 
 /**
  * Start driver setup.
  *
  * Initiated by the UC Remote to set up the driver.
- * @param {uc.setup.DriverSetupRequest} msg value(s) of input fields in the first setup screen.
- * @return {Promise<uc.setup.SetupAction>} the setup action on how to continue
+ * @param {uc.DriverSetupRequest} msg value(s) of input fields in the first setup screen.
+ * @return the SetupAction on how to continue
  */
 async function handleDriverSetup(msg) {
   // No support for reconfiguration :-)
@@ -46,16 +63,16 @@ async function handleDriverSetup(msg) {
 
   // For our demo we simply clear everything!
   // A real driver might have to handle this differently
-  uc.availableEntities.clear();
-  uc.configuredEntities.clear();
+  driver.clearAvailableEntities();
+  driver.clearConfiguredEntities();
 
   // check if user selected the expert option in the initial setup screen
   // please note that all values are returned as strings!
   if (!("expert" in msg.setupData) || msg.setupData.expert !== "true") {
     // add a single button as default action
-    const button = new uc.Entities.Button("button", "Button", { cmdHandler });
-    uc.availableEntities.addEntity(button);
-    return new uc.setup.SetupComplete();
+    const button = new uc.Button("button", "Button", { cmdHandler });
+    driver.addAvailableEntity(button);
+    return new uc.SetupComplete();
   }
 
   // Dropdown selections are usually set dynamically, e.g. with found devices etc.
@@ -65,7 +82,7 @@ async function handleDriverSetup(msg) {
     { id: "blue", label: { en: "Blue", de: "Blau" } }
   ];
 
-  return new uc.setup.RequestUserInput({ en: "Please choose", de: "Bitte auswählen" }, [
+  return new uc.RequestUserInput({ en: "Please choose", de: "Bitte auswählen" }, [
     {
       id: "info",
       label: { en: "Setup flow example", de: "Setup Flow Beispiel" },
@@ -96,23 +113,23 @@ async function handleDriverSetup(msg) {
  * Process user data response in a setup process.
  *
  * Driver setup callback to provide requested user data during the setup process.
- * @param {uc.setup.UserDataResponse} msg response data from the requested user data
- * @return {Promise<uc.setup.SetupAction>} the setup action on how to continue: SetupComplete if finished.
+ * @param {uc.UserDataResponse} msg response data from the requested user data
+ * @return the SetupAction on how to continue: SetupComplete if finished.
  */
 async function handleUserDataResponse(msg) {
   // values from all screens are returned: check in reverse order
   if ("step2.count" in msg.inputValues) {
     for (let x = 0; x < parseInt(msg.inputValues["step2.count"]); x++) {
-      uc.availableEntities.addEntity(new uc.Entities.Button(`button${x}`, `Button ${x + 1}`, { cmdHandler }));
+      driver.addAvailableEntity(new uc.Button(`button${x}`, `Button ${x + 1}`, { cmdHandler }));
     }
 
-    return new uc.setup.SetupComplete();
+    return new uc.SetupComplete();
   }
 
   if ("step1.choice" in msg.inputValues) {
     const choice = msg.inputValues["step1.choice"];
     console.log("Chosen color:", choice);
-    return new uc.setup.RequestUserInput({ en: "Step 2" }, [
+    return new uc.RequestUserInput({ en: "Step 2" }, [
       {
         id: "info",
         label: {
@@ -139,28 +156,12 @@ async function handleUserDataResponse(msg) {
   }
 
   console.log("No choice was received");
-  return new uc.setup.SetupError();
+  return new uc.SetupError();
 }
 
-/**
- * Push button command handler.
- *
- * Called by the integration-API if a command is sent to a configured button-entity.
- *
- * @param {uc.Entities.Entity} entity button entity
- * @param {string} cmdId command
- * @param {Object<string, *>} _params optional command parameters (not used for buttons)
- * @return {Promise<string>} status of the command
- */
-async function cmdHandler(entity, cmdId, _params) {
-  console.log("Got %s command request: %s", entity.id, cmdId);
-
-  return uc.STATUS_CODES.OK;
-}
-
-uc.on(uc.EVENTS.CONNECT, async () => {
+driver.on(uc.Events.Connect, async () => {
   // When the remote connects, we just set the device state. We are ready all the time!
-  await uc.setDeviceState(uc.DEVICE_STATES.CONNECTED);
+  await driver.setDeviceState(uc.DeviceStates.Connected);
 });
 
-uc.init("setup_flow.json", driverSetupHandler);
+driver.init("setup_flow.json", driverSetupHandler);

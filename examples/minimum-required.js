@@ -1,34 +1,36 @@
-"use strict";
+// use integration library in a client project:
+// import * as uc from "@unfoldedcircle/integration-api";
+import * as uc from "../dist/index.js";
+import { MediaPlayerAttributes, MediaPlayerFeatures, MediaPlayerStates } from "../dist/index.js";
 
-// use package in production
-// const uc = require("uc-integration-api");
-const uc = require("../index");
-uc.init("driver.json");
+const driver = new uc.IntegrationAPI();
+
+driver.init("driver.json");
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 // Handling events
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-uc.on(uc.EVENTS.CONNECT, async () => {
+driver.on(uc.Events.Connect, async () => {
   // act on when the core connects to the integration
   // for example: start polling your devices
-  await uc.setDeviceState(uc.DEVICE_STATES.CONNECTED);
+  await driver.setDeviceState(uc.DeviceStates.Connected);
 });
 
-uc.on(uc.EVENTS.DISCONNECT, async () => {
+driver.on(uc.Events.Disconnect, async () => {
   // act on when the core disconnects from the integration
   // for example: stop polling your devices
-  await uc.setDeviceState(uc.DEVICE_STATES.DISCONNECTED);
+  await driver.setDeviceState(uc.DeviceStates.Disconnected);
 });
 
-uc.on(uc.EVENTS.ENTER_STANDBY, async () => {
+driver.on(uc.Events.EnterStandby, async () => {
   // act on when the remote goes to standby
 });
 
-uc.on(uc.EVENTS.EXIT_STANDBY, async () => {
+driver.on(uc.Events.ExitStandby, async () => {
   // act on when the remote leaves standby
 });
 
-uc.on(uc.EVENTS.SUBSCRIBE_ENTITIES, async (entityIds) => {
+driver.on(uc.Events.SubscribeEntities, async () => {
   // The integration will configure entities and subscribe for entity update events.
   // The UC library automatically adds the subscribed entities
   // from the available to the configured pool.
@@ -36,7 +38,7 @@ uc.on(uc.EVENTS.SUBSCRIBE_ENTITIES, async (entityIds) => {
   // ...
 });
 
-uc.on(uc.EVENTS.UNSUBSCRIBE_ENTITIES, async (entityIds) => {
+driver.on(uc.Events.UnsubscribeEntities, async () => {
   // When the integration unsubscribed from certain entity updates,
   // the UC library automatically removes the unsubscribed entities
   // from the configured pool.
@@ -51,14 +53,14 @@ uc.on(uc.EVENTS.UNSUBSCRIBE_ENTITIES, async (entityIds) => {
  *
  * Called by the integration-API if a command is sent to a configured entity.
  *
- * @param {uc.Entities.Entity} entity button entity
+ * @param {Entity} entity button entity
  * @param {string} cmdId command
- * @param {Object<string, *>} params optional command parameters
- * @return {Promise<string>} status of the command
+ * @param {Object<string, *>} [params] optional command parameters
+ * @return StatusCodes of the command
  */
-async function cmdHandler(entity, cmdId, params) {
-  console.log("Got %s command request: %s", entity.id, cmdId, params || "");
 
+const cmdHandler = async function (entity, cmdId, params) {
+  console.log("Got %s command request: %s", entity.id, cmdId, params || "");
   // handle entity commands here
   // execute commands on your integration devices
   // for example start playing a song or change volume
@@ -68,8 +70,8 @@ async function cmdHandler(entity, cmdId, params) {
 
   // you need to acknowledge if the command was successfully executed with STATUS_CODES.OK
   // or an error code
-  return uc.STATUS_CODES.NOT_IMPLEMENTED;
-}
+  return uc.StatusCodes.NotImplemented;
+};
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 // Providing Available entities
@@ -81,45 +83,41 @@ const entityId = "unique-id-inside-integration";
 // The entity name can either be string (which will be mapped to english), or a Map with multiple language entries.
 const entityName = "My entity";
 
-const entity = new uc.Entities.MediaPlayer(
-  // entity id has to be unique, you can provide it or use uc.Entities.generateId()
+const entity = new uc.MediaPlayer(
+  // entity id has to be unique, you can provide it or use driver.entities.generateId()
   entityId,
   // name of the entity
   entityName,
   {
     // define features in an array. Use the pre-defined object to choose features from
-    features: [uc.Entities.MediaPlayer.FEATURES.ON_OFF, uc.Entities.MediaPlayer.FEATURES.VOLUME],
+    features: [MediaPlayerFeatures.OnOff, MediaPlayerFeatures.Volume],
     // define default attributes for the entity. Use the pre-defined object to choose attributes from
-    attributes: new Map([
-      [uc.Entities.MediaPlayer.ATTRIBUTES.STATE, uc.Entities.MediaPlayer.STATES.OFF],
-      [uc.Entities.MediaPlayer.ATTRIBUTES.VOLUME, 0]
-    ]),
+    attributes: {
+      [MediaPlayerAttributes.State]: MediaPlayerStates.Off,
+      [MediaPlayerAttributes.Volume]: 0
+    },
     cmdHandler
   }
 );
 
 // 2. add available entity to the core
-uc.availableEntities.addEntity(entity);
+driver.addAvailableEntity(entity);
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 // Updating entities
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 // when your integration driver needs to update an entity based on a device change
 // keys and values are attribute key and value pairs
-const attributes = new Map([]);
-uc.configuredEntities.updateEntityAttributes(entityId, attributes);
+const attributes = {};
+driver.updateEntityAttributes(entityId, attributes);
 
 // for example to update a state fo a media player:
-uc.configuredEntities.updateEntityAttributes(
-  entityId,
-  new Map([[uc.Entities.MediaPlayer.ATTRIBUTES.STATE, uc.Entities.MediaPlayer.STATES.PLAYING]])
-);
+driver.updateEntityAttributes(entityId, {
+  [MediaPlayerAttributes.State]: MediaPlayerStates.Playing
+});
 
 // or multiple attributes at the same time
-uc.configuredEntities.updateEntityAttributes(
-  entityId,
-  new Map([
-    [uc.Entities.MediaPlayer.ATTRIBUTES.STATE, uc.Entities.MediaPlayer.STATES.PLAYING],
-    [uc.Entities.MediaPlayer.ATTRIBUTES.MEDIA_ARTIST, "Massive Attack"]
-  ])
-);
+driver.updateEntityAttributes(entityId, {
+  [MediaPlayerAttributes.State]: MediaPlayerStates.Playing,
+  [MediaPlayerAttributes.MediaArtist]: "Massive Attack"
+});

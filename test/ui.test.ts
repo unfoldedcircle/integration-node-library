@@ -1,5 +1,5 @@
-const test = require("ava");
-const { UiPage, Size, UiItem, createUiText, EntityCommand, createUiIcon } = require("../lib/entities/ui");
+import test from "ava";
+import { UiPage, Size, createUiText, EntityCommand, createUiIcon } from "../lib/entities/ui.js";
 
 test("Size sets default size if not specified", (t) => {
   const result = new Size();
@@ -22,8 +22,6 @@ test("UiPage sets default grid size if not specified", (t) => {
 test("createUiText with a text command creates a simple command", (t) => {
   const result = createUiText("test", 2, 3, "my_command");
 
-  t.true(result instanceof UiItem, "result must be a UiItem");
-
   t.deepEqual(JSON.parse(JSON.stringify(result)), {
     type: "text",
     location: { x: 2, y: 3 },
@@ -39,8 +37,6 @@ test("createUiText with an EntityCommand creates a command with params", (t) => 
     3,
     new EntityCommand("my_command", { param1: "test", param2: 42, param3: ["foo", "bar"] })
   );
-
-  t.true(result instanceof UiItem, "result must be a UiItem");
 
   t.deepEqual(JSON.parse(JSON.stringify(result)), {
     type: "text",
@@ -60,8 +56,6 @@ test("createUiText with an EntityCommand creates a command with params", (t) => 
 test("createUiIcon with a text command creates a simple command", (t) => {
   const result = createUiIcon("uc:star", 2, 3, "my_command");
 
-  t.true(result instanceof UiItem, "result must be a UiItem");
-
   t.deepEqual(JSON.parse(JSON.stringify(result)), {
     type: "icon",
     location: { x: 2, y: 3 },
@@ -77,8 +71,6 @@ test("createUiIcon with an EntityCommand creates a command with params", (t) => 
     3,
     new EntityCommand("my_command", { param1: "test", param2: 42, param3: ["foo", "bar"] })
   );
-
-  t.true(result instanceof UiItem, "result must be a UiItem");
 
   t.deepEqual(JSON.parse(JSON.stringify(result)), {
     type: "icon",

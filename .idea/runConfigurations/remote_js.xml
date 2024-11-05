@@ -1,0 +1,8 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="remote.js" type="NodeJSConfigurationType" nameIsGenerated="true" path-to-js-file="remote.js" working-dir="$PROJECT_DIR$/examples/remote">
+    <envs>
+      <env name="DEBUG" value="ucapi:*" />
+    </envs>
+    <method v="2" />
+  </configuration>
+</component>

@@ -2,7 +2,12 @@
   "driver_id": "uc_node_driver",
   "version": "1.0.0",
   "min_core_api": "1.0.0",
-  "name": { "fr": "Mon driveur", "en": "My Driver", "de": "Mein Treiber", "de-CH": "Min Triber" },
+  "name": {
+    "fr": "simulated-light driveur",
+    "en": "simulated-light Driver",
+    "de": "simulated-light Treiber",
+    "de-CH": "simulated-light Triber"
+  },
   "icon": "custom:my_driver_icon",
   "description": { "en": "A simple demo integration with a simulated light entity." },
   "#driver_url": "OPTIONAL: the remote uses the driver URL from mDNS if `driver_url` is missing, untouched if starting with `ws://` or `wss://`, otherwise dynamically set from determined os hostname and port setting below",

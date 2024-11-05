@@ -37,35 +37,44 @@ With that out of the way, here's the process of creating a pull request and maki
 1. Fork the repository.
 
 2. Make your changes or enhancements.  
-   This should be done in a dedicated branch and not on the main branch to easily submit individual pull requests.
+   This should be done in a dedicated branch and not on the main branch to easily submit individual pull requests.  
+   Once a pull request is opened, all additional commits to that branch will also update the pull request!
 
    Contributed code must be licensed under the Apache License 2.0 (MPL-2.0).  
    It is required to add a boilerplate copyright notice to the top of each file:
 
-    ```
-    /**
-     * {Short description what this file is for}
-     *
-     * @copyright (c) {year} {person OR org} <{email}>
-     * @license Apache License 2.0, see LICENSE for more details.
-     */
-    ```
+   ```
+   /**
+    * {Short description what this file is for}
+    *
+    * @copyright (c) {year} {person OR org} <{email}>
+    * @license Apache License 2.0, see LICENSE for more details.
+    */
+   ```
 
 3. Make sure your changes follow the configured prettier code style:
-    ```shell
-    npm run format
-    ```
+
+   ```shell
+   npm run format
+   ```
 
 4. Make sure your changes make the lints pass:
-    ```shell
-    npm run lint
-    ```
 
-5. Push to your fork.  
+   ```shell
+   npm run lint
+   ```
+
+5. Verify that all tests are passing and add or update unit tests for new functionality
+
+   ```shell
+   npm run test
+   ```
+
+6. Push to your fork.  
    Do not include any project configuration changes in the `.idea` folder! If you are also using an IntelliJ product,
    chances are high that you're using a different IDE, version or other settings.
 
-6. Submit a pull request.
+7. Submit a pull request.
 
 At this point we will review the PR and give constructive feedback.  
 This is a time for discussion and improvements, and making the necessary changes will be required before we can

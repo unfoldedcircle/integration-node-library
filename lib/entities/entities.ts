@@ -4,46 +4,33 @@
  * @copyright (c) 2024 by Unfolded Circle ApS.
  * @license Apache License 2.0, see LICENSE for more details.
  */
-"use strict";
 
-const EventEmitter = require("events");
+import { EventEmitter } from "events";
+import { Entity } from "./entity.js";
+import { Events } from "../api_definitions.js";
+import log from "../loggers.js";
 
-const Entity = require("./entity");
-const Button = require("./button");
-const Climate = require("./climate");
-const Cover = require("./cover");
-const Light = require("./light");
-const MediaPlayer = require("./media_player");
-const Remote = require("./remote");
-const Sensor = require("./sensor");
-const Switch = require("./switch");
-const { EVENTS } = require("../api_definitions");
-const log = require("../loggers");
+export class Entities extends EventEmitter {
+  #storage: { [key: string]: Entity };
 
-class Entities extends EventEmitter {
-  #storage;
-
-  constructor(id) {
+  constructor(public id: string) {
     super();
-
-    this.id = id;
     this.#storage = {};
   }
 
-  contains(id) {
+  contains(id: string): boolean {
     return !!this.#storage[id];
   }
 
-  getEntity(id) {
+  getEntity(id: string): Entity | null {
     if (!this.#storage[id]) {
       log.warn(`ENTITIES(${this.id}): Entity does not exist: ${id}`);
       return null;
     }
-
     return this.#storage[id];
   }
 
-  addEntity(entity) {
+  addAvailableEntity(entity: Entity): boolean {
     if (this.#storage[entity.id]) {
       log.warn(`ENTITIES(${this.id}): Entity is already in storage: ${entity.id}`);
       return false;
@@ -54,7 +41,7 @@ class Entities extends EventEmitter {
     return true;
   }
 
-  removeEntity(id) {
+  removeEntity(id: string): boolean {
     if (!this.#storage[id]) {
       log.warn(`ENTITIES(${this.id}): Entity does not exist: ${id}`);
       return false;
@@ -70,31 +57,27 @@ class Entities extends EventEmitter {
    * Update or merge the provided attributes into an entity.
    *
    * @param {string} id The entity_id
-   * @param {Map<string,*>|Object<string,*>} attributes The attributes to merge into the entity's attributes
+   * @param {Map<string, any> | Record<string, any>} attributes The attributes to merge into the entity's attributes
    * @returns {boolean} false if entity doesn't exist, true if attributes were merged.
    */
-  updateEntityAttributes(id, attributes) {
+  updateEntityAttributes(id: string, attributes: { [key: string]: string | number | boolean }): boolean {
     if (!this.contains(id)) {
       return false;
     }
 
-    if (attributes instanceof Map) {
-      attributes.forEach((value, key) => {
-        this.#storage[id].attributes[key] = value;
-      });
-    } else {
+    if (this.#storage[id] && this.#storage[id].attributes) {
       for (const key in attributes) {
         this.#storage[id].attributes[key] = attributes[key];
       }
     }
 
-    this.emit(EVENTS.ENTITY_ATTRIBUTES_UPDATED, id, this.#storage[id].entity_type, attributes);
+    this.emit(Events.EntityAttributesUpdated, id, this.#storage[id].entity_type, attributes);
 
     return true;
   }
 
-  getEntities() {
-    const entities = [];
+  getEntities(): Array<Record<string, object | string | null | undefined>> {
+    const entities: Array<Record<string, object | string | null | undefined>> = [];
 
     Object.entries(this.#storage).forEach(([, value]) => {
       const entity = {
@@ -114,8 +97,8 @@ class Entities extends EventEmitter {
     return entities;
   }
 
-  getStates() {
-    const entities = [];
+  getStates(): Array<Record<string, object | string | null | undefined>> {
+    const entities: Array<Record<string, object | string | null | undefined>> = [];
 
     Object.entries(this.#storage).forEach(([, value]) => {
       const entity = {
@@ -131,19 +114,7 @@ class Entities extends EventEmitter {
     return entities;
   }
 
-  clear() {
+  clear(): void {
     this.#storage = {};
   }
 }
-
-module.exports = Entities;
-module.exports.TYPES = Entity.TYPES;
-module.exports.Entity = Entity;
-module.exports.Button = Button;
-module.exports.Climate = Climate;
-module.exports.Cover = Cover;
-module.exports.Light = Light;
-module.exports.MediaPlayer = MediaPlayer;
-module.exports.Remote = Remote;
-module.exports.Sensor = Sensor;
-module.exports.Switch = Switch;
