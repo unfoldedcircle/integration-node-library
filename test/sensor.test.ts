@@ -10,7 +10,7 @@ test("Sensor constructor without parameter object creates default Sensor class",
   t.is(entity.entity_type, EntityType.Sensor);
   t.is(entity.device_id, undefined);
   t.deepEqual(entity.features, []);
-  t.deepEqual(entity.attributes, {});
+  t.deepEqual(entity.attributes, { [SensorAttributes.State]: SensorStates.Unknown });
   t.is(entity.device_class, undefined);
   t.is(entity.options, undefined);
   t.is(entity.area, undefined);

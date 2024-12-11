@@ -16,7 +16,24 @@ test("MediaPlayer constructor without parameter object creates default MediaPlay
   t.is(entity.entity_type, EntityType.MediaPlayer);
   t.is(entity.device_id, undefined);
   t.deepEqual(entity.features, []);
-  t.deepEqual(entity.attributes, {});
+  t.deepEqual(entity.attributes, { [MediaPlayerAttributes.State]: MediaPlayerStates.Unknown });
+  t.is(entity.device_class, undefined);
+  t.is(entity.options, undefined);
+  t.is(entity.area, undefined);
+  t.is(entity.hasCmdHandler, false);
+});
+
+test("MediaPlayer constructor with attributes object creates MediaPlayer class", (t) => {
+  const entity = new MediaPlayer("test", "Test MediaPlayer", {
+    attributes: { [MediaPlayerAttributes.State]: MediaPlayerStates.Paused }
+  });
+
+  t.is(entity.id, "test");
+  t.deepEqual(entity.name, { en: "Test MediaPlayer" });
+  t.is(entity.entity_type, EntityType.MediaPlayer);
+  t.is(entity.device_id, undefined);
+  t.deepEqual(entity.features, []);
+  t.deepEqual(entity.attributes, { [MediaPlayerAttributes.State]: MediaPlayerStates.Paused });
   t.is(entity.device_class, undefined);
   t.is(entity.options, undefined);
   t.is(entity.area, undefined);

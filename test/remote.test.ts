@@ -100,7 +100,7 @@ test("Remote constructor without parameter object creates default remote class",
   t.is(remote.entity_type, EntityType.Remote);
   t.is(remote.device_id, undefined);
   t.deepEqual(remote.features, []);
-  t.deepEqual(remote.attributes, {});
+  t.deepEqual(remote.attributes, { [RemoteAttributes.State]: RemoteStates.Unknown });
   t.is(remote.device_class, undefined);
   t.deepEqual(remote.options, {}); //
   t.is(remote.area, undefined);
