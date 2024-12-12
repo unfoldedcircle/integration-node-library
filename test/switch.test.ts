@@ -10,7 +10,7 @@ test("Switch constructor without parameter object creates default Switch class",
   t.is(entity.entity_type, EntityType.Switch);
   t.is(entity.device_id, undefined);
   t.deepEqual(entity.features, []);
-  t.deepEqual(entity.attributes, {});
+  t.deepEqual(entity.attributes, { [SwitchAttributes.State]: SwitchStates.Unknown });
   t.is(entity.device_class, undefined);
   t.is(entity.options, undefined);
   t.is(entity.area, undefined);

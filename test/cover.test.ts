@@ -10,7 +10,7 @@ test("Cover constructor without parameter object creates default Cover class", (
   t.is(entity.entity_type, EntityType.Cover);
   t.is(entity.device_id, undefined);
   t.deepEqual(entity.features, []);
-  t.deepEqual(entity.attributes, {});
+  t.deepEqual(entity.attributes, { [CoverAttributes.State]: CoverStates.Unknown });
   t.is(entity.device_class, undefined);
   t.is(entity.options, undefined);
   t.is(entity.area, undefined);

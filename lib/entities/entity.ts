@@ -6,10 +6,10 @@
  * @license Apache License 2.0, see LICENSE for more details.
  */
 
-import { StatusCodes } from "../api_definitions.js";
-import { toLanguageObject } from "../utils.js";
-import log from "../loggers.js";
 import assert from "node:assert";
+import { StatusCodes } from "../api_definitions.js";
+import log from "../loggers.js";
+import { toLanguageObject } from "../utils.js";
 
 /**
  * Available entity types.
@@ -68,7 +68,7 @@ export class Entity {
     id: string,
     name: string | { [key: string]: string },
     entityType: EntityType,
-    { features = [], attributes = {}, deviceClass, options, area, cmdHandler }: EntityParams = {}
+    { features = [], attributes = { state: "UNKNOWN" }, deviceClass, options, area, cmdHandler }: EntityParams = {}
   ) {
     this.id = id;
 
