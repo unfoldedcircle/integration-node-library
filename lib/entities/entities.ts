@@ -57,7 +57,7 @@ export class Entities extends EventEmitter {
    * Update or merge the provided attributes into an entity.
    *
    * @param {string} id The entity_id
-   * @param {Map<string, any> | Record<string, any>} attributes The attributes to merge into the entity's attributes
+   * @param {Record<string, any>} attributes The attributes to merge into the entity's attributes
    * @returns {boolean} false if entity doesn't exist, true if attributes were merged.
    */
   updateEntityAttributes(id: string, attributes: { [key: string]: string | number | boolean }): boolean {
