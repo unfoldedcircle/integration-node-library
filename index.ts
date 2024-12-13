@@ -11,7 +11,7 @@ import BonjourModule from "bonjour-service";
 import WebSocket, { WebSocketServer } from "ws";
 import { EventEmitter } from "events";
 
-import { getDefaultLanguageString, toLanguageObject } from "./lib/utils.js";
+import { filterBase64Images, getDefaultLanguageString, toLanguageObject } from "./lib/utils.js";
 
 import * as ui from "./lib/entities/ui.js";
 import * as api from "./lib/api_definitions.js";
@@ -441,7 +441,7 @@ class IntegrationAPI extends EventEmitter {
     if (!log.msgTrace.enabled) {
       return;
     }
-    log.msgTrace(`${prefix} ${JSON.stringify(json)}`);
+    log.msgTrace(`${prefix} ${JSON.stringify(filterBase64Images(json))}`);
   }
 
   /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
