@@ -9,11 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 _Changes in the next release_
 
+---
+
+## 0.2.2-beta - 2024-12-18
+
 ### Fixed
 
 - Message log filtering: previous fix removed complete message instead of just the image data.
-
----
 
 ## 0.2.1-beta - 2024-12-18
 
