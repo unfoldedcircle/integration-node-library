@@ -1,5 +1,5 @@
 import test from "ava";
-import { toLanguageObject, getDefaultLanguageString } from "../lib/utils.js";
+import { toLanguageObject, getDefaultLanguageString, filterBase64Images } from "../lib/utils.js";
 
 const toLanguageObjectTest = test.macro(
   (t, input: string | Record<string, string> | Map<string, string> | null | undefined, expected) => {
@@ -50,3 +50,24 @@ test("getDefaultLanguageString with null input returns default text", defaultLan
 
 test("getDefaultLanguageString with non-English input returns default text", defaultLanguageString, {}, "Undefined");
 test("getDefaultLanguageString returns English text", defaultLanguageString, languageTexts, "foobar");
+
+test("filterBase64Images removes base64 image data", (t) => {
+  const msg = {
+    kind: "event",
+    msg: "entity_change",
+    msg_data: {
+      entity_id: "123",
+      entity_type: "media_player",
+      attributes: { media_image_url: "data:image/png;base64,iVBORw0KGgoAAAANS........." }
+    },
+    cat: "ENTITY"
+  };
+  const result = filterBase64Images(msg);
+
+  t.deepEqual(result, {
+    kind: "event",
+    msg: "entity_change",
+    msg_data: { entity_id: "123", entity_type: "media_player", attributes: { media_image_url: "data:..." } },
+    cat: "ENTITY"
+  });
+});

@@ -86,4 +86,5 @@ export function filterBase64Images(json: any): any {
       json.msg_data.attributes.media_image_url = "data:...";
     }
   }
+  return json;
 }

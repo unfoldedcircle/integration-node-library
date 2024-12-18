@@ -9,11 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 _Changes in the next release_
 
+### Fixed
+
+- Message log filtering: previous fix removed complete message instead of just the image data.
+
 ---
 
 ## 0.2.1-beta - 2024-12-18
 
 ### Fixed
+
 - Set default entity state in constructor if not provided (#46)
 - Re-enable log filtering of base64 encoded images (regression from TS conversion) (#47)
 - Crash on unsubscribe events (#48)
