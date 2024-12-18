@@ -480,7 +480,7 @@ class IntegrationAPI extends EventEmitter {
     this.emit(api.Events.SubscribeEntities, entities.entity_ids);
   }
 
-  async #unSubscribeEvents(entities: any) {
+  async #unSubscribeEvents(entities: { entity_ids: string[] }) {
     // remove entities from registered entities
     let res = true;
 
@@ -490,7 +490,7 @@ class IntegrationAPI extends EventEmitter {
       }
     });
 
-    this.emit(api.Events.UnsubscribeEntities, entities.getEntityIds());
+    this.emit(api.Events.UnsubscribeEntities, entities.entity_ids);
 
     return res;
   }
