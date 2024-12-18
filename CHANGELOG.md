@@ -11,6 +11,13 @@ _Changes in the next release_
 
 ---
 
+## 0.2.1-beta - 2024-12-18
+
+### Fixed
+- Set default entity state in constructor if not provided (#46)
+- Re-enable log filtering of base64 encoded images (regression from TS conversion) (#47)
+- Crash on unsubscribe events (#48)
+
 ## 0.2.0-beta - 2024-11-05
 
 ### Breaking changes
