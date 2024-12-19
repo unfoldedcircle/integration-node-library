@@ -7,6 +7,7 @@ integration driver.
 Integrations using the Node.js API wrapper:
 
 - [Global Caché IR integration](https://github.com/unfoldedcircle/integration-globalcache)
+- [Roon integration](https://github.com/unfoldedcircle/integration-roon)
 
 The following examples are short JavaScript snippets. Before running any examples, the TypeScript library needs to be
 compiled:
