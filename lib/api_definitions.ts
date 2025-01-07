@@ -71,7 +71,9 @@ export enum Events {
   Connect = "connect",
   Disconnect = "disconnect",
   EnterStandby = "enter_standby",
-  ExitStandby = "exit_standby"
+  ExitStandby = "exit_standby",
+  Oauth2Authorization = "oauth2_authorization",
+  Oauth2Refreshed = "oauth2_refreshed"
 }
 
 // Define event categories

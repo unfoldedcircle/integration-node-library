@@ -420,6 +420,14 @@ class IntegrationAPI extends EventEmitter {
           this.emit(api.Events.SetupDriverAbort);
           break;
 
+        case api.MsgEvents.Oauth2Authorization:
+          this.emit(api.Events.Oauth2Authorization, msgData);
+          break;
+
+        case api.MsgEvents.Oauth2Refreshed:
+          this.emit(api.Events.Oauth2Refreshed, msgData);
+          break;
+
         default:
           log.warn(`[${wsId}] Unhandled event: ${msg}`);
           break;
@@ -821,6 +829,10 @@ class IntegrationAPI extends EventEmitter {
 
   public updateEntityAttributes(entityId: string, attributes: { [key: string]: string | number | boolean }): boolean {
     return this.#configuredEntities.updateEntityAttributes(entityId, attributes);
+  }
+
+  public generateOauth2AuthUrl() {
+    return Promise.resolve("http://localhost:8080/api/pub/oauth/uc_spotify_driver/login");
   }
 }
 
