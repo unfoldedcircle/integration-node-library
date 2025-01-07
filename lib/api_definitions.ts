@@ -54,7 +54,9 @@ export enum MsgEvents {
   EntityChange = "entity_change",
   DriverMetadata = "driver_metadata",
   DriverSetupChange = "driver_setup_change",
-  AbortDriverSetup = "abort_driver_setup"
+  AbortDriverSetup = "abort_driver_setup",
+  Oauth2Authorization = "oauth2_authorization",
+  Oauth2Refreshed = "oauth2_refreshed"
 }
 
 export enum Events {
