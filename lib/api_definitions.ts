@@ -55,6 +55,10 @@ export enum MsgEvents {
   DriverMetadata = "driver_metadata",
   DriverSetupChange = "driver_setup_change",
   AbortDriverSetup = "abort_driver_setup",
+  GenerateOauth2AuthUrl = "generate_oauth2_auth_url",
+  CreateOauth2Cfg = "create_oauth2_cfg",
+  GetOauth2Token = "get_oauth2_token",
+  DeleteOauth2Token = "delete_oauth2_token",
   Oauth2Authorization = "oauth2_authorization",
   Oauth2Refreshed = "oauth2_refreshed"
 }
