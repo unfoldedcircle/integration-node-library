@@ -14,5 +14,5 @@ export default {
       format: "esm"
     }
   ],
-  plugins: [resolve(), commonjs(), typescript({ exclude: ["test/**/*"] })],
+  plugins: [resolve(), commonjs(), typescript({ exclude: ["test/**/*"] })]
 };

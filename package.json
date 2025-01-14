@@ -42,7 +42,7 @@
     "code-check": "prettier --check . && eslint .",
     "lint": "eslint --fix",
     "build": "npx rollup -c",
-    "test": "npm run build && ava dist/test/**/*.js"
+    "test": "npx tsc && ava dist/test/**/*.js"
   },
   "repository": {
     "type": "git",

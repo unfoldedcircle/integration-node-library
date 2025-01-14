@@ -51,7 +51,7 @@ class IntegrationAPI extends EventEmitter {
 
   readonly #requestTimeout: number;
 
-  // store requests send via WebSocket that need to wait for a response
+  // store requests sent via WebSocket that need to wait for a response
   readonly #pendingRequests: Map<number, { resolve: (value: any) => void; reject: (reason?: any) => void }>;
 
   constructor() {
@@ -80,7 +80,7 @@ class IntegrationAPI extends EventEmitter {
     });
 
     this.#pendingRequests = new Map();
-    this.#requestTimeout = 5000; // we can make this configurable
+    this.#requestTimeout = 5000;
   }
 
   /**
@@ -921,12 +921,6 @@ class IntegrationAPI extends EventEmitter {
     }
     return [...this.#clients.keys()][0];
   }
-
-  // these are new events in ws, send request and wait for them
-  // generate_oauth2_auth_url -> ask the core for this url so i display in setup flow
-  // create_oauth2_cfg -> suppose everything is OK -> call this msg along with the client_id and client_secret
-  // get_oauth2_token -> it supports force refresh flag
-  // delete_oauth2_token -> can be used when user is removing integration
 }
 
 export { api, ui, IntegrationAPI };
