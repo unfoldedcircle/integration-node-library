@@ -11,7 +11,7 @@ import { Bonjour } from "bonjour-service";
 import WebSocket, { WebSocketServer } from "ws";
 import { EventEmitter } from "events";
 
-import { filterBase64Images, generateRandomId, getDefaultLanguageString, toLanguageObject } from "./lib/utils.js";
+import { filterBase64Images, getDefaultLanguageString, toLanguageObject } from "./lib/utils.js";
 
 import * as ui from "./lib/entities/ui.js";
 import * as api from "./lib/api_definitions.js";
@@ -53,6 +53,7 @@ class IntegrationAPI extends EventEmitter {
 
   // store requests sent via WebSocket that need to wait for a response
   readonly #pendingRequests: Map<number, { resolve: (value: any) => void; reject: (reason?: any) => void }>;
+  #reqId = 1;
 
   constructor() {
     super();
@@ -472,7 +473,7 @@ class IntegrationAPI extends EventEmitter {
         log.warn(`[${wsId}] No pending request found for id ${id}`);
         return;
       }
-      if (statusCode == 200) {
+      if (statusCode >= 200 && statusCode < 300) {
         pendingRequest.resolve(msgData);
       } else {
         pendingRequest.reject(new Error(`Request failed with status code ${statusCode}`));
@@ -877,32 +878,37 @@ class IntegrationAPI extends EventEmitter {
     return this.#configuredEntities.updateEntityAttributes(entityId, attributes);
   }
 
-  public async generateOauth2AuthUrl(): Promise<{ auth_url: string }> {
+  public async generateOauth2AuthUrl(state?: { [key: string]: any }): Promise<{ auth_url: string }> {
     const conn = this.#getCoreClient();
     if (!conn) {
       log.warn("generateOauth2AuthUrl: expected 1 client connected");
       return Promise.reject("expected 1 client connected");
     }
-    return this.#sendRequest(conn, generateRandomId(), api.MsgEvents.GenerateOauth2AuthUrl);
+
+    let payload: any = undefined;
+    if (state) {
+      payload = { client_data: state };
+    }
+    return this.#sendRequest(conn, this.#reqId++, api.MsgEvents.GenerateOauth2AuthUrl, payload);
   }
 
-  public async createOauth2Config(data: { [key: string]: any }) {
+  public async createOauth2Config(data: { token_id: string; name: string; token: api.Oauth2Token }) {
     const conn = this.#getCoreClient();
     if (!conn) {
       log.warn("createOauth2Config: expected 1 client connected");
       return Promise.reject("expected 1 client connected");
     }
 
-    return this.#sendRequest(conn, generateRandomId(), api.MsgEvents.CreateOauth2Cfg, data);
+    return this.#sendRequest(conn, this.#reqId++, api.MsgEvents.CreateOauth2Cfg, data);
   }
 
-  public async deleteOauth2Token(data: { [key: string]: any }) {
+  public async deleteOauth2Token(tokenId: string) {
     const conn = this.#getCoreClient();
     if (!conn) {
       log.warn("deleteOauth2Token: expected 1 client connected");
       return Promise.reject("expected 1 client connected");
     }
-    return this.#sendRequest(conn, generateRandomId(), api.MsgEvents.DeleteOauth2Token, data);
+    return this.#sendRequest(conn, this.#reqId++, api.MsgEvents.DeleteOauth2Token, { token_id: tokenId });
   }
 
   public async getOauth2Token(data: { token_id: string; force_refresh: boolean }) {
@@ -911,15 +917,16 @@ class IntegrationAPI extends EventEmitter {
       log.warn("getOauth2Token: expected 1 client connected");
       return Promise.reject("expected 1 client connected");
     }
-    return this.#sendRequest(conn, generateRandomId(), api.MsgEvents.GetOauth2Token, data);
+    return this.#sendRequest(conn, this.#reqId++, api.MsgEvents.GetOauth2Token, data);
   }
 
   #getCoreClient() {
-    if (this.#clients.size !== 1) {
-      log.warn("getCoreClient: more than one client connected, total %s", this.#clients.size);
+    const wsConns = Array.from(this.#clients.keys());
+    if (wsConns.length !== 1) {
+      log.warn("getCoreClient: expected 1 connection, found %d", wsConns.length);
       return null;
     }
-    return [...this.#clients.keys()][0];
+    return wsConns[0];
   }
 }
 

@@ -88,12 +88,3 @@ export function filterBase64Images(json: any): any {
   }
   return json;
 }
-
-/**
- * Generate a random number between 1 and 100000.
- * Minimum value is 1
- * @returns {number} The random number.
- */
-export function generateRandomId(): number {
-  return Math.floor(Math.random() * 100000) + 1;
-}

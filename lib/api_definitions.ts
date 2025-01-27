@@ -268,3 +268,10 @@ export interface DriverInfo {
   setup_data_schema?: object;
   release_date?: string;
 }
+
+export interface Oauth2Token {
+  access_token: string;
+  refresh_token?: string;
+  expires_in?: number;
+  token_type?: string;
+}
