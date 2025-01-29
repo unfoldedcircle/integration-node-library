@@ -5,7 +5,7 @@
   "type": "module",
   "main": "dist/cjs/index.js",
   "module": "dist/mjs/index.js",
-  "types": "dist/index.d.ts",
+  "types": "dist/mjs/index.d.ts",
   "directories": {
     "example": "examples",
     "lib": "lib"
