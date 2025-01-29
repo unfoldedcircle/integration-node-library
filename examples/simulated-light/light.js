@@ -1,7 +1,7 @@
 // use integration library in a client project:
 // import * as uc from "@unfoldedcircle/integration-api";
 // This example is also available as a full client project: https://github.com/unfoldedcircle/integration-ts-example
-import * as uc from "../../dist/index.js";
+import * as uc from "../../dist/cjs/index.js";
 // individual classes and enums can also be imported
 import {
   ButtonCommands,
@@ -13,7 +13,7 @@ import {
   MediaPlayerFeatures,
   MediaPlayerStates,
   MediaPlayerDeviceClasses
-} from "../../dist/index.js";
+} from "../../dist/cjs/index.js";
 
 const driver = new uc.IntegrationAPI();
 
