@@ -7,7 +7,7 @@
 import os from "os";
 import fs from "fs";
 import log from "./lib/loggers.js";
-import BonjourModule from "bonjour-service";
+import { Bonjour } from "bonjour-service";
 import WebSocket, { WebSocketServer } from "ws";
 import { EventEmitter } from "events";
 
@@ -17,8 +17,6 @@ import * as ui from "./lib/entities/ui.js";
 import * as api from "./lib/api_definitions.js";
 import { Entities } from "./lib/entities/entities.js";
 import { Entity } from "./lib/entities/entity.js";
-
-const Bonjour = BonjourModule.default;
 
 /**
  * Internal WebSocket handle.
@@ -51,9 +49,14 @@ class IntegrationAPI extends EventEmitter {
   readonly #availableEntities: Entities;
   readonly #configuredEntities: Entities;
 
+  readonly #requestTimeout: number;
+
+  // store requests sent via WebSocket that need to wait for a response
+  readonly #pendingRequests: Map<number, { resolve: (value: any) => void; reject: (reason?: any) => void }>;
+  #reqId = 1;
+
   constructor() {
     super();
-
     // directory to store configuration files
     this.#configDirPath = process.env.UC_CONFIG_HOME || process.env.HOME || "./";
 
@@ -76,6 +79,9 @@ class IntegrationAPI extends EventEmitter {
 
       await this.#broadcastEvent(api.MsgEvents.EntityChange, data, api.EventCategory.Entity);
     });
+
+    this.#pendingRequests = new Map();
+    this.#requestTimeout = 5000;
   }
 
   /**
@@ -323,6 +329,35 @@ class IntegrationAPI extends EventEmitter {
     }
   }
 
+  async #sendRequest(conn: WebSocket, id: number, msgType: api.MsgEvents, msgData?: object): Promise<any> {
+    return new Promise((resolve, reject) => {
+      const payload = {
+        kind: "req",
+        msg: msgType,
+        id,
+        msg_data: msgData
+      };
+
+      const timeoutId = setTimeout(() => {
+        this.#pendingRequests.delete(id);
+        reject(new Error("request timed out"));
+      }, this.#requestTimeout);
+
+      this.#pendingRequests.set(id, {
+        resolve: (value: any) => {
+          clearTimeout(timeoutId);
+          resolve(value);
+        },
+        reject: (reason?: any) => {
+          clearTimeout(timeoutId);
+          reject(reason);
+        }
+      });
+      this.#log_json_message(payload, `[${id}] <- `);
+      conn.send(JSON.stringify(payload));
+    });
+  }
+
   // process incoming websocket messages
   async #messageReceived(wsId: string, message: string) {
     let json;
@@ -392,7 +427,6 @@ class IntegrationAPI extends EventEmitter {
             await this.driverSetupError(wsHandle);
           }
           break;
-
         default:
           log.warn(`[${wsId}] Unhandled request: ${msg}`);
           await this.#sendErrorResult(wsHandle);
@@ -420,10 +454,31 @@ class IntegrationAPI extends EventEmitter {
           this.emit(api.Events.SetupDriverAbort);
           break;
 
+        case api.MsgEvents.Oauth2Authorization:
+          this.emit(api.Events.Oauth2Authorization, msgData);
+          break;
+
+        case api.MsgEvents.Oauth2Refreshed:
+          this.emit(api.Events.Oauth2Refreshed, msgData);
+          break;
+
         default:
           log.warn(`[${wsId}] Unhandled event: ${msg}`);
           break;
       }
+    } else if (kind === "resp") {
+      const statusCode = json.code;
+      const pendingRequest = this.#pendingRequests.get(json.req_id);
+      if (!pendingRequest) {
+        log.warn(`[${wsId}] No pending request found for id ${id}`);
+        return;
+      }
+      if (statusCode >= 200 && statusCode < 300) {
+        pendingRequest.resolve(msgData);
+      } else {
+        pendingRequest.reject(new Error(`Request failed with status code ${statusCode}`));
+      }
+      this.#pendingRequests.delete(id);
     }
   }
 
@@ -821,6 +876,57 @@ class IntegrationAPI extends EventEmitter {
 
   public updateEntityAttributes(entityId: string, attributes: { [key: string]: string | number | boolean }): boolean {
     return this.#configuredEntities.updateEntityAttributes(entityId, attributes);
+  }
+
+  public async generateOauth2AuthUrl(state?: { [key: string]: any }): Promise<{ auth_url: string }> {
+    const conn = this.#getCoreClient();
+    if (!conn) {
+      log.warn("generateOauth2AuthUrl: expected 1 client connected");
+      return Promise.reject("expected 1 client connected");
+    }
+
+    let payload: any = undefined;
+    if (state) {
+      payload = { client_data: state };
+    }
+    return this.#sendRequest(conn, this.#reqId++, api.MsgEvents.GenerateOauth2AuthUrl, payload);
+  }
+
+  public async createOauth2Config(data: { token_id: string; name: string; token: api.Oauth2Token }) {
+    const conn = this.#getCoreClient();
+    if (!conn) {
+      log.warn("createOauth2Config: expected 1 client connected");
+      return Promise.reject("expected 1 client connected");
+    }
+
+    return this.#sendRequest(conn, this.#reqId++, api.MsgEvents.CreateOauth2Cfg, data);
+  }
+
+  public async deleteOauth2Token(tokenId: string) {
+    const conn = this.#getCoreClient();
+    if (!conn) {
+      log.warn("deleteOauth2Token: expected 1 client connected");
+      return Promise.reject("expected 1 client connected");
+    }
+    return this.#sendRequest(conn, this.#reqId++, api.MsgEvents.DeleteOauth2Token, { token_id: tokenId });
+  }
+
+  public async getOauth2Token(data: { token_id: string; force_refresh: boolean }) {
+    const conn = this.#getCoreClient();
+    if (!conn) {
+      log.warn("getOauth2Token: expected 1 client connected");
+      return Promise.reject("expected 1 client connected");
+    }
+    return this.#sendRequest(conn, this.#reqId++, api.MsgEvents.GetOauth2Token, data);
+  }
+
+  #getCoreClient() {
+    const wsConns = Array.from(this.#clients.keys());
+    if (wsConns.length !== 1) {
+      log.warn("getCoreClient: expected 1 connection, found %d", wsConns.length);
+      return null;
+    }
+    return wsConns[0];
   }
 }
 

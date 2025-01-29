@@ -54,7 +54,13 @@ export enum MsgEvents {
   EntityChange = "entity_change",
   DriverMetadata = "driver_metadata",
   DriverSetupChange = "driver_setup_change",
-  AbortDriverSetup = "abort_driver_setup"
+  AbortDriverSetup = "abort_driver_setup",
+  GenerateOauth2AuthUrl = "generate_oauth2_auth_url",
+  CreateOauth2Cfg = "create_oauth2_cfg",
+  GetOauth2Token = "get_oauth2_token",
+  DeleteOauth2Token = "delete_oauth2_token",
+  Oauth2Authorization = "oauth2_authorization",
+  Oauth2Refreshed = "oauth2_refreshed"
 }
 
 export enum Events {
@@ -69,7 +75,9 @@ export enum Events {
   Connect = "connect",
   Disconnect = "disconnect",
   EnterStandby = "enter_standby",
-  ExitStandby = "exit_standby"
+  ExitStandby = "exit_standby",
+  Oauth2Authorization = "oauth2_authorization",
+  Oauth2Refreshed = "oauth2_refreshed"
 }
 
 // Define event categories
@@ -259,4 +267,11 @@ export interface DriverInfo {
   home_page?: string;
   setup_data_schema?: object;
   release_date?: string;
+}
+
+export interface Oauth2Token {
+  access_token: string;
+  refresh_token?: string;
+  expires_in?: number;
+  token_type?: string;
 }

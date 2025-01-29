@@ -4,7 +4,7 @@
 
 // use integration library in a client project:
 // import * as uc from "@unfoldedcircle/integration-api";
-import * as uc from "../../dist/index.js";
+import * as uc from "../../dist/cjs/index.js";
 
 const driver = new uc.IntegrationAPI();
 

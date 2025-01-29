@@ -1,7 +1,7 @@
 // use integration library in a client project:
 // import * as uc from "@unfoldedcircle/integration-api";
-import * as uc from "../../dist/index.js";
-import { Remote, RemoteStates, RemoteCommands, RemoteAttributes, RemoteFeatures } from "../../dist/index.js";
+import * as uc from "../../dist/cjs/index.js";
+import { Remote, RemoteStates, RemoteCommands, RemoteAttributes, RemoteFeatures } from "../../dist/cjs/index.js";
 
 import fs from "fs";
 
