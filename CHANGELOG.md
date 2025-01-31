@@ -11,6 +11,16 @@ _Changes in the next release_
 
 ---
 
+## 0.3.0-beta - 2025-01-31
+
+### Added
+
+- Oauth2 API enhancement ([#49](https://github.com/unfoldedcircle/integration-node-library/pull/49)).
+
+### Changed
+
+- Export library as esm and cjs for better runtime compatability ([#49](https://github.com/unfoldedcircle/integration-node-library/pull/49)).
+
 ## 0.2.2-beta - 2024-12-18
 
 ### Fixed
@@ -21,9 +31,9 @@ _Changes in the next release_
 
 ### Fixed
 
-- Set default entity state in constructor if not provided (#46)
-- Re-enable log filtering of base64 encoded images (regression from TS conversion) (#47)
-- Crash on unsubscribe events (#48)
+- Set default entity state in constructor if not provided ([#46](https://github.com/unfoldedcircle/integration-node-library/pull/46))
+- Re-enable log filtering of base64 encoded images (regression from TS conversion) ([#47](https://github.com/unfoldedcircle/integration-node-library/pull/47))
+- Crash on unsubscribe events ([#48](https://github.com/unfoldedcircle/integration-node-library/pull/48))
 
 ## 0.2.0-beta - 2024-11-05
 
@@ -64,8 +74,8 @@ driver.init("driver.json");
 
 ### Changed
 
-- Setup handler & entity command handler instead of events (#35).
-- Remove available & configured entity persistence (#34).
+- Setup handler & entity command handler instead of events ([#35](https://github.com/unfoldedcircle/integration-node-library/pull/35)).
+- Remove available & configured entity persistence ([#34](https://github.com/unfoldedcircle/integration-node-library/pull/34)).
 - Remove features parameter from sensor entity constructor.
 
 ### Fixed
