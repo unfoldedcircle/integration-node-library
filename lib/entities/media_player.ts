@@ -78,6 +78,7 @@ export enum MediaPlayerAttributes {
   Muted = "muted",
   MediaDuration = "media_duration",
   MediaPosition = "media_position",
+  MediaPositionUpdatedAt = "media_position_updated_at",
   MediaType = "media_type",
   MediaImageUrl = "media_image_url",
   MediaTitle = "media_title",
