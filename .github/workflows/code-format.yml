@@ -4,6 +4,8 @@
 # and https://eslint.org
 
 name: Check Node.js code formatting
+permissions:
+  contents: read
 
 on:
   push:
