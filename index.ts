@@ -489,6 +489,8 @@ class IntegrationAPI extends EventEmitter {
    * fields to limit log output.
    * The `msg_data` object may either be a single object or an array of objects.
    *
+   * Sensitive values such as OAuth tokens are redacted before logging.
+   *
    * @param {object} json The JSON message to log.
    * @param {string} prefix Prefix text to add before the JSON message.
    */
@@ -496,7 +498,41 @@ class IntegrationAPI extends EventEmitter {
     if (!log.msgTrace.enabled) {
       return;
     }
-    log.msgTrace(`${prefix} ${JSON.stringify(filterBase64Images(json))}`);
+
+    // Create a shallow clone so sanitization does not affect the original object.
+    const clone = json && typeof json === "object" ? JSON.parse(JSON.stringify(json)) : json;
+
+    // Redact commonly-used sensitive fields (tokens, secrets, etc.) in-place.
+    const sanitizeForLogging = (value: any): any => {
+      if (value && typeof value === "object") {
+        if (Array.isArray(value)) {
+          return value.map((item) => sanitizeForLogging(item));
+        }
+
+        const SENSITIVE_KEYS = new Set([
+          "token",
+          "token_id",
+          "access_token",
+          "refresh_token",
+          "id_token",
+          "authorization_code",
+          "client_secret",
+          "secret"
+        ]);
+
+        for (const [k, v] of Object.entries(value)) {
+          if (SENSITIVE_KEYS.has(k)) {
+            (value as any)[k] = "***REDACTED***";
+          } else {
+            (value as any)[k] = sanitizeForLogging(v);
+          }
+        }
+      }
+      return value;
+    };
+
+    const sanitized = sanitizeForLogging(filterBase64Images(clone));
+    log.msgTrace(`${prefix} ${JSON.stringify(sanitized)}`);
   }
 
   /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
