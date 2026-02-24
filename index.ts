@@ -451,7 +451,16 @@ class IntegrationAPI extends EventEmitter {
           break;
 
         case api.MsgEvents.AbortDriverSetup:
-          this.emit(api.Events.SetupDriverAbort);
+          // always emit event to not break older clients
+          this.emit(api.Events.SetupDriverAbort, msgData);
+          if (this.#setupHandler) {
+            try {
+              // note: response action is ignored because we can't send anything back here
+              await this.#setupHandler(new api.AbortDriverSetup(msgData.error));
+            } catch (ex) {
+              log.error(`[${wsId}] Exception while aborting setup`, ex);
+            }
+          }
           break;
 
         case api.MsgEvents.Oauth2Authorization:

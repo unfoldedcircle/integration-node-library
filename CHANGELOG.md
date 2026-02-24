@@ -17,6 +17,10 @@ _Changes in the next release_
 
 - Update packages.
 
+### Fixed
+
+- Propagate `abort_driver_setup` event to setup-handler as `AbortDriverSetup` request.
+
 ---
 
 ## 0.3.0-beta - 2025-01-31
