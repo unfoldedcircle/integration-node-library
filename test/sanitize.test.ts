@@ -3,13 +3,14 @@ import { IntegrationAPI } from "../index.js";
 import * as api from "../lib/api_definitions.js";
 
 // Helper function to access the private method for testing as requested
-const sanitize_json_message = (apiInstance: IntegrationAPI, msg: any) =>
-  (apiInstance as any).sanitize_json_message(msg);
+const sanitize_json_message = (apiInstance: IntegrationAPI, msg: any, msgType?: api.MsgEvents) =>
+  (apiInstance as any).sanitize_json_message(msg, msgType);
 
 test("sanitize_json_message - GenerateOauth2AuthUrl redaction", (t) => {
+  const msgType = api.MsgEvents.GenerateOauth2AuthUrl;
   const integrationApi = new IntegrationAPI();
   const msg = {
-    msg: api.MsgEvents.GenerateOauth2AuthUrl,
+    msg: msgType,
     msg_data: {
       client_data: {
         foo: "bar",
@@ -19,24 +20,32 @@ test("sanitize_json_message - GenerateOauth2AuthUrl redaction", (t) => {
   };
   const sanitized: any = sanitize_json_message(integrationApi, msg);
   t.is(sanitized.msg_data.client_data, "***REDACTED***", "client_data should be redacted");
+
+  const redacted: any = sanitize_json_message(integrationApi, msg, msgType);
+  t.deepEqual(redacted, { msg: msgType }, "client_data should be redacted");
 });
 
 test("sanitize_json_message - Oauth2AuthUrl redaction", (t) => {
+  const msgType = api.MsgEvents.Oauth2AuthUrl;
   const integrationApi = new IntegrationAPI();
   const msg = {
-    msg: api.MsgEvents.Oauth2AuthUrl,
+    msg: msgType,
     msg_data: {
       auth_url: "https://example.com/oauth?code=xyz&token=abc"
     }
   };
   const sanitized: any = sanitize_json_message(integrationApi, msg);
   t.is(sanitized.msg_data.auth_url, "***REDACTED***", "auth_url should be redacted");
+
+  const redacted: any = sanitize_json_message(integrationApi, msg, msgType);
+  t.deepEqual(redacted, { msg: msgType }, "client_data should be redacted");
 });
 
 test("sanitize_json_message - Oauth2Authorization redaction", (t) => {
+  const msgType = api.MsgEvents.Oauth2Authorization;
   const integrationApi = new IntegrationAPI();
   const msg = {
-    msg: api.MsgEvents.Oauth2Authorization,
+    msg: msgType,
     msg_data: {
       client_data: {
         foo: "bar",
@@ -48,6 +57,9 @@ test("sanitize_json_message - Oauth2Authorization redaction", (t) => {
   const sanitized: any = sanitize_json_message(integrationApi, msg);
   t.is(sanitized.msg_data.client_data, "***REDACTED***", "client_data should be redacted");
   t.is(sanitized.msg_data.token, "***REDACTED***", "token should be redacted");
+
+  const redacted: any = sanitize_json_message(integrationApi, msg, msgType);
+  t.deepEqual(redacted, { msg: msgType }, "client_data should be redacted");
 });
 
 test("sanitize_json_message - Oauth2Token and Oauth2Refreshed redaction", (t) => {
@@ -64,7 +76,11 @@ test("sanitize_json_message - Oauth2Token and Oauth2Refreshed redaction", (t) =>
       }
     };
     const sanitized: any = sanitize_json_message(integrationApi, msg);
-    t.is(sanitized.msg_data, "[SENSITIVE OAUTH2 DATA REDACTED]", `msg_data for ${msgType} should be fully redacted`);
+    t.is(sanitized.msg_data.token_id, "***REDACTED***", "token_id should be redacted");
+    t.is(sanitized.msg_data.token, "***REDACTED***", "token should be redacted");
+
+    const redacted: any = sanitize_json_message(integrationApi, msg, msgType);
+    t.deepEqual(redacted, { msg: msgType }, `msg_data for ${msgType} should be fully redacted`);
   });
 });
 

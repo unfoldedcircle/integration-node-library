@@ -66,23 +66,6 @@ export enum MsgEvents {
   Oauth2Refreshed = "oauth2_refreshed"
 }
 
-/*
-Sent from Remote to integration driver:
-          # --- OAuth2 response
-          - $ref: '#/components/messages/oauth2_auth_url'
-          - $ref: '#/components/messages/oauth2_token'
-          # --- OAuth2 events
-          - $ref: '#/components/messages/oauth2_authorization'
-          - $ref: '#/components/messages/oauth2_refreshed'
-
-# --- OAuth2 requests sent from integration to Remote
-          - $ref: '#/components/messages/generate_oauth2_auth_url'
-          - $ref: '#/components/messages/create_oauth2_cfg'
-          - $ref: '#/components/messages/get_oauth2_token'
-          - $ref: '#/components/messages/delete_oauth2_token'
-
- */
-
 export enum Events {
   EntityCommand = "entity_command",
   EntityAttributesUpdated = "entity_attributes_updated",
