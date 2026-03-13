@@ -353,7 +353,7 @@ class IntegrationAPI extends EventEmitter {
           reject(reason);
         }
       });
-      this.#log_json_message(payload, `[${id}] <- `);
+      this.#log_json_message(payload, `[${id}] <- `, msgType);
       conn.send(JSON.stringify(payload));
     });
   }
@@ -502,9 +502,35 @@ class IntegrationAPI extends EventEmitter {
    *
    * @param {object} json The JSON message to log.
    * @param {string} prefix Prefix text to add before the JSON message.
+   * @param {api.MsgEvents | undefined} msgType Optional message type to allow special handling for sensitive messages.
    */
-  #log_json_message(json: object, prefix: string) {
+  #log_json_message(json: object, prefix: string, msgType?: api.MsgEvents) {
     if (!log.msgTrace.enabled) {
+      return;
+    }
+
+    // For particularly sensitive message types, avoid logging the full payload.
+    if (
+      msgType === api.MsgEvents.GenerateOauth2AuthUrl ||
+      msgType === api.MsgEvents.CreateOauth2Cfg ||
+      msgType === api.MsgEvents.DeleteOauth2Token ||
+      msgType === api.MsgEvents.GetOauth2Token
+    ) {
+      // Log only minimal, non-sensitive metadata.
+      const summary: Record<string, unknown> = {};
+      if (json && typeof json === "object") {
+        const obj = json as Record<string, unknown>;
+        if (obj.kind) {
+          summary.kind = obj.kind;
+        }
+        if (obj.msg) {
+          summary.msg = obj.msg;
+        }
+        if (obj.id) {
+          summary.id = obj.id;
+        }
+      }
+      log.msgTrace(`${prefix} ${JSON.stringify(summary)}`);
       return;
     }
 
