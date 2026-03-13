@@ -502,13 +502,33 @@ class IntegrationAPI extends EventEmitter {
     // Create a shallow clone so sanitization does not affect the original object.
     const clone = json && typeof json === "object" ? JSON.parse(JSON.stringify(json)) : json;
 
-    // Redact commonly-used sensitive fields (tokens, secrets, etc.) in-place.
-    const sanitizeForLogging = (value: any): any => {
+    const sanitized = this.sanitize_json_message(clone);
+    log.msgTrace(`${prefix} ${JSON.stringify(sanitized)}`);
+  }
+
+  /**
+   * Sanitizes a JSON message by redacting sensitive fields such as tokens and secrets.
+   *
+   * Base64 encoded images starting with `data:` are removed in `msg_data.attributes.media_image_url`
+   * fields to limit log output.
+   *
+   * Attention: the provided JSON object is modified in-place!
+   *
+   * @param {object} json - The JSON object to be sanitized.
+   * @return {object} The sanitized JSON object with sensitive information redacted.
+   */
+  private sanitize_json_message(json: unknown): object {
+    const REDACTED_VALUE = "***REDACTED***";
+
+    const sanitizeForLogging = (value: unknown): unknown => {
       if (value && typeof value === "object") {
         if (Array.isArray(value)) {
-          return value.map((item) => sanitizeForLogging(item));
+          return value.map((item: unknown) => sanitizeForLogging(item));
         }
 
+        const obj = value as Record<string, unknown>;
+
+        // commonly-used sensitive fields
         const SENSITIVE_KEYS = new Set([
           "token",
           "token_id",
@@ -517,34 +537,45 @@ class IntegrationAPI extends EventEmitter {
           "id_token",
           "authorization_code",
           "client_secret",
-          "secret"
+          "secret",
+          "auth_url",
+          "password"
         ]);
 
         // Special handling for top-level protocol messages to avoid logging OAuth2 secrets.
-        const maybeMsg = (value as any).msg;
+        const maybeMsg = obj.msg;
         if (maybeMsg && typeof maybeMsg === "string") {
           try {
             // Compare against known OAuth2-related message types, if available.
             if (
               maybeMsg === api.MsgEvents.GenerateOauth2AuthUrl ||
+              maybeMsg === api.MsgEvents.Oauth2AuthUrl ||
               maybeMsg === api.MsgEvents.CreateOauth2Cfg ||
+              maybeMsg === api.MsgEvents.GetOauth2Token ||
+              maybeMsg === api.MsgEvents.Oauth2Token ||
               maybeMsg === api.MsgEvents.DeleteOauth2Token ||
-              maybeMsg === api.MsgEvents.GetOauth2Token
+              maybeMsg === api.MsgEvents.Oauth2Authorization ||
+              maybeMsg === api.MsgEvents.Oauth2Refreshed
             ) {
-              const msgContainer = value as any;
-              if (maybeMsg === api.MsgEvents.GenerateOauth2AuthUrl && msgContainer.msg_data) {
-                if (Object.prototype.hasOwnProperty.call(msgContainer.msg_data, "auth_url")) {
-                  msgContainer.msg_data.auth_url = "***REDACTED***";
+              if (
+                (maybeMsg === api.MsgEvents.Oauth2AuthUrl ||
+                  maybeMsg === api.MsgEvents.GenerateOauth2AuthUrl ||
+                  maybeMsg === api.MsgEvents.Oauth2Authorization) &&
+                obj.msg_data &&
+                typeof obj.msg_data === "object"
+              ) {
+                const msgData = obj.msg_data as Record<string, unknown>;
+                if (Object.prototype.hasOwnProperty.call(msgData, "auth_url")) {
+                  msgData.auth_url = REDACTED_VALUE;
+                }
+                if (Object.prototype.hasOwnProperty.call(msgData, "client_data")) {
+                  msgData.client_data = REDACTED_VALUE;
                 }
               }
 
-              if (
-                maybeMsg === api.MsgEvents.CreateOauth2Cfg ||
-                maybeMsg === api.MsgEvents.DeleteOauth2Token ||
-                maybeMsg === api.MsgEvents.GetOauth2Token
-              ) {
-                if (msgContainer.msg_data !== undefined) {
-                  msgContainer.msg_data = "[SENSITIVE OAUTH2 DATA REDACTED]";
+              if (maybeMsg === api.MsgEvents.Oauth2Token || maybeMsg === api.MsgEvents.Oauth2Refreshed) {
+                if (obj.msg_data !== undefined) {
+                  obj.msg_data = "[SENSITIVE OAUTH2 DATA REDACTED]";
                 }
               }
             }
@@ -553,19 +584,18 @@ class IntegrationAPI extends EventEmitter {
           }
         }
 
-        for (const [k, v] of Object.entries(value)) {
+        for (const [k, v] of Object.entries(obj)) {
           if (SENSITIVE_KEYS.has(k)) {
-            (value as any)[k] = "***REDACTED***";
+            obj[k] = REDACTED_VALUE;
           } else {
-            (value as any)[k] = sanitizeForLogging(v);
+            obj[k] = sanitizeForLogging(v);
           }
         }
       }
       return value;
     };
 
-    const sanitized = sanitizeForLogging(filterBase64Images(clone));
-    log.msgTrace(`${prefix} ${JSON.stringify(sanitized)}`);
+    return sanitizeForLogging(filterBase64Images(json)) as object;
   }
 
   /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */

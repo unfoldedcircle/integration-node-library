@@ -27,6 +27,7 @@ export enum StatusCodes {
 }
 
 // Define request/response messages
+// FIXME properly define request, response and event messages according to Integration-API specs!
 export enum Messages {
   Authentication = "authentication",
   GetDriverVersion = "get_driver_version",
@@ -56,12 +57,31 @@ export enum MsgEvents {
   DriverSetupChange = "driver_setup_change",
   AbortDriverSetup = "abort_driver_setup",
   GenerateOauth2AuthUrl = "generate_oauth2_auth_url",
+  Oauth2AuthUrl = "oauth2_auth_url",
   CreateOauth2Cfg = "create_oauth2_cfg",
   GetOauth2Token = "get_oauth2_token",
+  Oauth2Token = "oauth2_token",
   DeleteOauth2Token = "delete_oauth2_token",
   Oauth2Authorization = "oauth2_authorization",
   Oauth2Refreshed = "oauth2_refreshed"
 }
+
+/*
+Sent from Remote to integration driver:
+          # --- OAuth2 response
+          - $ref: '#/components/messages/oauth2_auth_url'
+          - $ref: '#/components/messages/oauth2_token'
+          # --- OAuth2 events
+          - $ref: '#/components/messages/oauth2_authorization'
+          - $ref: '#/components/messages/oauth2_refreshed'
+
+# --- OAuth2 requests sent from integration to Remote
+          - $ref: '#/components/messages/generate_oauth2_auth_url'
+          - $ref: '#/components/messages/create_oauth2_cfg'
+          - $ref: '#/components/messages/get_oauth2_token'
+          - $ref: '#/components/messages/delete_oauth2_token'
+
+ */
 
 export enum Events {
   EntityCommand = "entity_command",
