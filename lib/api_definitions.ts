@@ -32,14 +32,16 @@ export enum Messages {
   Authentication = "authentication",
   GetDriverVersion = "get_driver_version",
   GetDeviceState = "get_device_state",
-  getAvailableEntities = "get_available_entities",
+  GetAvailableEntities = "get_available_entities",
   GetEntityStates = "get_entity_states",
   SubscribeEvents = "subscribe_events",
   UnsubscribeEvents = "unsubscribe_events",
   EntityCommand = "entity_command",
   GetDriverMetadata = "get_driver_metadata",
   SetupDriver = "setup_driver",
-  SetDriverUserData = "set_driver_user_data"
+  SetDriverUserData = "set_driver_user_data",
+  BrowseMedia = "browse_media",
+  SearchMedia = "search_media"
 }
 
 // Define event messages
@@ -54,6 +56,8 @@ export enum MsgEvents {
   EntityStates = "entity_states",
   EntityChange = "entity_change",
   DriverMetadata = "driver_metadata",
+  MediaBrowse = "media_browse",
+  MediaSearch = "media_search",
   DriverSetupChange = "driver_setup_change",
   AbortDriverSetup = "abort_driver_setup",
   GenerateOauth2AuthUrl = "generate_oauth2_auth_url",
@@ -67,7 +71,6 @@ export enum MsgEvents {
 }
 
 export enum Events {
-  EntityCommand = "entity_command",
   EntityAttributesUpdated = "entity_attributes_updated",
   SubscribeEntities = "subscribe_entities",
   UnsubscribeEntities = "unsubscribe_entities",
@@ -277,4 +280,110 @@ export interface Oauth2Token {
   refresh_token?: string;
   expires_in?: number;
   token_type?: string;
+}
+
+/**
+ * Raw, unvalidated paging input — e.g. from a parsed query string or request body.
+ */
+export interface PagingOptions {
+  /**
+   * Page number, 1-based.
+   */
+  page?: number;
+
+  /**
+   * Number of items returned per page.
+   */
+  limit?: number;
+}
+
+/**
+ * Paging query parameters.
+ *
+ * All parameters are optional; defaults are applied if omitted.
+ * Validates input on construction — throws RangeError on invalid values.
+ */
+export class Paging {
+  private readonly _page: number | undefined;
+  private readonly _limit: number | undefined;
+
+  static readonly DEFAULT_PAGE = 1;
+  static readonly DEFAULT_LIMIT = 10;
+  static readonly MAX_LIMIT = 100;
+
+  /**
+   * @param page  Page number, 1-based. Defaults to 1 if omitted.
+   * @param limit Number of items per page. Max 100. Defaults to 10 if omitted.
+   * @throws {RangeError} if page < 1 or limit is outside [1, 100].
+   */
+  constructor(page?: number, limit?: number) {
+    if (page !== undefined && (page < 1 || !Number.isInteger(page))) {
+      throw new RangeError(`Invalid page number: ${page}. Must be an integer >= 1.`);
+    }
+    if (limit !== undefined && (limit < 1 || limit > Paging.MAX_LIMIT || !Number.isInteger(limit))) {
+      throw new RangeError(`Invalid limit: ${limit}. Must be an integer between 1 and ${Paging.MAX_LIMIT}.`);
+    }
+    this._page = page;
+    this._limit = limit;
+  }
+
+  /** Page number, 1-based. */
+  get page(): number {
+    return this._page ?? Paging.DEFAULT_PAGE;
+  }
+
+  /** Number of items per page. */
+  get limit(): number {
+    return this._limit ?? Paging.DEFAULT_LIMIT;
+  }
+
+  /** Overall item start offset, 0-based. */
+  get offset(): number {
+    return this.limit * (this.page - 1);
+  }
+
+  /** Returns a default Paging instance (page=1, limit=10). */
+  static default(): Paging {
+    return new Paging();
+  }
+
+  /** Construct from a raw, unvalidated options object (e.g. from a request body). */
+  static fromOptions(options: PagingOptions = {}): Paging {
+    return new Paging(options.page, options.limit);
+  }
+}
+
+/**
+ * Pagination metadata returned by the client.
+ */
+export class Pagination {
+  readonly page: number;
+  readonly limit: number;
+  readonly total?: number;
+
+  /**
+   * @param page  Current page number, 1-based. Must correspond to the requested page.
+   * @param limit Number of items returned in this page (1–100).
+   * @param total Optional if known: Total number of available items across all pages.
+   * @throws {RangeError} if any parameter violates its constraints.
+   */
+  constructor(page: number, limit: number, total?: number) {
+    if (!Number.isInteger(page) || page < 1) {
+      throw new RangeError(`Pagination: page must be an integer >= 1, got ${page}`);
+    }
+    if (!Number.isInteger(limit) || limit < 0 || limit > 100) {
+      throw new RangeError(`Pagination: limit must be an integer between 0 and 100, got ${limit}`);
+    }
+    if (total && (!Number.isInteger(total) || total < 0)) {
+      throw new RangeError(`Pagination: total must be a non-negative integer, got ${total}`);
+    }
+
+    this.page = page;
+    this.limit = limit;
+    this.total = total;
+  }
+
+  static empty(): Pagination {
+    return new Pagination(1, 0, 0);
+  }
 }
