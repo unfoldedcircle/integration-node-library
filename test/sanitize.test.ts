@@ -84,6 +84,30 @@ test("sanitize_json_message - Oauth2Token and Oauth2Refreshed redaction", (t) =>
   });
 });
 
+test("sanitize_json_message - Oauth2Token and Oauth2Refreshed redaction with error response", (t) => {
+  const integrationApi = new IntegrationAPI();
+
+  const messages = [api.MsgEvents.Oauth2Token, api.MsgEvents.Oauth2Refreshed];
+
+  messages.forEach((msgType) => {
+    const msg = {
+      msg: msgType,
+      msg_data: {
+        token_id: "test-client",
+        token: "secret-data",
+        error_code: "invalid_request",
+        error_description: "Invalid request"
+      }
+    };
+    const redacted: any = sanitize_json_message(integrationApi, msg, msgType);
+    t.deepEqual(
+      redacted,
+      { msg: msgType, msg_data: { error_code: "invalid_request", error_description: "Invalid request" } },
+      `msg_data for ${msgType} should be fully redacted`
+    );
+  });
+});
+
 test("sanitize_json_message - generic sensitive keys redaction", (t) => {
   const integrationApi = new IntegrationAPI();
   const sensitiveKeys = [
