@@ -520,6 +520,39 @@ class IntegrationAPI extends EventEmitter {
           "secret"
         ]);
 
+        // Special handling for top-level protocol messages to avoid logging OAuth2 secrets.
+        const maybeMsg = (value as any).msg;
+        if (maybeMsg && typeof maybeMsg === "string") {
+          try {
+            // Compare against known OAuth2-related message types, if available.
+            if (
+              maybeMsg === api.MsgEvents.GenerateOauth2AuthUrl ||
+              maybeMsg === api.MsgEvents.CreateOauth2Cfg ||
+              maybeMsg === api.MsgEvents.DeleteOauth2Token ||
+              maybeMsg === api.MsgEvents.GetOauth2Token
+            ) {
+              const msgContainer = value as any;
+              if (maybeMsg === api.MsgEvents.GenerateOauth2AuthUrl && msgContainer.msg_data) {
+                if (Object.prototype.hasOwnProperty.call(msgContainer.msg_data, "auth_url")) {
+                  msgContainer.msg_data.auth_url = "***REDACTED***";
+                }
+              }
+
+              if (
+                maybeMsg === api.MsgEvents.CreateOauth2Cfg ||
+                maybeMsg === api.MsgEvents.DeleteOauth2Token ||
+                maybeMsg === api.MsgEvents.GetOauth2Token
+              ) {
+                if (msgContainer.msg_data !== undefined) {
+                  msgContainer.msg_data = "[SENSITIVE OAUTH2 DATA REDACTED]";
+                }
+              }
+            }
+          } catch {
+            // If api.MsgEvents is not available or comparison fails, fall back to generic redaction below.
+          }
+        }
+
         for (const [k, v] of Object.entries(value)) {
           if (SENSITIVE_KEYS.has(k)) {
             (value as any)[k] = "***REDACTED***";
