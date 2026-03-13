@@ -72,7 +72,7 @@ export function getDefaultLanguageString(
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function filterBase64Images(json: any): any {
-  if (json.msg_data) {
+  if (json && json.msg_data) {
     if (Array.isArray(json.msg_data)) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       json.msg_data.forEach((o: any) => {

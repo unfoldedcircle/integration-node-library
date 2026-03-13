@@ -271,7 +271,7 @@ class IntegrationAPI extends EventEmitter {
     const connection = this.#getWsConnection(wsHandle.wsId);
     if (connection) {
       const response = JSON.stringify(json);
-      this.#log_json_message(json, `[${wsHandle.wsId}] <- `);
+      this.#log_json_message(json, `[${wsHandle.wsId}] <- `, msg as api.MsgEvents);
 
       connection.send(response);
     } else {
@@ -295,7 +295,7 @@ class IntegrationAPI extends EventEmitter {
     };
 
     const response = JSON.stringify(json);
-    this.#log_json_message(json, "<<- ");
+    this.#log_json_message(json, "<<- ", msg as api.MsgEvents);
 
     [...this.#clients.keys()].forEach((client) => {
       client.send(response);
@@ -321,7 +321,7 @@ class IntegrationAPI extends EventEmitter {
     const connection = this.#getWsConnection(wsId);
     if (connection) {
       const response = JSON.stringify(json);
-      this.#log_json_message(json, `[${wsId}] <- `);
+      this.#log_json_message(json, `[${wsId}] <- `, msg as api.MsgEvents);
 
       connection.send(response);
     } else {
@@ -353,7 +353,7 @@ class IntegrationAPI extends EventEmitter {
           reject(reason);
         }
       });
-      this.#log_json_message(payload, `[${id}] <- `);
+      this.#log_json_message(payload, `[${id}] <- `, msgType);
       conn.send(JSON.stringify(payload));
     });
   }
@@ -368,15 +368,15 @@ class IntegrationAPI extends EventEmitter {
       return;
     }
 
-    if (log.msgTrace.enabled) {
-      log.msgTrace(`[${wsId}] -> ${JSON.stringify(json)}`);
-    }
-
     const kind = json.kind;
     const id = json.id;
     const msg = json.msg;
     const wsHandle: WsHandle = { wsId, reqId: id };
     const msgData = json.msg_data;
+
+    if (log.msgTrace.enabled) {
+      this.#log_json_message(json, `[${wsId}] -> `, msg as api.MsgEvents);
+    }
 
     if (kind === "req") {
       switch (msg) {
@@ -498,14 +498,117 @@ class IntegrationAPI extends EventEmitter {
    * fields to limit log output.
    * The `msg_data` object may either be a single object or an array of objects.
    *
+   * Sensitive values such as OAuth tokens are redacted before logging.
+   *
    * @param {object} json The JSON message to log.
    * @param {string} prefix Prefix text to add before the JSON message.
+   * @param {api.MsgEvents | undefined} msgType Optional message type to allow special handling for sensitive messages.
    */
-  #log_json_message(json: object, prefix: string) {
+  #log_json_message(json: object, prefix: string, msgType?: api.MsgEvents) {
     if (!log.msgTrace.enabled) {
       return;
     }
-    log.msgTrace(`${prefix} ${JSON.stringify(filterBase64Images(json))}`);
+
+    // Create a shallow clone so sanitization does not affect the original object.
+    const clone = json && typeof json === "object" ? JSON.parse(JSON.stringify(json)) : json;
+
+    const sanitized = this.sanitize_json_message(clone, msgType);
+    log.msgTrace(`${prefix} ${JSON.stringify(sanitized)}`);
+  }
+
+  /**
+   * Sanitizes a JSON message by redacting sensitive fields such as tokens and secrets.
+   *
+   * Base64 encoded images starting with `data:` are removed in `msg_data.attributes.media_image_url`
+   * fields to limit log output.
+   *
+   * Attention: the provided JSON object is modified in-place!
+   *
+   * @param {object} json - The JSON object to be sanitized.
+   * @param {api.MsgEvents} msgType - Optional message type to allow special handling for sensitive messages.
+   * @return {object} The sanitized JSON object with sensitive information redacted.
+   */
+  private sanitize_json_message(json: unknown, msgType?: api.MsgEvents): object {
+    const REDACTED_VALUE = "***REDACTED***";
+
+    const sanitizeForLogging = (value: unknown): unknown => {
+      if (value && typeof value === "object") {
+        if (Array.isArray(value)) {
+          return value.map((item: unknown) => sanitizeForLogging(item));
+        }
+
+        const obj = value as Record<string, unknown>;
+
+        // commonly-used sensitive fields
+        const SENSITIVE_KEYS = new Set([
+          "token",
+          "token_id",
+          "access_token",
+          "refresh_token",
+          "id_token",
+          "authorization_code",
+          "client_secret",
+          "secret",
+          "auth_url",
+          "client_data",
+          "password"
+        ]);
+
+        for (const [k, v] of Object.entries(obj)) {
+          if (SENSITIVE_KEYS.has(k)) {
+            obj[k] = REDACTED_VALUE;
+          } else {
+            obj[k] = sanitizeForLogging(v);
+          }
+        }
+      }
+      return value;
+    };
+
+    // For particularly sensitive message types, avoid logging the full payload.
+    if (
+      msgType === api.MsgEvents.GenerateOauth2AuthUrl ||
+      msgType === api.MsgEvents.Oauth2AuthUrl ||
+      msgType === api.MsgEvents.CreateOauth2Cfg ||
+      msgType === api.MsgEvents.GetOauth2Token ||
+      msgType === api.MsgEvents.Oauth2Token ||
+      msgType === api.MsgEvents.DeleteOauth2Token ||
+      msgType === api.MsgEvents.Oauth2Authorization ||
+      msgType === api.MsgEvents.Oauth2Refreshed
+    ) {
+      // Log only minimal, non-sensitive metadata.
+      const summary: Record<string, unknown> = {};
+      if (json && typeof json === "object") {
+        const obj = json as Record<string, unknown>;
+        if (obj.kind) {
+          summary.kind = obj.kind;
+        }
+        if (obj.msg) {
+          summary.msg = obj.msg;
+        }
+        if (obj.id) {
+          summary.id = obj.id;
+        }
+        if (obj.req_id) {
+          summary.req_id = obj.req_id;
+        }
+        if (obj.code) {
+          summary.code = obj.code;
+        }
+        if (obj.msg_data && typeof obj.msg_data === "object") {
+          const msg_data = obj.msg_data as Record<string, unknown>;
+          if (msg_data.error_code || msg_data.error_description) {
+            summary.msg_data = {
+              error_code: msg_data.error_code,
+              error_description: msg_data.error_description
+            };
+          }
+        }
+      }
+      return summary;
+    }
+
+    return sanitizeForLogging(filterBase64Images(json)) as object;
   }
 
   /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
