@@ -15,10 +15,10 @@ const driver = new uc.IntegrationAPI();
  *
  * @param {Entity} entity button entity
  * @param {string} cmdId command
- * @param {Object<string, *>} [_params] optional command parameters (not used for buttons)
+ * @param {Object<string, *>} [_] optional command parameters (not used for buttons)
  * @return status of the command
  */
-const cmdHandler = async function (entity, cmdId, _params) {
+const cmdHandler = async function (entity, cmdId, _) {
   console.log("Got %s command request: %s", entity.id, cmdId);
   return uc.StatusCodes.Ok;
 };
