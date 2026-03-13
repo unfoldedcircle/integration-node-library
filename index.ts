@@ -19,6 +19,7 @@ import * as msg from "./lib/msg_definitions.js";
 import { Entities } from "./lib/entities/entities.js";
 import { Entity, EntityType } from "./lib/entities/entity.js";
 import { MediaPlayer } from "./lib/entities/media_player.js";
+import { BrowseMediaMsgData, SearchMediaMsgData } from "./lib/msg_definitions.js";
 
 /**
  * Internal WebSocket handle.
@@ -431,11 +432,11 @@ class IntegrationAPI extends EventEmitter {
           break;
 
         case api.Messages.BrowseMedia:
-          await this.#browseMedia(wsHandle, msgData);
+          await this.#browseMedia(wsHandle, msgData as BrowseMediaMsgData);
           break;
 
         case api.Messages.SearchMedia:
-          await this.#searchMedia(wsHandle, msgData);
+          await this.#searchMedia(wsHandle, msgData as SearchMediaMsgData);
           break;
 
         default:
@@ -712,7 +713,7 @@ class IntegrationAPI extends EventEmitter {
     await this.acknowledgeCommand(wsHandle, result);
   }
 
-  async #browseMedia(wsHandle: WsHandle, data: any) {
+  async #browseMedia(wsHandle: WsHandle, data: BrowseMediaMsgData) {
     if (!data) {
       log.warn("Ignoring browse media: called with empty msg_data");
       await this.acknowledgeCommand(wsHandle, api.StatusCodes.BadRequest);
@@ -743,7 +744,7 @@ class IntegrationAPI extends EventEmitter {
     }
   }
 
-  async #searchMedia(wsHandle: WsHandle, data: any) {
+  async #searchMedia(wsHandle: WsHandle, data: SearchMediaMsgData) {
     if (!data) {
       log.warn("Ignoring search media: called with empty msg_data");
       await this.acknowledgeCommand(wsHandle, api.StatusCodes.BadRequest);

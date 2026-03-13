@@ -115,7 +115,7 @@ class MediaPlayer extends uc.MediaPlayer {
     return uc.StatusCodes.NotImplemented;
   }
 
-  browseRoot(paging) {
+  browseRoot(_) {
     const root = new BrowseMediaItem("", "Media Directory", {
       media_class: KnownMediaClass.Directory,
       can_browse: true,

@@ -607,7 +607,7 @@ export class MediaPlayer extends Entity {
    * @return {Promise<StatusCodes | BrowseResult>} command status code in case of an error, otherwise the browse result.
    */
   async browse(options: BrowseOptions): Promise<StatusCodes | BrowseResult> {
-    log.warn("Media browsing not supported for %s", this.id);
+    log.warn("Media browsing not supported for %s. Request: %s", this.id, JSON.stringify(options));
 
     return StatusCodes.NotImplemented;
   }
@@ -621,7 +621,7 @@ export class MediaPlayer extends Entity {
    * @return {Promise<StatusCodes | BrowseResult>} command status code in case of an error, otherwise the search result.
    */
   async search(query: SearchOptions): Promise<StatusCodes | SearchResult> {
-    log.warn("Media searching not supported for %s", this.id);
+    log.warn("Media searching not supported for %s. Request: %s", this.id, JSON.stringify(query));
 
     return StatusCodes.NotImplemented;
   }
