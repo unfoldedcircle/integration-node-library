@@ -52,7 +52,7 @@ class IntegrationAPI extends EventEmitter {
   readonly #requestTimeout: number;
 
   // store requests sent via WebSocket that need to wait for a response
-  readonly #pendingRequests: Map<number, { resolve: (value: any) => void; reject: (reason?: any) => void }>;
+  readonly #pendingRequests: Map<number, { resolve: (value: unknown) => void; reject: (reason?: unknown) => void }>;
   #reqId = 1;
 
   constructor() {
@@ -259,7 +259,7 @@ class IntegrationAPI extends EventEmitter {
 
   // TODO return send result, connection.send error handling
   // send a response to a request
-  async #sendResponse(wsHandle: WsHandle, msg: string, msgData: any, statusCode = api.StatusCodes.Ok) {
+  async #sendResponse(wsHandle: WsHandle, msg: string, msgData: unknown, statusCode = api.StatusCodes.Ok) {
     const json = {
       kind: "resp",
       req_id: wsHandle.reqId,
@@ -329,7 +329,7 @@ class IntegrationAPI extends EventEmitter {
     }
   }
 
-  async #sendRequest(conn: WebSocket, id: number, msgType: api.MsgEvents, msgData?: object): Promise<any> {
+  async #sendRequest(conn: WebSocket, id: number, msgType: api.MsgEvents, msgData?: object): Promise<unknown> {
     return new Promise((resolve, reject) => {
       const payload = {
         kind: "req",
@@ -344,11 +344,11 @@ class IntegrationAPI extends EventEmitter {
       }, this.#requestTimeout);
 
       this.#pendingRequests.set(id, {
-        resolve: (value: any) => {
+        resolve: (value: unknown) => {
           clearTimeout(timeoutId);
           resolve(value);
         },
-        reject: (reason?: any) => {
+        reject: (reason?: unknown) => {
           clearTimeout(timeoutId);
           reject(reason);
         }
@@ -531,7 +531,7 @@ class IntegrationAPI extends EventEmitter {
     return this.#availableEntities.getEntities();
   }
 
-  async #subscribeEvents(entities: any) {
+  async #subscribeEvents(entities: { entity_ids: string[] }) {
     entities.entity_ids.forEach((entityId: string) => {
       const entity = this.#availableEntities.getEntity(entityId);
       if (entity) {
@@ -564,7 +564,15 @@ class IntegrationAPI extends EventEmitter {
     return this.#configuredEntities.getStates();
   }
 
-  async #entityCommand(wsHandle: WsHandle, data: any) {
+  async #entityCommand(
+    wsHandle: WsHandle,
+    data: {
+      entity_id: string;
+      entity_type: string;
+      cmd_id: string;
+      params?: { [key: string]: string | number | boolean };
+    }
+  ) {
     if (!data) {
       log.warn("Ignoring entity command: called with empty msg_data");
       await this.acknowledgeCommand(wsHandle, api.StatusCodes.BadRequest);
@@ -808,7 +816,7 @@ class IntegrationAPI extends EventEmitter {
   async requestDriverSetupUserInput(
     wsHandle: WsHandle,
     title: string | Map<string, string> | { [key: string]: string },
-    settings: { [key: string]: any }[]
+    settings: Record<string, unknown>[]
   ) {
     // Note: method cannot be private: used in old integration drivers which don't use the setupHandler yet
     const msgData = {
@@ -887,18 +895,20 @@ class IntegrationAPI extends EventEmitter {
     return this.#configuredEntities.updateEntityAttributes(entityId, attributes);
   }
 
-  public async generateOauth2AuthUrl(state?: { [key: string]: any }): Promise<{ auth_url: string }> {
+  public async generateOauth2AuthUrl(state?: Record<string, unknown>): Promise<{ auth_url: string }> {
     const conn = this.#getCoreClient();
     if (!conn) {
       log.warn("generateOauth2AuthUrl: expected 1 client connected");
       return Promise.reject("expected 1 client connected");
     }
 
-    let payload: any = undefined;
+    let payload: Record<string, unknown> | undefined = undefined;
     if (state) {
       payload = { client_data: state };
     }
-    return this.#sendRequest(conn, this.#reqId++, api.MsgEvents.GenerateOauth2AuthUrl, payload);
+    return this.#sendRequest(conn, this.#reqId++, api.MsgEvents.GenerateOauth2AuthUrl, payload) as Promise<{
+      auth_url: string;
+    }>;
   }
 
   public async createOauth2Config(data: { token_id: string; name: string; token: api.Oauth2Token }) {

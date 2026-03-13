@@ -70,9 +70,11 @@ export function getDefaultLanguageString(
  * @param {any} json The JSON object to filter.
  * @returns {any} The filtered JSON object.
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function filterBase64Images(json: any): any {
   if (json.msg_data) {
     if (Array.isArray(json.msg_data)) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       json.msg_data.forEach((o: any) => {
         if (o.attributes && o.attributes.media_image_url && o.attributes.media_image_url.startsWith("data:")) {
           o.attributes.media_image_url = "data:...";
