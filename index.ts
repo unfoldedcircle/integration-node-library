@@ -15,8 +15,11 @@ import { filterBase64Images, getDefaultLanguageString, toLanguageObject } from "
 
 import * as ui from "./lib/entities/ui.js";
 import * as api from "./lib/api_definitions.js";
+import * as msg from "./lib/msg_definitions.js";
 import { Entities } from "./lib/entities/entities.js";
-import { Entity } from "./lib/entities/entity.js";
+import { Entity, EntityType } from "./lib/entities/entity.js";
+import { MediaPlayer } from "./lib/entities/media_player.js";
+import { BrowseMediaMsgData, SearchMediaMsgData } from "./lib/msg_definitions.js";
 
 /**
  * Internal WebSocket handle.
@@ -388,7 +391,7 @@ class IntegrationAPI extends EventEmitter {
           await this.#sendResponse(wsHandle, api.MsgEvents.DeviceState, this.#getDeviceState());
           break;
 
-        case api.Messages.getAvailableEntities:
+        case api.Messages.GetAvailableEntities:
           await this.#sendResponse(wsHandle, api.MsgEvents.AvailableEntities, {
             available_entities: this.#getAvailableEntities()
           });
@@ -427,6 +430,15 @@ class IntegrationAPI extends EventEmitter {
             await this.driverSetupError(wsHandle);
           }
           break;
+
+        case api.Messages.BrowseMedia:
+          await this.#browseMedia(wsHandle, msgData as BrowseMediaMsgData);
+          break;
+
+        case api.Messages.SearchMedia:
+          await this.#searchMedia(wsHandle, msgData as SearchMediaMsgData);
+          break;
+
         default:
           log.warn(`[${wsId}] Unhandled request: ${msg}`);
           await this.#sendErrorResult(wsHandle);
@@ -697,15 +709,77 @@ class IntegrationAPI extends EventEmitter {
       return;
     }
 
-    if (!entity.hasCmdHandler) {
-      // legacy: emit event, so the driver can act on it
-      log.warn(
-        `DEPRECATED no entity command handler provided for ${data.entity_id} by the driver: please migrate the integration driver, the legacy ENTITY_COMMAND event will be removed in a future release!`
-      );
-      this.emit(api.Events.EntityCommand, wsHandle, data.entity_id, data.entity_type, data.cmd_id, data.params);
+    const result = await entity.command(cmdId, "params" in data ? data.params : undefined);
+    await this.acknowledgeCommand(wsHandle, result);
+  }
+
+  async #browseMedia(wsHandle: WsHandle, data: BrowseMediaMsgData) {
+    if (!data) {
+      log.warn("Ignoring browse media: called with empty msg_data");
+      await this.acknowledgeCommand(wsHandle, api.StatusCodes.BadRequest);
+      return;
+    }
+
+    const entityId = data.entity_id;
+    if (!entityId) {
+      log.warn("Ignoring browse media: missing entity_id");
+      await this.acknowledgeCommand(wsHandle, api.StatusCodes.BadRequest);
+      return;
+    }
+
+    const entity = this.#configuredEntities.getEntity(entityId);
+    if (!entity || entity.entity_type !== EntityType.MediaPlayer || !(entity instanceof MediaPlayer)) {
+      log.warn("Cannot browse media for '%s': no configured entity found or entity is not a media-player", entityId);
+      await this.acknowledgeCommand(wsHandle, api.StatusCodes.NotFound);
+      return;
+    }
+
+    const request = data as msg.BrowseMediaMsgData;
+    const paging = api.Paging.fromOptions(request.paging);
+    const result = await entity.browse({ media_id: request.media_id, media_type: request.media_type, paging });
+    if (typeof result === "number") {
+      await this.acknowledgeCommand(wsHandle, result as api.StatusCodes);
     } else {
-      const result = await entity.command(cmdId, "params" in data ? data.params : undefined);
-      await this.acknowledgeCommand(wsHandle, result);
+      await this.#sendResponse(wsHandle, api.MsgEvents.MediaBrowse, result);
+    }
+  }
+
+  async #searchMedia(wsHandle: WsHandle, data: SearchMediaMsgData) {
+    if (!data) {
+      log.warn("Ignoring search media: called with empty msg_data");
+      await this.acknowledgeCommand(wsHandle, api.StatusCodes.BadRequest);
+      return;
+    }
+
+    const request = data as msg.SearchMediaMsgData;
+    if (!request || !request.entity_id || !request.query) {
+      log.warn("Ignoring search media: missing entity_id or search_query");
+      await this.acknowledgeCommand(wsHandle, api.StatusCodes.BadRequest);
+      return;
+    }
+
+    const entity = this.#configuredEntities.getEntity(request.entity_id);
+    if (!entity || entity.entity_type !== EntityType.MediaPlayer || !(entity instanceof MediaPlayer)) {
+      log.warn(
+        "Cannot search media for '%s': no configured entity found or entity is not a media-player",
+        request.entity_id
+      );
+      await this.acknowledgeCommand(wsHandle, api.StatusCodes.NotFound);
+      return;
+    }
+
+    const paging = api.Paging.fromOptions(request.paging);
+    const result = await entity.search({
+      query: request.query,
+      media_id: request.media_id,
+      media_type: request.media_type,
+      filter: request.filter,
+      paging
+    });
+    if (typeof result === "number") {
+      await this.acknowledgeCommand(wsHandle, result as api.StatusCodes);
+    } else {
+      await this.#sendResponse(wsHandle, api.MsgEvents.MediaSearch, result);
     }
   }
 

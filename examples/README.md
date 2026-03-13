@@ -63,6 +63,12 @@ and are not yet available as classes.
 See `Setting` object definition and the referenced SettingTypeNumber, SettingTypeText, SettingTypeTextArea,
 SettingTypePassword, SettingTypeCheckbox, SettingTypeDropdown, SettingTypeLabel.
 
+## media-player
+
+The [media-player](media-player/media_player.js) example shows how to implement a media player driver with media
+browsing and searching capabilities.
+It extends the `MediaPlayer` entity to override the command handler and the media callback methods.
+
 ## Driver configuration
 
 Edit `driver.json` if you'd like to change the port or any other information.
