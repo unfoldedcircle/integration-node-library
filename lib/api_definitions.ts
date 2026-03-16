@@ -386,4 +386,8 @@ export class Pagination {
   static empty(): Pagination {
     return new Pagination(1, 0, 0);
   }
+
+  static fromPaging(paging: Paging, total?: number): Pagination {
+    return new Pagination(paging.page, paging.limit, total);
+  }
 }

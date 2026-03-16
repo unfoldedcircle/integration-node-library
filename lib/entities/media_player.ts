@@ -122,7 +122,8 @@ export enum MediaPlayerAttributes {
   SourceList = "source_list",
   SoundMode = "sound_mode",
   SoundModeList = "sound_mode_list",
-  SearchMediaClasses = "search_media_classes"
+  SearchMediaClasses = "search_media_classes",
+  PlayMediaAction = "play_media_action"
 }
 
 /**
@@ -369,6 +370,11 @@ export interface SearchMediaFilter {
  */
 export interface BrowseMediaItemOptions {
   /**
+   * Optional subtitle.
+   */
+  subtitle?: string;
+
+  /**
    * Artist name.
    */
   artist?: string;
@@ -432,6 +438,7 @@ export interface BrowseMediaItemOptions {
 export class BrowseMediaItem {
   readonly media_id: string;
   readonly title: string;
+  readonly subtitle?: string;
   readonly artist?: string;
   readonly album?: string;
   readonly media_class?: MediaClass;
@@ -461,6 +468,7 @@ export class BrowseMediaItem {
     this.title = title;
 
     // Spread optional fields explicitly to avoid leaking unexpected properties
+    this.subtitle = options.subtitle;
     this.artist = options.artist;
     this.album = options.album;
     this.media_class = options.media_class;
@@ -546,13 +554,18 @@ export class SearchResult {
 }
 
 /**
- * Media play actions.
+ * Pre-defined media play actions with UI support.
  */
-export enum MediaPlayAction {
+export enum KnownMediaPlayAction {
   PlayNow = "PLAY_NOW",
   PlayNext = "PLAY_NEXT",
   AddToQueue = "ADD_TO_QUEUE"
 }
+
+/**
+ * Media play action type definition of all known actions, plus custom-defined actions.
+ */
+export type MediaPlayAction = KnownMediaPlayAction | (string & {});
 
 /**
  * Repeat modes.
