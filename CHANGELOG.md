@@ -9,19 +9,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 _Changes in the next release_
 
+---
+
+## 0.4.0-beta - 2026-03-16
+
 ### Added
 
 - New media-player attribute MediaPositionUpdatedAt ([feature-and-bug-tracker#443](https://github.com/unfoldedcircle/feature-and-bug-tracker/issues/443)).
+- Add media browsing and searching features to media-player ([#56](https://github.com/unfoldedcircle/integration-node-library/pull/56)).
 
 ### Changed
 
 - Update packages.
+- Require Node.js v22.13.
+- Add a `prepare` script to build the project. This allows using this library with GitHub references.
 
 ### Fixed
 
 - Propagate `abort_driver_setup` event to setup-handler as `AbortDriverSetup` request.
-
----
+- Redact sensitive information in WS message logging ([#55](https://github.com/unfoldedcircle/integration-node-library/pull/55))
 
 ## 0.3.0-beta - 2025-01-31
 
