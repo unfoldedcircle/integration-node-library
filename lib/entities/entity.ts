@@ -26,18 +26,17 @@ export enum EntityType {
 }
 
 export type EntityName = string | { [key: string]: string };
+export type EntityAttributes = { [key: string]: string | number | boolean | string[] };
+export type EntityOptions = { [key: string]: string | number | boolean | object };
+export type EntityCommandParams = { [key: string]: string | number | boolean };
 
-export type CommandHandler = (
-  entity: Entity,
-  command: string,
-  params?: { [key: string]: string | number | boolean }
-) => Promise<StatusCodes>;
+export type CommandHandler = (entity: Entity, command: string, params?: EntityCommandParams) => Promise<StatusCodes>;
 
 export interface EntityParams {
   features?: string[];
-  attributes?: { [key: string]: string | string[] | number | boolean };
+  attributes?: EntityAttributes;
   deviceClass?: string;
-  options?: { [key: string]: string | number | boolean | object };
+  options?: EntityOptions;
   area?: string;
   cmdHandler?: CommandHandler;
 }
@@ -50,9 +49,9 @@ export class Entity {
   public device_id?: string;
 
   public features?: string[];
-  public attributes?: { [key: string]: string | string[] | number | boolean };
+  public attributes?: EntityAttributes;
   public device_class?: string;
-  public options?: { [key: string]: string | number | boolean | object };
+  public options?: EntityOptions;
   public area?: string;
   #cmdHandler?: CommandHandler;
 
@@ -108,7 +107,7 @@ export class Entity {
    * @param params optional command parameters
    * @return command status code to acknowledge to UC Remote
    */
-  async command(cmdId: string, params?: { [key: string]: string | number | boolean }): Promise<StatusCodes> {
+  async command(cmdId: string, params?: EntityCommandParams): Promise<StatusCodes> {
     if (this.#cmdHandler) {
       return await this.#cmdHandler(this, cmdId, params);
     }
