@@ -17,12 +17,12 @@ Not supported:
 Requirements:
 
 - For local development and writing external integration drivers:
-  - Node.js v16.18.0 or newer (older versions are not tested).
-  - Development dependencies require at least v18.18
+  - Node.js v22.13 or newer (older versions are not supported by some dependencies).
   - Node.js version manager [nvm](https://github.com/nvm-sh/nvm) can be used to switch versions.
 - For writing custom integration drivers running on the Remote device:
-  - The Remote Two firmware up to version 1.9.2 contains Node.js v16.18
-  - Newer firmware versions contain Node.js v20.16
+  - Newer firmware versions contain Node.js v22.13
+  - The Remote Two/3 firmware up to version 2.2.4 contains Node.js v20.16
+  - The Remote Two/3 firmware up to version 1.9.2 contains Node.js v16.18
 
 ## Installation
 

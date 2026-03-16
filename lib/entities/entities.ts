@@ -6,7 +6,7 @@
  */
 
 import { EventEmitter } from "events";
-import { Entity } from "./entity.js";
+import { Entity, EntityAttributes } from "./entity.js";
 import { Events } from "../api_definitions.js";
 import log from "../loggers.js";
 
@@ -60,7 +60,7 @@ export class Entities extends EventEmitter {
    * @param {Record<string, any>} attributes The attributes to merge into the entity's attributes
    * @returns {boolean} false if entity doesn't exist, true if attributes were merged.
    */
-  updateEntityAttributes(id: string, attributes: { [key: string]: string | number | boolean }): boolean {
+  updateEntityAttributes(id: string, attributes: EntityAttributes): boolean {
     if (!this.contains(id)) {
       return false;
     }

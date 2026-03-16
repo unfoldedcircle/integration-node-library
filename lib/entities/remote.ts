@@ -6,7 +6,7 @@
  * @license Apache License 2.0, see LICENSE for more details.
  */
 
-import { CommandHandler, Entity, EntityType, EntityName } from "./entity.js";
+import { CommandHandler, Entity, EntityType, EntityName, EntityOptions } from "./entity.js";
 import { DeviceButtonMapping, EntityCommand, UiPage } from "./ui.js";
 import log from "../loggers.js";
 import assert from "node:assert";
@@ -140,7 +140,7 @@ export class Remote extends Entity {
     name: EntityName,
     { features, attributes, simpleCommands, buttonMapping, uiPages, area, cmdHandler }: RemoteParams = {}
   ) {
-    const options: { [key: string]: string | number | boolean | object } = {};
+    const options: EntityOptions = {};
     if (simpleCommands) {
       options[RemoteOptions.SimpleCommands] = simpleCommands;
     }
