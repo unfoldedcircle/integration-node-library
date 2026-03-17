@@ -28,6 +28,11 @@ export interface BrowseMediaMsgData {
   media_type?: MediaContentType;
 
   /**
+   * Hint to the integration to return stable media IDs.
+   */
+  stable_ids?: boolean;
+
+  /**
    * Optional paging object to limit returned items.
    */
   paging?: PagingOptions;
@@ -58,6 +63,11 @@ export interface SearchMediaMsgData {
    * Optional media content type to limit the search scope. E.g., in a previously browsed media item.
    */
   media_type?: MediaContentType;
+
+  /**
+   * Hint to the integration to return stable media IDs.
+   */
+  stable_ids?: boolean;
 
   /**
    * Additional user filter to limit the search scope.

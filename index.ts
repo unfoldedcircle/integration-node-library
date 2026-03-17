@@ -736,7 +736,12 @@ class IntegrationAPI extends EventEmitter {
 
     const request = data as msg.BrowseMediaMsgData;
     const paging = api.Paging.fromOptions(request.paging);
-    const result = await entity.browse({ media_id: request.media_id, media_type: request.media_type, paging });
+    const result = await entity.browse({
+      media_id: request.media_id,
+      media_type: request.media_type,
+      stable_ids: request.stable_ids,
+      paging
+    });
     if (typeof result === "number") {
       await this.acknowledgeCommand(wsHandle, result as api.StatusCodes);
     } else {
@@ -773,6 +778,7 @@ class IntegrationAPI extends EventEmitter {
       query: request.query,
       media_id: request.media_id,
       media_type: request.media_type,
+      stable_ids: request.stable_ids,
       filter: request.filter,
       paging
     });
