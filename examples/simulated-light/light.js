@@ -184,3 +184,5 @@ const mediaPlayerEntity = new uc.MediaPlayer(
 );
 mediaPlayerEntity.setCmdHandler(sharedCmdHandler);
 driver.addAvailableEntity(mediaPlayerEntity);
+
+console.log("Available entities:", driver.getAvailableEntities().getIds());

@@ -10,6 +10,9 @@ import { Entity, EntityAttributes } from "./entity.js";
 import { Events } from "../api_definitions.js";
 import log from "../loggers.js";
 
+/**
+ * Entity pools for available and configured entities during runtime.
+ */
 export class Entities extends EventEmitter {
   #storage: { [key: string]: Entity };
 
@@ -18,10 +21,22 @@ export class Entities extends EventEmitter {
     this.#storage = {};
   }
 
+  /**
+   * Check if storage contains an entity with a given identifier.
+   *
+   * @param {string} id - The entity identifier
+   * @returns {boolean} true if entity exists, false otherwise
+   */
   contains(id: string): boolean {
     return !!this.#storage[id];
   }
 
+  /**
+   * Retrieves an entity by its unique identifier.
+   *
+   * @param {string} id - The entity identifier.
+   * @return {Entity | null} The entity corresponding to the given identifier, or null if the entity does not exist.
+   */
   getEntity(id: string): Entity | null {
     if (!this.#storage[id]) {
       log.warn(`ENTITIES(${this.id}): Entity does not exist: ${id}`);
@@ -30,6 +45,12 @@ export class Entities extends EventEmitter {
     return this.#storage[id];
   }
 
+  /**
+   * Add an entity to the storage.
+   *
+   * @param {Entity} entity - The entity to add.
+   * @returns {boolean} true if entity was added, false if entity already exists.
+   */
   addAvailableEntity(entity: Entity): boolean {
     if (this.#storage[entity.id]) {
       log.warn(`ENTITIES(${this.id}): Entity is already in storage: ${entity.id}`);
@@ -41,6 +62,12 @@ export class Entities extends EventEmitter {
     return true;
   }
 
+  /**
+   * Remove an entity from the storage.
+   *
+   * @param {string} id - The entity identifier.
+   * @returns {boolean} true if entity was removed, false if entity does not exist.
+   */
   removeEntity(id: string): boolean {
     if (!this.#storage[id]) {
       log.warn(`ENTITIES(${this.id}): Entity does not exist: ${id}`);
@@ -76,6 +103,32 @@ export class Entities extends EventEmitter {
     return true;
   }
 
+  /**
+   * Retrieves the list of entity IDs from the storage.
+   *
+   * @return {string[]} An array of entity identifiers.
+   */
+  getIds(): string[] {
+    return Object.keys(this.#storage);
+  }
+
+  /**
+   * Retrieves a list of entities stored in the system.
+   *
+   * Returned properties are:
+   * - entity_id
+   * - entity_type
+   * - device_id
+   * - features
+   * - name
+   * - area
+   * - device_class
+   * - options
+   *
+   * Attributes are not returned.
+   *
+   * @return {Array<Record<string, object | string | null | undefined>>} An array of entity objects.
+   */
   getEntities(): Array<Record<string, object | string | null | undefined>> {
     const entities: Array<Record<string, object | string | null | undefined>> = [];
 
@@ -97,6 +150,11 @@ export class Entities extends EventEmitter {
     return entities;
   }
 
+  /**
+   * Get all entity state information.
+   *
+   * The returned dict includes: entity_id, entity_type, device_id, attributes.
+   */
   getStates(): Array<Record<string, object | string | null | undefined>> {
     const entities: Array<Record<string, object | string | null | undefined>> = [];
 
@@ -114,6 +172,9 @@ export class Entities extends EventEmitter {
     return entities;
   }
 
+  /**
+   * Clear all entities from the storage.
+   */
   clear(): void {
     this.#storage = {};
   }
