@@ -310,6 +310,11 @@ export interface BrowseOptions {
   media_type?: MediaContentType;
 
   /**
+   * Hint to return stable media IDs.
+   */
+  stable_ids?: boolean;
+
+  /**
    * Paging options to limit returned items.
    */
   paging: Paging;
@@ -333,6 +338,11 @@ export interface SearchOptions {
    * Optional media content type to limit the search scope. E.g., in a previously browsed media item.
    */
   media_type?: MediaContentType;
+
+  /**
+   * Hint to return stable media IDs.
+   */
+  stable_ids?: boolean;
 
   /**
    * Additional user filter to limit the search scope.
