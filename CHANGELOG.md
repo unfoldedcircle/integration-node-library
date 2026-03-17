@@ -9,12 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 _Changes in the next release_
 
+---
+
+## 0.4.1-beta - 2026-03-17
+
 ### Added
 
 - Add `stable_ids` option to media browse and search requests.
 - Add `getIds` method to Entities class.
-
----
 
 ## 0.4.0-beta - 2026-03-16
 
