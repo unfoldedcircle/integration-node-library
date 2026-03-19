@@ -359,35 +359,35 @@ export class Paging {
 export class Pagination {
   readonly page: number;
   readonly limit: number;
-  readonly total?: number;
+  readonly count?: number;
 
   /**
    * @param page  Current page number, 1-based. Must correspond to the requested page.
    * @param limit Number of items returned in this page (1–100).
-   * @param total Optional if known: Total number of available items across all pages.
+   * @param count Optional if known: Total number of available items across all pages.
    * @throws {RangeError} if any parameter violates its constraints.
    */
-  constructor(page: number, limit: number, total?: number) {
+  constructor(page: number, limit: number, count?: number) {
     if (!Number.isInteger(page) || page < 1) {
       throw new RangeError(`Pagination: page must be an integer >= 1, got ${page}`);
     }
     if (!Number.isInteger(limit) || limit < 0 || limit > 100) {
       throw new RangeError(`Pagination: limit must be an integer between 0 and 100, got ${limit}`);
     }
-    if (total && (!Number.isInteger(total) || total < 0)) {
-      throw new RangeError(`Pagination: total must be a non-negative integer, got ${total}`);
+    if (count && (!Number.isInteger(count) || count < 0)) {
+      throw new RangeError(`Pagination: total must be a non-negative integer, got ${count}`);
     }
 
     this.page = page;
     this.limit = limit;
-    this.total = total;
+    this.count = count;
   }
 
   static empty(): Pagination {
     return new Pagination(1, 0, 0);
   }
 
-  static fromPaging(paging: Paging, total?: number): Pagination {
-    return new Pagination(paging.page, paging.limit, total);
+  static fromPaging(paging: Paging, count?: number): Pagination {
+    return new Pagination(paging.page, paging.limit, count);
   }
 }
