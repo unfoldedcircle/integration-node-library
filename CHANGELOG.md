@@ -11,6 +11,12 @@ _Changes in the next release_
 
 ---
 
+## 0.4.2-beta - 2026-03-19
+
+### Fixed
+
+- Rename Pagination field "total" to "count" ([#59](https://github.com/unfoldedcircle/integration-node-library/pull/59)).
+
 ## 0.4.1-beta - 2026-03-17
 
 ### Added
