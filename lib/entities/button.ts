@@ -10,15 +10,27 @@ import { CommandHandler, Entity, EntityType, EntityName } from "./entity.js";
 import log from "../loggers.js";
 
 export enum ButtonStates {
+  /**
+   * The entity is currently not available.
+   */
   Unavailable = "UNAVAILABLE",
+  /**
+   * The button is available.
+   */
   Available = "AVAILABLE"
 }
 
 export enum ButtonAttributes {
+  /**
+   * The current state of the button.
+   */
   State = "state"
 }
 
 export enum ButtonCommands {
+  /**
+   * Button is pushed
+   */
   Push = "push"
 }
 
@@ -29,6 +41,11 @@ export interface ButtonParams {
 }
 
 /**
+ * A button entity can fire an event or start an action which cannot be further controlled once started.
+ *
+ * This can be used for "fire and forget" commands, e.g., running a system command, sending an IR code, restart a
+ * device, reset something, etc.
+ *
  * See {@link https://github.com/unfoldedcircle/core-api/blob/main/doc/entities/entity_button.md button entity documentation}
  * for more information.
  */

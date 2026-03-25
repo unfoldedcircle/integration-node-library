@@ -14,13 +14,37 @@ import { Pagination, Paging, StatusCodes } from "../api_definitions.js";
  * Media-player entity states.
  */
 export enum MediaPlayerStates {
+  /**
+   * The entity is currently not available.
+   */
   Unavailable = "UNAVAILABLE",
+  /**
+   * The entity is available, but the current state is unknown.
+   */
   Unknown = "UNKNOWN",
+  /**
+   * The media player is switched on.
+   */
   On = "ON",
+  /**
+   * The media player is switched off.
+   */
   Off = "OFF",
+  /**
+   * The media player is playing something.
+   */
   Playing = "PLAYING",
+  /**
+   * The media player is paused.
+   */
   Paused = "PAUSED",
+  /**
+   * The device is in low power state and accepting commands.
+   */
   Standby = "STANDBY",
+  /**
+   * The media player is buffering to start playback.
+   */
   Buffering = "BUFFERING"
 }
 
@@ -28,28 +52,51 @@ export enum MediaPlayerStates {
  * Media-player entity features.
  */
 export enum MediaPlayerFeatures {
+  /** The media player can be switched on and off. */
   OnOff = "on_off",
+  /** The media player's power state can be toggled. */
   Toggle = "toggle",
+  /** The volume level can be set to a specific level. */
   Volume = "volume",
+  /** The volume can be adjusted up (louder) and down. */
   VolumeUpDown = "volume_up_down",
+  /** The mute state can be toggled. */
   MuteToggle = "mute_toggle",
+  /** The volume can be muted. */
   Mute = "mute",
+  /** The volume can be un-muted. */
   Unmute = "unmute",
+  /** The player supports starting and pausing media playback. */
   PlayPause = "play_pause",
+  /** The player supports stopping media playback. */
   Stop = "stop",
+  /** The player supports skipping to the next track. */
   Next = "next",
+  /** The player supports returning to the previous track. */
   Previous = "previous",
+  /** The player supports fast-forwarding the current track. */
   FastForward = "fast_forward",
+  /** The player supports rewinding the current track. */
   Rewind = "rewind",
+  /** The current track or playlist can be repeated. */
   Repeat = "repeat",
+  /** The player supports random playback / shuffling the current playlist. */
   Shuffle = "shuffle",
+  /** The player supports seeking the playback position. */
   Seek = "seek",
+  /** The player announces the duration of the current media being played. */
   MediaDuration = "media_duration",
+  /** The player announces the current position of the media being played. */
   MediaPosition = "media_position",
+  /** The player announces the media title. */
   MediaTitle = "media_title",
+  /** The player announces the media artist. */
   MediaArtist = "media_artist",
+  /** The player announces the media album if music is being played. */
   MediaAlbum = "media_album",
+  /** The player provides an image url of the media being played. */
   MediaImageUrl = "media_image_url",
+  /** The player announces the content type of media being played. */
   MediaType = "media_type",
   /** Directional pad navigation provides cursor_up, _down, _left, _right, _enter commands. */
   Dpad = "dpad",
@@ -103,26 +150,47 @@ export enum MediaPlayerFeatures {
  * Media-player entity attributes.
  */
 export enum MediaPlayerAttributes {
+  /** State of the media player, influenced by the play and power commands. */
   State = "state",
+  /** Current volume level. */
   Volume = "volume",
+  /** Flag if the volume is muted. */
   Muted = "muted",
+  /** Media duration in seconds. */
   MediaDuration = "media_duration",
+  /** Current media position in seconds. */
   MediaPosition = "media_position",
+  /** Optional timestamp when `media_position` was last updated. */
   MediaPositionUpdatedAt = "media_position_updated_at",
+  /** URL to retrieve the album art or an image representing what's being played. */
   MediaImageUrl = "media_image_url",
+  /** Title of Playlist currently playing. */
   MediaPlaylist = "media_playlist",
+  /** Currently playing media title. */
   MediaTitle = "media_title",
+  /** Currently playing media artist. */
   MediaArtist = "media_artist",
+  /** Currently playing media album. */
   MediaAlbum = "media_album",
+  /** The content ID of media being played. */
   MediaId = "media_id",
+  /** The content type of media being played. */
   MediaType = "media_type",
+  /** Current repeat mode. */
   Repeat = "repeat",
+  /** Shuffle mode on or off. */
   Shuffle = "shuffle",
+  /** Currently selected media or input source. */
   Source = "source",
+  /** Available media or input sources. */
   SourceList = "source_list",
+  /** Currently selected sound mode. */
   SoundMode = "sound_mode",
+  /** Available sound modes. */
   SoundModeList = "sound_mode_list",
+  /** List of media classes to use as a filter for `search_media`. */
   SearchMediaClasses = "search_media_classes",
+  /** Supported media play actions. */
   PlayMediaAction = "play_media_action"
 }
 
@@ -130,25 +198,45 @@ export enum MediaPlayerAttributes {
  * Media-player entity commands.
  */
 export enum MediaPlayerCommands {
+  /** Switch on media player. */
   On = "on",
+  /** Switch off media player. */
   Off = "off",
+  /** Toggle the current power state. */
   Toggle = "toggle",
+  /** Toggle play / pause. */
   PlayPause = "play_pause",
+  /** Stop playback. */
   Stop = "stop",
+  /** Go back to previous track. */
   Previous = "previous",
+  /** Skip to next track. */
   Next = "next",
+  /** Fast forward current track. */
   FastForward = "fast_forward",
+  /** Rewind current track. */
   Rewind = "rewind",
+  /** Seek to given position in current track. */
   Seek = "seek",
+  /** Set volume to given level. */
   Volume = "volume",
+  /** Increase volume. */
   VolumeUp = "volume_up",
+  /** Decrease volume. */
   VolumeDown = "volume_down",
+  /** Toggle mute state. */
   MuteToggle = "mute_toggle",
+  /** Mute volume. */
   Mute = "mute",
+  /** Unmute volume. */
   Unmute = "unmute",
+  /** Repeat track or playlist. */
   Repeat = "repeat",
+  /** Shuffle playlist or start random playback. */
   Shuffle = "shuffle",
+  /** Channel up. */
   ChannelUp = "channel_up",
+  /** Channel down. */
   ChannelDown = "channel_down",
   /** Directional pad up */
   CursorUp = "cursor_up",
@@ -160,19 +248,33 @@ export enum MediaPlayerCommands {
   CursorRight = "cursor_right",
   /** Directional pad enter */
   CursorEnter = "cursor_enter",
+  /** Number pad digit 0 */
   Digit0 = "digit_0",
+  /** Number pad digit 1 */
   Digit1 = "digit_1",
+  /** Number pad digit 2 */
   Digit2 = "digit_2",
+  /** Number pad digit 3 */
   Digit3 = "digit_3",
+  /** Number pad digit 4 */
   Digit4 = "digit_4",
+  /** Number pad digit 5 */
   Digit5 = "digit_5",
+  /** Number pad digit 6 */
   Digit6 = "digit_6",
+  /** Number pad digit 7 */
   Digit7 = "digit_7",
+  /** Number pad digit 8 */
   Digit8 = "digit_8",
+  /** Number pad digit 9 */
   Digit9 = "digit_9",
+  /** Function red */
   FunctionRed = "function_red",
+  /** Function green */
   FunctionGreen = "function_green",
+  /** Function yellow */
   FunctionYellow = "function_yellow",
+  /** Function blue */
   FunctionBlue = "function_blue",
   /** Home menu */
   Home = "home",
@@ -215,10 +317,15 @@ export enum MediaPlayerCommands {
  * Media-player entity device classes.
  */
 export enum MediaPlayerDeviceClasses {
+  /** Audio-video receiver. */
   Receiver = "receiver",
+  /** Set-top box for multichannel video and media playback. */
   SetTopBox = "set_top_box",
+  /** Smart speakers or stereo device. */
   Speaker = "speaker",
+  /** Device for media streaming services. */
   StreamingBox = "streaming_box",
+  /** Television device. */
   TV = "tv"
 }
 
@@ -226,12 +333,19 @@ export enum MediaPlayerDeviceClasses {
  * Media-player entity options.
  */
 export enum MediaPlayerOptions {
+  /** Additional commands the media-player supports, which are not covered in the feature list. */
   SimpleCommands = "simple_commands",
+  /** Number of available volume steps for the set volume command and UI controls. */
   VolumeSteps = "volume_steps"
 }
 
 /**
  * Pre-defined media content types.
+ *
+ * The media content type is for playback/content semantics.
+ * It represents the type of the media content to play or that is currently playing.
+ *
+ * An integration may return other values, but the UI will most likely handle them as an "unknown media."
  */
 export enum KnownMediaContentType {
   Album = "album",
@@ -266,6 +380,11 @@ export type MediaContentType = KnownMediaContentType | (string & {});
 
 /**
  * Pre-defined media classes.
+ *
+ * The media class is for browser/structure semantics.
+ * It represents how a media item should be presented and organized in the media browser hierarchy.
+ *
+ * An integration may return other values, but the UI will most likely treat them as generic media without custom icons.
  */
 export enum KnownMediaClass {
   Album = "album",
@@ -567,8 +686,11 @@ export class SearchResult {
  * Pre-defined media play actions with UI support.
  */
 export enum KnownMediaPlayAction {
+  /** Start playback immediately. */
   PlayNow = "PLAY_NOW",
+  /** Add to the queue after the current item. */
   PlayNext = "PLAY_NEXT",
+  /** Add to the end of the queue. */
   AddToQueue = "ADD_TO_QUEUE"
 }
 
@@ -581,8 +703,11 @@ export type MediaPlayAction = KnownMediaPlayAction | (string & {});
  * Repeat modes.
  */
 export enum RepeatMode {
+  /** No repeat */
   Off = "OFF",
+  /** Repeat all */
   All = "ALL",
+  /** Repeat current track */
   One = "ONE"
 }
 
@@ -598,6 +723,10 @@ export interface MediaPlayerParams {
 }
 
 /**
+ * A media player entity controls playback of media on a device.
+ *
+ * This could be an online music streaming service, a TV, a stereo, or a video player.
+ *
  * See {@link https://github.com/unfoldedcircle/core-api/blob/main/doc/entities/entity_media_player.md media-player entity documentation}
  * for more information.
  */

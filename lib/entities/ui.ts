@@ -7,26 +7,47 @@
 
 // Physical buttons
 export enum Buttons {
+  /** Back button. */
   Back = "BACK",
+  /** Home button. */
   Home = "HOME",
+  /** Voice button. */
   Voice = "VOICE",
+  /** Volume up button. */
   VolumeUp = "VOLUME_UP",
+  /** Volume down button. */
   VolumeDown = "VOLUME_DOWN",
+  /** Mute button. */
   Mute = "MUTE",
+  /** Directional pad up button. */
   DpadUp = "DPAD_UP",
+  /** Directional pad down button. */
   DpadDown = "DPAD_DOWN",
+  /** Directional pad left button. */
   DpadLeft = "DPAD_LEFT",
+  /** Directional pad right button. */
   DpadRight = "DPAD_RIGHT",
+  /** Directional pad middle button. */
   DpadMiddle = "DPAD_MIDDLE",
+  /** Green button. */
   Green = "GREEN",
+  /** Yellow button. */
   Yellow = "YELLOW",
+  /** Red button. */
   Red = "RED",
+  /** Blue button. */
   Blue = "BLUE",
+  /** Channel up button. */
   ChannelUp = "CHANNEL_UP",
+  /** Channel down button. */
   ChannelDown = "CHANNEL_DOWN",
+  /** Previous track button. */
   Prev = "PREV",
+  /** Play button. */
   Play = "PLAY",
+  /** Next track button. */
   Next = "NEXT",
+  /** Power button. */
   Power = "POWER"
 }
 

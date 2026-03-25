@@ -15,13 +15,21 @@ import { toLanguageObject } from "../utils.js";
  * Available entity types.
  */
 export enum EntityType {
+  /** Entity for covering or opening things like blinds, window covers, curtains, etc. */
   Cover = "cover",
+  /** A button entity can fire an event or start an action which cannot be further controlled once started. */
   Button = "button",
+  /** A climate entity controls heating, ventilation and air conditioning (HVAC) devices. */
   Climate = "climate",
+  /** A light entity can be switched on and off and controlled in brightness, color, etc. */
   Light = "light",
+  /** A media player entity controls playback of media on a device. */
   MediaPlayer = "media_player",
+  /** A remote entity can send commands to a controllable device. */
   Remote = "remote",
+  /** A sensor entity provides measured values from devices or dedicated hardware sensors. */
   Sensor = "sensor",
+  /** A switch entity can turn something on or off. */
   Switch = "switch"
 }
 
@@ -42,16 +50,25 @@ export interface EntityParams {
 }
 
 export class Entity {
+  /** Unique identifier of the entity for command and event messages. */
   public id: string;
+  /** Human-readable name of the entity or device. */
   public name: EntityName;
+  /** Entity device type name: one of the supported entities. */
   public entity_type: EntityType;
 
+  /** Optional associated device, if the integration driver supports multiple devices. */
   public device_id?: string;
 
+  /** Supported features of the entity. */
   public features?: string[];
+  /** Entity attributes. */
   public attributes?: EntityAttributes;
+  /** Optional device class. */
   public device_class?: string;
+  /** Entity options. */
   public options?: EntityOptions;
+  /** Optional area name, e.g. `Living room`. */
   public area?: string;
   #cmdHandler?: CommandHandler;
 

@@ -13,9 +13,21 @@ import log from "../loggers.js";
  * Light entity states.
  */
 export enum LightStates {
+  /**
+   * The entity is currently not available.
+   */
   Unavailable = "UNAVAILABLE",
+  /**
+   * The entity is available, but the current state is unknown.
+   */
   Unknown = "UNKNOWN",
+  /**
+   * The light is switched on.
+   */
   On = "ON",
+  /**
+   * The light is switched off.
+   */
   Off = "OFF"
 }
 
@@ -23,10 +35,25 @@ export enum LightStates {
  * Light entity features.
  */
 export enum LightFeatures {
+  /**
+   * The light can be turned on and off.
+   */
   OnOff = "on_off",
+  /**
+   * The light can be toggled.
+   */
   Toggle = "toggle",
+  /**
+   * The light supports dimming.
+   */
   Dim = "dim",
+  /**
+   * The color of the light can be adjusted.
+   */
   Color = "color",
+  /**
+   * The color temperature of the light can be adjusted.
+   */
   ColorTemperature = "color_temperature"
 }
 
@@ -34,10 +61,25 @@ export enum LightFeatures {
  * Light entity attributes.
  */
 export enum LightAttributes {
+  /**
+   * Default entity state attribute.
+   */
   State = "state",
+  /**
+   * Color hue value.
+   */
   Hue = "hue",
+  /**
+   * Color saturation value.
+   */
   Saturation = "saturation",
+  /**
+   * Light brightness value.
+   */
   Brightness = "brightness",
+  /**
+   * Color temperature value.
+   */
   ColorTemperature = "color_temperature"
 }
 
@@ -45,8 +87,17 @@ export enum LightAttributes {
  * Light entity commands.
  */
 export enum LightCommands {
+  /**
+   * Turn the light on.
+   */
   On = "on",
+  /**
+   * Turn the light off.
+   */
   Off = "off",
+  /**
+   * Toggle the light.
+   */
   Toggle = "toggle"
 }
 
@@ -59,6 +110,9 @@ export enum LightDeviceClasses {}
  * Light entity options.
  */
 export enum LightOptions {
+  /**
+   * Number of color temperature steps of the light source.
+   */
   ColorTemperatureSteps = "color_temperature_steps"
 }
 
@@ -72,6 +126,9 @@ export interface LightParams {
 }
 
 /**
+ * A light entity can be switched on and off and depending on its features, the light source can be further
+ * controlled like setting brightness, hue, color saturation, and color temperature.
+ *
  * See {@link https://github.com/unfoldedcircle/core-api/blob/main/doc/entities/entity_light.md light entity documentation}
  * for more information.
  */
