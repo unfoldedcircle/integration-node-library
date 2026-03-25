@@ -11,38 +11,77 @@ import log from "../loggers.js";
 
 // Switch entity states
 export enum SwitchStates {
+  /**
+   * The entity is currently not available.
+   */
   Unavailable = "UNAVAILABLE",
+  /**
+   * The entity is available, but the current state is unknown.
+   */
   Unknown = "UNKNOWN",
+  /**
+   * The switch is on.
+   */
   On = "ON",
+  /**
+   * The switch is off.
+   */
   Off = "OFF"
 }
 
 // Switch entity features
 export enum SwitchFeatures {
+  /**
+   * Switch has on and off commands.
+   */
   OnOff = "on_off",
+  /**
+   * Toggle support.
+   */
   Toggle = "toggle"
 }
 
 // Switch entity attributes
 export enum SwitchAttributes {
+  /**
+   * State of the switch, it's either on or off.
+   */
   State = "state"
 }
 
 // Switch entity commands
 export enum SwitchCommands {
+  /**
+   * Put the switch in the on state.
+   */
   On = "on",
+  /**
+   * Put the switch in the off state.
+   */
   Off = "off",
+  /**
+   * Toggle the current switch state, either from on -> off or from off -> on.
+   */
   Toggle = "toggle"
 }
 
 // Switch entity device classes
 export enum SwitchDeviceClasses {
+  /**
+   * The switch represents a switchable power outlet.
+   */
   Outlet = "outlet",
+  /**
+   * Generic switch.
+   */
   Switch = "switch"
 }
 
 // Switch entity options
 export enum SwitchOptions {
+  /**
+   * If set to false, the current state of the switch cannot be read.
+   */
   Readable = "readable"
 }
 
@@ -57,6 +96,8 @@ export interface SwitchParams {
 }
 
 /**
+ * A switch entity can turn something on or off and the current state should be readable by the integration driver.
+ *
  * See {@link https://github.com/unfoldedcircle/core-api/blob/main/doc/entities/entity_switch.md switch entity documentation}
  * for more information.
  */

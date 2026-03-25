@@ -15,9 +15,21 @@ import assert from "node:assert";
  * Remote entity states.
  */
 export enum RemoteStates {
+  /**
+   * The entity is currently not available.
+   */
   Unavailable = "UNAVAILABLE",
+  /**
+   * The entity is available, but the current state is unknown.
+   */
   Unknown = "UNKNOWN",
+  /**
+   * The controlled device is on.
+   */
   On = "ON",
+  /**
+   * The controlled device is off.
+   */
   Off = "OFF"
 }
 
@@ -25,8 +37,17 @@ export enum RemoteStates {
  * Remote-entity features.
  */
 export enum RemoteFeatures {
+  /**
+   * Remote has on and off commands.
+   */
   OnOff = "on_off",
+  /**
+   * Power toggle support.
+   */
   Toggle = "toggle",
+  /**
+   * Default feature of a remote entity. Always present, even if not specified.
+   */
   SendCmd = "send_cmd"
 }
 
@@ -34,6 +55,9 @@ export enum RemoteFeatures {
  * Remote-entity attributes.
  */
 export enum RemoteAttributes {
+  /**
+   * State of the controlled device, it's either on or off.
+   */
   State = "state"
 }
 
@@ -41,10 +65,25 @@ export enum RemoteAttributes {
  * Remote-entity commands.
  */
 export enum RemoteCommands {
+  /**
+   * Send the on-command to the controlled device.
+   */
   On = "on",
+  /**
+   * Send the off-command.
+   */
   Off = "off",
+  /**
+   * Toggle the power state of the controlled device, either from on -> off or from off -> on.
+   */
   Toggle = "toggle",
+  /**
+   * A single command.
+   */
   SendCmd = "send_cmd",
+  /**
+   * Command list.
+   */
   SendCmdSequence = "send_cmd_sequence"
 }
 
@@ -52,8 +91,17 @@ export enum RemoteCommands {
  * Remote-entity options.
  */
 export enum RemoteOptions {
+  /**
+   * Optional list of supported commands.
+   */
   SimpleCommands = "simple_commands",
+  /**
+   * Optional command mapping for the physical buttons.
+   */
   ButtonMapping = "button_mapping",
+  /**
+   * Optional user interface definition for the supported commands.
+   */
   UserInterface = "user_interface"
 }
 
@@ -126,6 +174,12 @@ export interface RemoteParams {
   cmdHandler?: CommandHandler;
 }
 
+/**
+ * A remote entity can send commands to a controllable device.
+ *
+ * See {@link https://github.com/unfoldedcircle/core-api/blob/main/doc/entities/entity_remote.md remote entity documentation}
+ * for more information.
+ */
 export class Remote extends Entity {
   /**
    * Constructs a new remote-entity.
