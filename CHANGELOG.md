@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 _Changes in the next release_
 
+### Changed
+
+- Update entity documentation ([#61](https://github.com/unfoldedcircle/integration-node-library/pull/61)).
+- Update packages.
+
 ---
 
 ## 0.4.2-beta - 2026-03-19
