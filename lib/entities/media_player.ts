@@ -351,6 +351,17 @@ export enum MediaPlayerOptions {
 }
 
 /**
+ * Bit-field indicating if the `browse` and `search` commands support stable media IDs.
+ */
+export const StableIdSupport = {
+  BrowseAlwaysStableIds: 1 << 0,
+  BrowseSupportsStableIdsParam: 1 << 1,
+  SearchAlwaysStableIds: 1 << 2,
+  SearchSupportsStableIdsParam: 1 << 3
+} as const;
+
+export type StableIdSupportMask = number;
+/**
  * Pre-defined media content types.
  *
  * The media content type is for playback/content semantics.
