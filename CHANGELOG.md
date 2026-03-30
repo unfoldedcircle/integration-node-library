@@ -9,9 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 _Changes in the next release_
 
+---
+
+## 0.4.3-beta - 2026-03-30
+
 ### Added
 
-- media-player stable_id_support option.
+- Media-player stable_id_support option ([#62](https://github.com/unfoldedcircle/integration-node-library/pull/62)).
 
 ### Changed
 
@@ -19,8 +23,6 @@ _Changes in the next release_
 - Reduce the log level if an entity is not found in available or configured entity storage.
 - Set the max paging limit validation to 1000.
 - Update packages.
-
----
 
 ## 0.4.2-beta - 2026-03-19
 
