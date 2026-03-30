@@ -336,8 +336,29 @@ export enum MediaPlayerOptions {
   /** Additional commands the media-player supports, which are not covered in the feature list. */
   SimpleCommands = "simple_commands",
   /** Number of available volume steps for the set volume command and UI controls. */
-  VolumeSteps = "volume_steps"
+  VolumeSteps = "volume_steps",
+  /**
+   * Bit-field indicating if the `browse` and `search` commands support stable media IDs:
+   *
+   * - Bit 0: `browse` always returns stable ids.
+   * - Bit 1: `browse` supports stable ids with the `stable_ids` parameter.
+   * - Bit 2: `search` always returns stable ids.
+   * - Bit 3: `search` returns stable ids with the `stable_ids` parameter.
+   *
+   * Default if not provided: `browse` and `search` always return stable IDs (Bit 0 | Bit 2)
+   */
+  StableIdSupport = "stable_id_support"
 }
+
+/**
+ * Bit-field indicating if the `browse` and `search` commands support stable media IDs.
+ */
+export const StableIdSupport = {
+  BrowseAlwaysStableIds: 1 << 0,
+  BrowseSupportsStableIdsParam: 1 << 1,
+  SearchAlwaysStableIds: 1 << 2,
+  SearchSupportsStableIdsParam: 1 << 3
+} as const;
 
 /**
  * Pre-defined media content types.

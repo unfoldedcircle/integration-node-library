@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 _Changes in the next release_
 
+### Added
+
+- media-player stable_id_support option.
+
 ### Changed
 
 - Update entity documentation ([#61](https://github.com/unfoldedcircle/integration-node-library/pull/61)).
