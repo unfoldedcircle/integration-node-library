@@ -360,7 +360,6 @@ export const StableIdSupport = {
   SearchSupportsStableIdsParam: 1 << 3
 } as const;
 
-export type StableIdSupportMask = number;
 /**
  * Pre-defined media content types.
  *
