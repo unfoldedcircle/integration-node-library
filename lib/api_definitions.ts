@@ -309,7 +309,8 @@ export class Paging {
 
   static readonly DEFAULT_PAGE = 1;
   static readonly DEFAULT_LIMIT = 10;
-  static readonly MAX_LIMIT = 100;
+  // Note: this is more of a sanity check. The real limit is mostly 100 (see Core-API `limit` query parameter).
+  static readonly MAX_LIMIT = 1000;
 
   /**
    * @param page  Page number, 1-based. Defaults to 1 if omitted.
@@ -371,8 +372,8 @@ export class Pagination {
     if (!Number.isInteger(page) || page < 1) {
       throw new RangeError(`Pagination: page must be an integer >= 1, got ${page}`);
     }
-    if (!Number.isInteger(limit) || limit < 0 || limit > 100) {
-      throw new RangeError(`Pagination: limit must be an integer between 0 and 100, got ${limit}`);
+    if (!Number.isInteger(limit) || limit < 0 || limit > Paging.MAX_LIMIT) {
+      throw new RangeError(`Pagination: limit must be an integer between 0 and ${Paging.MAX_LIMIT}, got ${limit}`);
     }
     if (count && (!Number.isInteger(count) || count < 0)) {
       throw new RangeError(`Pagination: total must be a non-negative integer, got ${count}`);

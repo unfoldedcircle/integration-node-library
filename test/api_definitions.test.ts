@@ -17,12 +17,12 @@ test("Pagination: throws RangeError if page is less than 1", (t) => {
 
 test("Pagination: throws RangeError if limit is less than 0", (t) => {
   const error = t.throws(() => new Pagination(1, -1), { instanceOf: RangeError });
-  t.is(error?.message, "Pagination: limit must be an integer between 0 and 100, got -1");
+  t.is(error?.message, "Pagination: limit must be an integer between 0 and 1000, got -1");
 });
 
 test("Pagination: throws RangeError if limit is greater than 100", (t) => {
-  const error = t.throws(() => new Pagination(1, 101), { instanceOf: RangeError });
-  t.is(error?.message, "Pagination: limit must be an integer between 0 and 100, got 101");
+  const error = t.throws(() => new Pagination(1, 1001), { instanceOf: RangeError });
+  t.is(error?.message, "Pagination: limit must be an integer between 0 and 1000, got 1001");
 });
 
 test("Pagination: throws RangeError if count is negative", (t) => {

@@ -12,6 +12,8 @@ _Changes in the next release_
 ### Changed
 
 - Update entity documentation ([#61](https://github.com/unfoldedcircle/integration-node-library/pull/61)).
+- Reduce the log level if an entity is not found in available or configured entity storage.
+- Set the max paging limit validation to 1000.
 - Update packages.
 
 ---
