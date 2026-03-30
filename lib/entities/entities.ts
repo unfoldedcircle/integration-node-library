@@ -39,7 +39,7 @@ export class Entities extends EventEmitter {
    */
   getEntity(id: string): Entity | null {
     if (!this.#storage[id]) {
-      log.warn(`ENTITIES(${this.id}): Entity does not exist: ${id}`);
+      log.debug(`ENTITIES(${this.id}): Entity does not exist: ${id}`);
       return null;
     }
     return this.#storage[id];
@@ -53,7 +53,7 @@ export class Entities extends EventEmitter {
    */
   addAvailableEntity(entity: Entity): boolean {
     if (this.#storage[entity.id]) {
-      log.warn(`ENTITIES(${this.id}): Entity is already in storage: ${entity.id}`);
+      log.debug(`ENTITIES(${this.id}): Entity is already in storage: ${entity.id}`);
       return false;
     }
     this.#storage[entity.id] = entity;
@@ -70,7 +70,7 @@ export class Entities extends EventEmitter {
    */
   removeEntity(id: string): boolean {
     if (!this.#storage[id]) {
-      log.warn(`ENTITIES(${this.id}): Entity does not exist: ${id}`);
+      log.debug(`ENTITIES(${this.id}): Entity does not exist: ${id}`);
       return false;
     }
 
@@ -82,6 +82,8 @@ export class Entities extends EventEmitter {
 
   /**
    * Update or merge the provided attributes into an entity.
+   *
+   * An WebSocket entity change event is triggered with the provided attributes.
    *
    * @param {string} id The entity_id
    * @param {Record<string, any>} attributes The attributes to merge into the entity's attributes
