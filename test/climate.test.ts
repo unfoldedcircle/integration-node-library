@@ -15,6 +15,8 @@ test("Climate constructor without parameter object creates default Climate class
   t.is(entity.id, "test");
   t.deepEqual(entity.name, { en: "Test Climate" });
   t.is(entity.entity_type, EntityType.Climate);
+  t.is(entity.icon, undefined);
+  t.is(entity.description, undefined);
   t.is(entity.device_id, undefined);
   t.deepEqual(entity.features, []);
   t.deepEqual(entity.attributes, { [ClimateAttributes.State]: ClimateStates.Unknown });
@@ -30,6 +32,8 @@ test("Climate constructor with parameter object", (t) => {
   };
 
   const entity = new Climate("test", "Test Climate", {
+    icon: "uc:star",
+    description: "unit test",
     features: [ClimateFeatures.Cool],
     attributes: {
       [ClimateAttributes.State]: ClimateStates.Unavailable
@@ -41,6 +45,8 @@ test("Climate constructor with parameter object", (t) => {
   t.is(entity.id, "test");
   t.deepEqual(entity.name, { en: "Test Climate" });
   t.is(entity.entity_type, EntityType.Climate);
+  t.is(entity.icon, "uc:star");
+  t.deepEqual(entity.description, { en: "unit test" });
   t.is(entity.device_id, undefined);
   t.deepEqual(entity.features, ["cool"]);
   t.deepEqual(entity.attributes, { state: "UNAVAILABLE" });
@@ -61,4 +67,13 @@ test("Climate constructor with Object attributes", (t) => {
   t.deepEqual(entity.name, { en: "Test Climate" });
   t.is(entity.entity_type, EntityType.Climate);
   t.deepEqual(entity.attributes, { state: "COOL" });
+});
+
+test("Climate constructor with language text description", (t) => {
+  const entity = new Climate("test", "Test", {
+    description: { en: "unit test", de: "Unit Test" }
+  });
+
+  t.is(entity.id, "test");
+  t.deepEqual(entity.description, { en: "unit test", de: "Unit Test" });
 });

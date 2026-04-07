@@ -8,6 +8,8 @@ test("Switch constructor without parameter object creates default Switch class",
   t.is(entity.id, "test");
   t.deepEqual(entity.name, { en: "Test Switch" });
   t.is(entity.entity_type, EntityType.Switch);
+  t.is(entity.icon, undefined);
+  t.is(entity.description, undefined);
   t.is(entity.device_id, undefined);
   t.deepEqual(entity.features, []);
   t.deepEqual(entity.attributes, { [SwitchAttributes.State]: SwitchStates.Unknown });
@@ -27,6 +29,8 @@ test("Switch constructor with parameter object", (t) => {
   };
 
   const entity = new Switch("test", "Test Switch", {
+    icon: "uc:star",
+    description: "unit test",
     features: [SwitchFeatures.Toggle],
     attributes,
     options,
@@ -36,6 +40,8 @@ test("Switch constructor with parameter object", (t) => {
   t.is(entity.id, "test");
   t.deepEqual(entity.name, { en: "Test Switch" });
   t.is(entity.entity_type, EntityType.Switch);
+  t.is(entity.icon, "uc:star");
+  t.deepEqual(entity.description, { en: "unit test" });
   t.is(entity.device_id, undefined);
   t.deepEqual(entity.features, ["toggle"]);
   t.deepEqual(entity.attributes, { state: "UNAVAILABLE" });
@@ -54,4 +60,13 @@ test("Switch constructor with Object attributes", (t) => {
   t.deepEqual(entity.name, { en: "Test Switch" });
   t.is(entity.entity_type, EntityType.Switch);
   t.deepEqual(entity.attributes, { state: "OFF" });
+});
+
+test("Switch constructor with language text description", (t) => {
+  const entity = new Switch("test", "Test", {
+    description: { en: "unit test", de: "Unit Test" }
+  });
+
+  t.is(entity.id, "test");
+  t.deepEqual(entity.description, { en: "unit test", de: "Unit Test" });
 });

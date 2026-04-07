@@ -8,6 +8,8 @@ test("Cover constructor without parameter object creates default Cover class", (
   t.is(entity.id, "test");
   t.deepEqual(entity.name, { en: "Test Cover" });
   t.is(entity.entity_type, EntityType.Cover);
+  t.is(entity.icon, undefined);
+  t.is(entity.description, undefined);
   t.is(entity.device_id, undefined);
   t.deepEqual(entity.features, []);
   t.deepEqual(entity.attributes, { [CoverAttributes.State]: CoverStates.Unknown });
@@ -23,6 +25,8 @@ test("Cover constructor with parameter object", (t) => {
   };
 
   const entity = new Cover("test", "Test Cover", {
+    icon: "uc:star",
+    description: "unit test",
     features: [CoverFeatures.Tilt],
     attributes,
     options: {},
@@ -32,6 +36,8 @@ test("Cover constructor with parameter object", (t) => {
   t.is(entity.id, "test");
   t.deepEqual(entity.name, { en: "Test Cover" });
   t.is(entity.entity_type, EntityType.Cover);
+  t.is(entity.icon, "uc:star");
+  t.deepEqual(entity.description, { en: "unit test" });
   t.is(entity.device_id, undefined);
   t.deepEqual(entity.features, ["tilt"]);
   t.deepEqual(entity.attributes, { state: "UNAVAILABLE" });
@@ -50,4 +56,13 @@ test("Cover constructor with Object attributes", (t) => {
   t.deepEqual(entity.name, { en: "Test Cover" });
   t.is(entity.entity_type, EntityType.Cover);
   t.deepEqual(entity.attributes, { position: 50 });
+});
+
+test("Cover constructor with language text description", (t) => {
+  const entity = new Cover("test", "Test", {
+    description: { en: "unit test", de: "Unit Test" }
+  });
+
+  t.is(entity.id, "test");
+  t.deepEqual(entity.description, { en: "unit test", de: "Unit Test" });
 });

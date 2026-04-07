@@ -14,6 +14,8 @@ test("MediaPlayer constructor without parameter object creates default MediaPlay
   t.is(entity.id, "test");
   t.deepEqual(entity.name, { en: "Test MediaPlayer" });
   t.is(entity.entity_type, EntityType.MediaPlayer);
+  t.is(entity.icon, undefined);
+  t.is(entity.description, undefined);
   t.is(entity.device_id, undefined);
   t.deepEqual(entity.features, []);
   t.deepEqual(entity.attributes, { [MediaPlayerAttributes.State]: MediaPlayerStates.Unknown });
@@ -51,6 +53,8 @@ test("MediaPlayer constructor with parameter object", (t) => {
   };
 
   const entity = new MediaPlayer("test", "Test MediaPlayer", {
+    icon: "uc:star",
+    description: "unit test",
     features: [MediaPlayerFeatures.Menu],
     attributes,
     options,
@@ -60,6 +64,8 @@ test("MediaPlayer constructor with parameter object", (t) => {
   t.is(entity.id, "test");
   t.deepEqual(entity.name, { en: "Test MediaPlayer" });
   t.is(entity.entity_type, EntityType.MediaPlayer);
+  t.is(entity.icon, "uc:star");
+  t.deepEqual(entity.description, { en: "unit test" });
   t.is(entity.device_id, undefined);
   t.deepEqual(entity.features, ["menu"]);
   t.deepEqual(entity.attributes, { state: "UNAVAILABLE", volume: 22 });
@@ -84,4 +90,13 @@ test("MediaPlayer constructor with Object attributes", (t) => {
   t.deepEqual(entity.name, { en: "Test MediaPlayer" });
   t.is(entity.entity_type, EntityType.MediaPlayer);
   t.deepEqual(entity.attributes, { shuffle: false, muted: false, volume: 25 });
+});
+
+test("MediaPlayer constructor with language text description", (t) => {
+  const entity = new MediaPlayer("test", "Test", {
+    description: { en: "unit test", de: "Unit Test" }
+  });
+
+  t.is(entity.id, "test");
+  t.deepEqual(entity.description, { en: "unit test", de: "Unit Test" });
 });

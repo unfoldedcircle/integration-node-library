@@ -8,6 +8,8 @@ test("Light constructor without parameter object creates default Light class", (
   t.is(entity.id, "test");
   t.deepEqual(entity.name, { en: "Test Light" });
   t.is(entity.entity_type, EntityType.Light);
+  t.is(entity.icon, undefined);
+  t.is(entity.description, undefined);
   t.is(entity.device_id, undefined);
   t.deepEqual(entity.features, []);
   t.deepEqual(entity.attributes, { [LightAttributes.State]: LightStates.Unknown });
@@ -23,6 +25,8 @@ test("Light constructor with parameter object", (t) => {
   };
 
   const entity = new Light("test", "Test Light", {
+    icon: "uc:star",
+    description: "unit test",
     features: [LightFeatures.ColorTemperature],
     attributes,
     options: {},
@@ -32,6 +36,8 @@ test("Light constructor with parameter object", (t) => {
   t.is(entity.id, "test");
   t.deepEqual(entity.name, { en: "Test Light" });
   t.is(entity.entity_type, EntityType.Light);
+  t.is(entity.icon, "uc:star");
+  t.deepEqual(entity.description, { en: "unit test" });
   t.is(entity.device_id, undefined);
   t.deepEqual(entity.features, ["color_temperature"]);
   t.deepEqual(entity.attributes, { state: "UNAVAILABLE" });
@@ -50,4 +56,13 @@ test("Light constructor with Object attributes", (t) => {
   t.deepEqual(entity.name, { en: "Test Light" });
   t.is(entity.entity_type, EntityType.Light);
   t.deepEqual(entity.attributes, { brightness: 33 });
+});
+
+test("Light constructor with language text description", (t) => {
+  const entity = new Light("test", "Test", {
+    description: { en: "unit test", de: "Unit Test" }
+  });
+
+  t.is(entity.id, "test");
+  t.deepEqual(entity.description, { en: "unit test", de: "Unit Test" });
 });

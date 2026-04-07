@@ -98,6 +98,8 @@ test("Remote constructor without parameter object creates default remote class",
   t.is(remote.id, "test");
   t.deepEqual(remote.name, { en: "Test Remote" });
   t.is(remote.entity_type, EntityType.Remote);
+  t.is(remote.icon, undefined);
+  t.is(remote.description, undefined);
   t.is(remote.device_id, undefined);
   t.deepEqual(remote.features, []);
   t.deepEqual(remote.attributes, { [RemoteAttributes.State]: RemoteStates.Unknown });
@@ -113,6 +115,8 @@ test("Remote constructor with parameter object", (t) => {
   };
 
   const remote = new Remote("test", "Test Remote", {
+    icon: "uc:star",
+    description: "unit test",
     features: [RemoteFeatures.SendCmd],
     attributes,
     simpleCommands: ["foobar", "foo", "bar"],
@@ -122,6 +126,8 @@ test("Remote constructor with parameter object", (t) => {
   t.is(remote.id, "test");
   t.deepEqual(remote.name, { en: "Test Remote" });
   t.is(remote.entity_type, EntityType.Remote);
+  t.is(remote.icon, "uc:star");
+  t.deepEqual(remote.description, { en: "unit test" });
   t.is(remote.device_id, undefined);
   t.deepEqual(remote.features, ["send_cmd"]);
   t.deepEqual(remote.attributes, { state: "ON" });
@@ -140,4 +146,13 @@ test("Remote constructor with Object attributes", (t) => {
   t.deepEqual(entity.name, { en: "Test Remote" });
   t.is(entity.entity_type, EntityType.Remote);
   t.deepEqual(entity.attributes, { state: "UNAVAILABLE" });
+});
+
+test("Remote constructor with language text description", (t) => {
+  const entity = new Remote("test", "Test", {
+    description: { en: "unit test", de: "Unit Test" }
+  });
+
+  t.is(entity.id, "test");
+  t.deepEqual(entity.description, { en: "unit test", de: "Unit Test" });
 });

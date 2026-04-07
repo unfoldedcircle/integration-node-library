@@ -8,6 +8,8 @@ test("Button constructor without parameter object creates default Button class",
   t.is(entity.id, "test");
   t.deepEqual(entity.name, { en: "Test Button" });
   t.is(entity.entity_type, EntityType.Button);
+  t.is(entity.icon, undefined);
+  t.is(entity.description, undefined);
   t.is(entity.device_id, undefined);
   t.deepEqual(entity.features, ["press"]);
   t.deepEqual(entity.attributes, { state: "AVAILABLE" });
@@ -19,6 +21,8 @@ test("Button constructor without parameter object creates default Button class",
 
 test("Button constructor with parameter object", (t) => {
   const entity = new Button("test", "Test Button", {
+    icon: "uc:star",
+    description: "unit test",
     state: ButtonStates.Unavailable,
     area: "Test lab"
   });
@@ -26,6 +30,8 @@ test("Button constructor with parameter object", (t) => {
   t.is(entity.id, "test");
   t.deepEqual(entity.name, { en: "Test Button" });
   t.is(entity.entity_type, EntityType.Button);
+  t.is(entity.icon, "uc:star");
+  t.deepEqual(entity.description, { en: "unit test" });
   t.is(entity.device_id, undefined);
   t.deepEqual(entity.features, ["press"]);
   t.deepEqual(entity.attributes, { state: "UNAVAILABLE" });
@@ -33,4 +39,13 @@ test("Button constructor with parameter object", (t) => {
   t.is(entity.options, undefined);
   t.is(entity.area, "Test lab");
   t.is(entity.hasCmdHandler, false);
+});
+
+test("Button constructor with language text description", (t) => {
+  const entity = new Button("test", "Test", {
+    description: { en: "unit test", de: "Unit Test" }
+  });
+
+  t.is(entity.id, "test");
+  t.deepEqual(entity.description, { en: "unit test", de: "Unit Test" });
 });
