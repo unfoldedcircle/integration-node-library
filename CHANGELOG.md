@@ -11,6 +11,12 @@ _Changes in the next release_
 
 ---
 
+## 0.4.4-beta - 2026-04-07
+
+### Added
+
+- Allow integrations to provide entity icon and description ([#63](https://github.com/unfoldedcircle/integration-node-library/pull/63)).
+
 ## 0.4.3-beta - 2026-03-30
 
 ### Added
