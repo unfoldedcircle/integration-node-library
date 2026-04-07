@@ -6,7 +6,7 @@
  * @license Apache License 2.0, see LICENSE for more details.
  */
 
-import { CommandHandler, Entity, EntityType, EntityName } from "./entity.js";
+import { CommandHandler, Entity, EntityType, EntityName, EntityDescription } from "./entity.js";
 import log from "../loggers.js";
 
 export enum ButtonStates {
@@ -35,6 +35,8 @@ export enum ButtonCommands {
 }
 
 export interface ButtonParams {
+  icon?: string;
+  description?: EntityDescription;
   state?: ButtonStates;
   area?: string;
   cmdHandler?: CommandHandler;
@@ -59,11 +61,17 @@ export class Button extends Entity {
    * @param id The entity identifier. Must be unique inside the integration driver.
    * @param name The human-readable name of the entity.
    *        Either a string, which will be mapped to English, or a Map / Object containing multiple language strings.
-   * @param {ButtonParams} [params] Entity parameters.
+   * @param {ButtonParams} [params] Button-entity parameters.
    * @throws AssertionError if invalid parameters are specified.
    */
-  constructor(id: string, name: EntityName, { state = ButtonStates.Available, area, cmdHandler }: ButtonParams = {}) {
+  constructor(
+    id: string,
+    name: EntityName,
+    { icon, description, state = ButtonStates.Available, area, cmdHandler }: ButtonParams = {}
+  ) {
     super(id, name, EntityType.Button, {
+      icon,
+      description,
       features: ["press"],
       attributes: {
         state: state

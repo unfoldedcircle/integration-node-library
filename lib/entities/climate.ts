@@ -6,7 +6,7 @@
  * @license Apache License 2.0, see LICENSE for more details.
  */
 
-import { CommandHandler, Entity, EntityType, EntityName } from "./entity.js";
+import { CommandHandler, Entity, EntityType, EntityName, EntityDescription } from "./entity.js";
 import log from "../loggers.js";
 
 // Climate entity states
@@ -167,6 +167,8 @@ export enum TemperatureUnit {
 
 // Define types for the parameters in the constructor
 export interface ClimateParams {
+  icon?: string;
+  description?: EntityDescription;
   features?: ClimateFeatures[];
   attributes?: Partial<Record<ClimateAttributes, ClimateStates | number>>;
   deviceClass?: string;
@@ -190,15 +192,24 @@ export class Climate extends Entity {
    * @param {string} id The entity identifier. Must be unique inside the integration driver.
    * @param {EntityName} name The human-readable name of the entity.
    *        Either a string, which will be mapped to English, or a Map / Object containing multiple language strings.
-   * @param {ClimateParams} [params] Entity parameters.
+   * @param {ClimateParams} [params] Climate-entity parameters.
    * @throws AssertionError if invalid parameters are specified.
    */
   constructor(
     id: string,
     name: EntityName,
-    { features, attributes, deviceClass, options, area, cmdHandler }: ClimateParams = {}
+    { icon, description, features, attributes, deviceClass, options, area, cmdHandler }: ClimateParams = {}
   ) {
-    super(id, name, EntityType.Climate, { features, attributes, deviceClass, options, area, cmdHandler });
+    super(id, name, EntityType.Climate, {
+      icon,
+      description,
+      features,
+      attributes,
+      deviceClass,
+      options,
+      area,
+      cmdHandler
+    });
 
     log.debug(`Climate entity created with id: ${this.id}`);
   }

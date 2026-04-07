@@ -6,7 +6,7 @@
  * @license Apache License 2.0, see LICENSE for more details.
  */
 
-import { CommandHandler, Entity, EntityType, EntityName } from "./entity.js";
+import { CommandHandler, Entity, EntityType, EntityName, EntityDescription } from "./entity.js";
 import log from "../loggers.js";
 
 // Cover entity states
@@ -158,6 +158,8 @@ export enum CoverOptions {}
 
 // Define types for the parameters in the constructor
 export interface CoverParams {
+  icon?: string;
+  description?: EntityDescription;
   features?: CoverFeatures[];
   attributes?: Partial<Record<CoverAttributes, CoverStates | number>>;
   deviceClass?: CoverDeviceClasses;
@@ -182,15 +184,24 @@ export class Cover extends Entity {
    * @param {string} id The entity identifier. Must be unique inside the integration driver.
    * @param {EntityName} name The human-readable name of the entity.
    *        Either a string, which will be mapped to English, or a Map / Object containing multiple language strings.
-   * @param {CoverParams} [params] Entity parameters.
+   * @param {CoverParams} [params] Cover-entity parameters.
    * @throws AssertionError if invalid parameters are specified.
    */
   constructor(
     id: string,
     name: EntityName,
-    { features, attributes, deviceClass, options, area, cmdHandler }: CoverParams = {}
+    { icon, description, features, attributes, deviceClass, options, area, cmdHandler }: CoverParams = {}
   ) {
-    super(id, name, EntityType.Cover, { features, attributes, deviceClass, options, area, cmdHandler });
+    super(id, name, EntityType.Cover, {
+      icon,
+      description,
+      features,
+      attributes,
+      deviceClass,
+      options,
+      area,
+      cmdHandler
+    });
 
     log.debug(`Cover entity created with id: ${this.id}`);
   }
