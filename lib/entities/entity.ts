@@ -34,6 +34,7 @@ export enum EntityType {
 }
 
 export type EntityName = string | { [key: string]: string };
+export type EntityDescription = string | { [key: string]: string };
 export type EntityAttributes = { [key: string]: string | number | boolean | string[] };
 export type EntityOptions = { [key: string]: string | number | boolean | object };
 export type EntityCommandParams = { [key: string]: string | number | boolean };
@@ -41,6 +42,8 @@ export type EntityCommandParams = { [key: string]: string | number | boolean };
 export type CommandHandler = (entity: Entity, command: string, params?: EntityCommandParams) => Promise<StatusCodes>;
 
 export interface EntityParams {
+  icon?: string;
+  description?: EntityDescription;
   features?: string[];
   attributes?: EntityAttributes;
   deviceClass?: string;
@@ -56,6 +59,10 @@ export class Entity {
   public name: EntityName;
   /** Entity device type name: one of the supported entities. */
   public entity_type: EntityType;
+  /** Optional icon of the entity. If not specified, a default icon is used based on the entity type. */
+  public icon?: string;
+  /** Optional description of the entity. */
+  public description?: EntityDescription;
 
   /** Optional associated device, if the integration driver supports multiple devices. */
   public device_id?: string;
@@ -84,13 +91,24 @@ export class Entity {
     id: string,
     name: string | { [key: string]: string },
     entityType: EntityType,
-    { features = [], attributes = { state: "UNKNOWN" }, deviceClass, options, area, cmdHandler }: EntityParams = {}
+    {
+      icon,
+      description,
+      features = [],
+      attributes = { state: "UNKNOWN" },
+      deviceClass,
+      options,
+      area,
+      cmdHandler
+    }: EntityParams = {}
   ) {
     this.id = id;
 
     const languageName = toLanguageObject(name);
     assert(languageName);
     this.name = languageName || "?";
+    this.icon = icon;
+    this.description = toLanguageObject(description) || undefined;
 
     this.entity_type = entityType;
     this.features = features;

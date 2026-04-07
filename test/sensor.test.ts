@@ -8,6 +8,8 @@ test("Sensor constructor without parameter object creates default Sensor class",
   t.is(entity.id, "test");
   t.deepEqual(entity.name, { en: "Test Sensor" });
   t.is(entity.entity_type, EntityType.Sensor);
+  t.is(entity.icon, undefined);
+  t.is(entity.description, undefined);
   t.is(entity.device_id, undefined);
   t.deepEqual(entity.features, []);
   t.deepEqual(entity.attributes, { [SensorAttributes.State]: SensorStates.Unknown });
@@ -27,6 +29,8 @@ test("Sensor constructor with parameter object", (t) => {
   };
 
   const entity = new Sensor("test", "Test Sensor", {
+    icon: "uc:star",
+    description: "unit test",
     attributes,
     options,
     deviceClass: SensorDeviceClasses.Energy,
@@ -36,6 +40,8 @@ test("Sensor constructor with parameter object", (t) => {
   t.is(entity.id, "test");
   t.deepEqual(entity.name, { en: "Test Sensor" });
   t.is(entity.entity_type, EntityType.Sensor);
+  t.is(entity.icon, "uc:star");
+  t.deepEqual(entity.description, { en: "unit test" });
   t.is(entity.device_id, undefined);
   t.deepEqual(entity.features, []);
   t.deepEqual(entity.attributes, { state: "UNAVAILABLE" });
@@ -60,4 +66,13 @@ test("Sensor constructor with Object attributes", (t) => {
   t.deepEqual(entity.name, { en: "Test Sensor" });
   t.is(entity.entity_type, EntityType.Sensor);
   t.deepEqual(entity.attributes, { state: "ON", value: 100, unit: "%" });
+});
+
+test("Sensor constructor with language text description", (t) => {
+  const entity = new Sensor("test", "Test", {
+    description: { en: "unit test", de: "Unit Test" }
+  });
+
+  t.is(entity.id, "test");
+  t.deepEqual(entity.description, { en: "unit test", de: "Unit Test" });
 });

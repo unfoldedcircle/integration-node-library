@@ -120,6 +120,8 @@ export class Entities extends EventEmitter {
    * Returned properties are:
    * - entity_id
    * - entity_type
+   * - icon
+   * - description
    * - device_id
    * - features
    * - name
@@ -138,6 +140,8 @@ export class Entities extends EventEmitter {
       const entity = {
         entity_id: value.id,
         entity_type: value.entity_type,
+        icon: value.icon,
+        description: value.description,
         device_id: value.device_id,
         features: value.features,
         name: value.name,

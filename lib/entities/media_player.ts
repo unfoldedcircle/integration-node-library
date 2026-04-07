@@ -6,7 +6,7 @@
  * @license Apache License 2.0, see LICENSE for more details.
  */
 
-import { Entity, EntityType, CommandHandler, EntityName } from "./entity.js";
+import { Entity, EntityType, CommandHandler, EntityName, EntityDescription } from "./entity.js";
 import log from "../loggers.js";
 import { Pagination, Paging, StatusCodes } from "../api_definitions.js";
 
@@ -733,6 +733,8 @@ export enum RepeatMode {
 }
 
 export interface MediaPlayerParams {
+  icon?: string;
+  description?: EntityDescription;
   features?: MediaPlayerFeatures[];
   attributes?: Partial<
     Record<MediaPlayerAttributes, MediaPlayerStates | RepeatMode | string | string[] | number | boolean>
@@ -758,15 +760,24 @@ export class MediaPlayer extends Entity {
    * @param {string} id The entity identifier. Must be unique inside the integration driver.
    * @param {EntityName} name The human-readable name of the entity.
    *        Either a string, which will be mapped to English, or a Map / Object containing multiple language strings.
-   * @param {MediaPlayerParams} [params] Entity parameters.
+   * @param {MediaPlayerParams} [params] Media-player-entity parameters.
    * @throws AssertionError if invalid parameters are specified.
    */
   constructor(
     id: string,
     name: EntityName,
-    { features, attributes, deviceClass, options, area, cmdHandler }: MediaPlayerParams = {}
+    { icon, description, features, attributes, deviceClass, options, area, cmdHandler }: MediaPlayerParams = {}
   ) {
-    super(id, name, EntityType.MediaPlayer, { features, attributes, deviceClass, options, area, cmdHandler });
+    super(id, name, EntityType.MediaPlayer, {
+      icon,
+      description,
+      features,
+      attributes,
+      deviceClass,
+      options,
+      area,
+      cmdHandler
+    });
 
     log.debug(`MediaPlayer entity created with id: ${this.id}`);
   }

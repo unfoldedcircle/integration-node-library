@@ -6,7 +6,7 @@
  * @license Apache License 2.0, see LICENSE for more details.
  */
 
-import { CommandHandler, Entity, EntityType, EntityName } from "./entity.js";
+import { CommandHandler, Entity, EntityType, EntityName, EntityDescription } from "./entity.js";
 import log from "../loggers.js";
 
 /**
@@ -117,6 +117,8 @@ export enum LightOptions {
 }
 
 export interface LightParams {
+  icon?: string;
+  description?: EntityDescription;
   features?: LightFeatures[];
   attributes?: Partial<Record<LightAttributes, LightStates | number>>;
   deviceClass?: string;
@@ -139,15 +141,24 @@ export class Light extends Entity {
    * @param {string} id The entity identifier. Must be unique inside the integration driver.
    * @param {EntityName} name The human-readable name of the entity.
    *        Either a string, which will be mapped to English, or a Map / Object containing multiple language strings.
-   * @param {LightParams} [params] Entity parameters.
+   * @param {LightParams} [params] Light-entity parameters.
    * @throws AssertionError if invalid parameters are specified.
    */
   constructor(
     id: string,
     name: EntityName,
-    { features, attributes, deviceClass, options, area, cmdHandler }: LightParams = {}
+    { icon, description, features, attributes, deviceClass, options, area, cmdHandler }: LightParams = {}
   ) {
-    super(id, name, EntityType.Light, { features, attributes, deviceClass, options, area, cmdHandler });
+    super(id, name, EntityType.Light, {
+      icon,
+      description,
+      features,
+      attributes,
+      deviceClass,
+      options,
+      area,
+      cmdHandler
+    });
 
     log.debug(`Light entity created with id: ${this.id}`);
   }

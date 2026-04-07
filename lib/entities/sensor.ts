@@ -6,7 +6,7 @@
  * @license Apache License 2.0, see LICENSE for more details.
  */
 
-import { Entity, EntityType, EntityName } from "./entity.js";
+import { Entity, EntityType, EntityName, EntityDescription } from "./entity.js";
 import log from "../loggers.js";
 
 /**
@@ -120,6 +120,8 @@ export enum SensorOptions {
 }
 
 export interface SensorParams {
+  icon?: string;
+  description?: EntityDescription;
   attributes?: Partial<Record<SensorAttributes, SensorStates | number | string>>;
   deviceClass?: SensorDeviceClasses;
   options?: Partial<Record<SensorOptions, string | number>>;
@@ -138,11 +140,15 @@ export class Sensor extends Entity {
    *
    * @param id The entity identifier. Must be unique inside the integration driver.
    * @param name The human-readable name of the entity.
-   * @param params Entity parameters.
+   * @param params Sensor-entity parameters.
    * @throws AssertionError if invalid parameters are specified.
    */
-  constructor(id: string, name: EntityName, { attributes, deviceClass, options, area }: SensorParams = {}) {
-    super(id, name, EntityType.Sensor, { attributes, deviceClass, options, area });
+  constructor(
+    id: string,
+    name: EntityName,
+    { icon, description, attributes, deviceClass, options, area }: SensorParams = {}
+  ) {
+    super(id, name, EntityType.Sensor, { icon, description, attributes, deviceClass, options, area });
 
     log.debug(`Sensor entity created with id: ${this.id}`);
   }

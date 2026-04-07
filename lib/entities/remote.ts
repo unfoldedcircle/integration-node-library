@@ -6,7 +6,7 @@
  * @license Apache License 2.0, see LICENSE for more details.
  */
 
-import { CommandHandler, Entity, EntityType, EntityName, EntityOptions } from "./entity.js";
+import { CommandHandler, Entity, EntityType, EntityName, EntityOptions, EntityDescription } from "./entity.js";
 import { DeviceButtonMapping, EntityCommand, UiPage } from "./ui.js";
 import log from "../loggers.js";
 import assert from "node:assert";
@@ -165,6 +165,8 @@ export function createRemoteSequenceCmd(
 }
 
 export interface RemoteParams {
+  icon?: string;
+  description?: EntityDescription;
   features?: RemoteFeatures[];
   attributes?: Partial<Record<RemoteAttributes, RemoteStates>>;
   simpleCommands?: string[];
@@ -186,13 +188,23 @@ export class Remote extends Entity {
    *
    * @param id The entity identifier. Must be unique inside the integration driver.
    * @param name The human-readable name of the entity.
-   * @param params Entity parameters.
+   * @param params Remote-entity parameters.
    * @throws AssertionError if invalid parameters are specified.
    */
   constructor(
     id: string,
     name: EntityName,
-    { features, attributes, simpleCommands, buttonMapping, uiPages, area, cmdHandler }: RemoteParams = {}
+    {
+      icon,
+      description,
+      features,
+      attributes,
+      simpleCommands,
+      buttonMapping,
+      uiPages,
+      area,
+      cmdHandler
+    }: RemoteParams = {}
   ) {
     const options: EntityOptions = {};
     if (simpleCommands) {
@@ -205,7 +217,7 @@ export class Remote extends Entity {
       options[RemoteOptions.UserInterface] = { pages: uiPages };
     }
 
-    super(id, name, EntityType.Remote, { features, attributes, options, area, cmdHandler });
+    super(id, name, EntityType.Remote, { icon, description, features, attributes, options, area, cmdHandler });
 
     log.debug(`Remote entity created with id: ${this.id}`);
   }
