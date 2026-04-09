@@ -1146,3 +1146,4 @@ export * from "./lib/entities/media_player.js";
 export * from "./lib/entities/remote.js";
 export * from "./lib/entities/sensor.js";
 export * from "./lib/entities/switch.js";
+export * from "./lib/entities/select.js";
