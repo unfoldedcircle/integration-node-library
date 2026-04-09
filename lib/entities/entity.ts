@@ -30,7 +30,9 @@ export enum EntityType {
   /** A sensor entity provides measured values from devices or dedicated hardware sensors. */
   Sensor = "sensor",
   /** A switch entity can turn something on or off. */
-  Switch = "switch"
+  Switch = "switch",
+  /** A select entity can choose an option from a list of options. */
+  Select = "select"
 }
 
 export type EntityName = string | { [key: string]: string };
