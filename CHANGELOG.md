@@ -9,11 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 _Changes in the next release_
 
+---
+
+## 0.5.0 - 2026-04-09
+
 ### Added
 
-- Add select-entity support.
+- Add select-entity support ([#64](https://github.com/unfoldedcircle/integration-node-library/pull/64)).
 
----
+### Changed
+
+- Update packages.
 
 ## 0.4.4-beta - 2026-04-07
 
