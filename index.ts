@@ -183,7 +183,7 @@ class IntegrationAPI extends EventEmitter {
 
       connection.on("message", async (message, isBinary) => {
         if (isBinary) {
-          const data = Array.isArray(message) ? Buffer.concat(message) : Buffer.from(message);
+          const data = Array.isArray(message) ? Buffer.concat(message) : Buffer.from(message as ArrayBuffer);
           this.emit("voice_message", { wsId, data });
           return;
         }
