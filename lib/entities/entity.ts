@@ -32,13 +32,15 @@ export enum EntityType {
   /** A switch entity can turn something on or off. */
   Switch = "switch",
   /** A select entity can choose an option from a list of options. */
-  Select = "select"
+  Select = "select",
+  /** A number entity holds a single numeric value which can be read and set. */
+  Number = "number"
 }
 
 export type EntityName = string | { [key: string]: string };
 export type EntityDescription = string | { [key: string]: string };
-export type EntityAttributes = { [key: string]: string | number | boolean | string[] };
-export type EntityOptions = { [key: string]: string | number | boolean | object };
+export type EntityAttributes = { [key: string]: string | number | boolean | string[] | null };
+export type EntityOptions = { [key: string]: string | number | boolean | object | null };
 export type EntityCommandParams = { [key: string]: string | number | boolean };
 
 export type CommandHandler = (entity: Entity, command: string, params?: EntityCommandParams) => Promise<StatusCodes>;
