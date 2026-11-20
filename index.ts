@@ -181,7 +181,12 @@ class IntegrationAPI extends EventEmitter {
 
       this.#authentication(wsId, true);
 
-      connection.on("message", async (message) => {
+      connection.on("message", async (message, isBinary) => {
+        if (isBinary) {
+          const data = Array.isArray(message) ? Buffer.concat(message) : Buffer.from(message as ArrayBuffer);
+          this.emit("voice_message", { wsId, data });
+          return;
+        }
         await this.#messageReceived(wsId, message.toString());
       });
 
@@ -1076,6 +1081,16 @@ class IntegrationAPI extends EventEmitter {
 
   public updateEntityAttributes(entityId: string, attributes: { [key: string]: string | number | boolean }): boolean {
     return this.#configuredEntities.updateEntityAttributes(entityId, attributes);
+  }
+
+  /** Broadcast a voice-assistant lifecycle event to connected Remote clients. */
+  public async emitAssistantEvent(event: {
+    type: string;
+    entity_id: string;
+    session_id: number;
+    data?: Record<string, unknown>;
+  }): Promise<void> {
+    await this.#broadcastEvent("assistant_event", event, api.EventCategory.Entity);
   }
 
   public async generateOauth2AuthUrl(state?: Record<string, unknown>): Promise<{ auth_url: string }> {
