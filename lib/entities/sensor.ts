@@ -72,6 +72,17 @@ export enum SensorDeviceClasses {
    */
   Current = "current",
   /**
+   * Calendar date without a time. Value: text in ISO 8601 format `YYYY-MM-DD`, e.g. `2026-11-15`.
+   */
+  Date = "date",
+  /**
+   * Time span, default unit: s. Supported units: `ms`, `s`, `min`, `h`, `d`. Value: number in the unit of the sensor.
+   *
+   * A value in `min`, `h` or `d` is shown as a time span in the unit of the sensor and the next smaller unit, e.g. `1.5`
+   * hours as `1h 30m`. A value in `ms` or `s` is shown as a number with the unit.
+   */
+  Duration = "duration",
+  /**
    * Energy in kilowatt-hour
    */
   Energy = "energy",
@@ -88,9 +99,17 @@ export enum SensorDeviceClasses {
    */
   Temperature = "temperature",
   /**
+   * Point in time. Value: text in RFC 3339 format, including the UTC offset, e.g. `2026-11-15T04:23:31+00:00`.
+   */
+  Timestamp = "timestamp",
+  /**
    * Voltage in volt
    */
-  Voltage = "voltage"
+  Voltage = "voltage",
+  /**
+   * Binary sensor. The specific binary device class is stored in the `unit` attribute.
+   */
+  Binary = "binary"
 }
 
 /**
@@ -106,7 +125,9 @@ export enum SensorOptions {
    */
   NativeUnit = "native_unit",
   /**
-   * Number of decimal places to show in the UI if the sensor provides the measurement as a number. Not applicable to string values.
+   * Number of decimal places to show in the UI if the sensor provides the measurement as a number. Not applicable to
+   * string values and the `timestamp` and `date` device classes. A `duration` value is rounded to this number of
+   * decimal places before it is formatted as a time span.
    */
   Decimals = "decimals",
   /**

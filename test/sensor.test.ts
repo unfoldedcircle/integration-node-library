@@ -76,3 +76,28 @@ test("Sensor constructor with language text description", (t) => {
   t.is(entity.id, "test");
   t.deepEqual(entity.description, { en: "unit test", de: "Unit Test" });
 });
+
+test("SensorDeviceClasses contains all expected device classes", (t) => {
+  const expectedClasses: Record<string, string> = {
+    Custom: "custom",
+    Battery: "battery",
+    Current: "current",
+    Date: "date",
+    Duration: "duration",
+    Energy: "energy",
+    Humidity: "humidity",
+    Power: "power",
+    Temperature: "temperature",
+    Timestamp: "timestamp",
+    Voltage: "voltage",
+    Binary: "binary"
+  };
+
+  for (const [key, value] of Object.entries(expectedClasses)) {
+    t.is(SensorDeviceClasses[key as keyof typeof SensorDeviceClasses], value as SensorDeviceClasses);
+    const entity = new Sensor(`sensor_${value}`, `Sensor ${key}`, {
+      deviceClass: value as SensorDeviceClasses
+    });
+    t.is(entity.device_class, value);
+  }
+});
