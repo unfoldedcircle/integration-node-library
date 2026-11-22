@@ -1,0 +1,8 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="webview.js" type="NodeJSConfigurationType" nameIsGenerated="true" path-to-js-file="webview.js" working-dir="$PROJECT_DIR$/examples/webview">
+    <envs>
+      <env name="DEBUG" value="*" />
+    </envs>
+    <method v="2" />
+  </configuration>
+</component>

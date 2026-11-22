@@ -11,6 +11,17 @@ import { Events } from "../api_definitions.js";
 import log from "../loggers.js";
 
 /**
+ * Options for entity pool add, update, and remove operations.
+ */
+export interface EntityUpdateOptions {
+  /**
+   * Emit an `entity_available` or `entity_removed` event to notify connected Remotes.
+   * Requires a Remote supporting Integration-API >= 0.18.0 (`webview` entity support).
+   */
+  notify?: boolean;
+}
+
+/**
  * Entity pools for available and configured entities during runtime.
  */
 export class Entities extends EventEmitter {
@@ -49,9 +60,10 @@ export class Entities extends EventEmitter {
    * Add an entity to the storage.
    *
    * @param {Entity} entity - The entity to add.
+   * @param {EntityUpdateOptions} [options] - Optional notification settings (defaults to `{ notify: false }`).
    * @returns {boolean} true if entity was added, false if entity already exists.
    */
-  addAvailableEntity(entity: Entity): boolean {
+  addAvailableEntity(entity: Entity, options?: EntityUpdateOptions): boolean {
     if (this.#storage[entity.id]) {
       log.debug(`ENTITIES(${this.id}): Entity is already in storage: ${entity.id}`);
       return false;
@@ -59,6 +71,30 @@ export class Entities extends EventEmitter {
     this.#storage[entity.id] = entity;
 
     log.debug(`ENTITIES(${this.id}): Entity added: ${entity.id}`);
+    if (options?.notify) {
+      this.emit(Events.EntityAvailable, entity);
+    }
+    return true;
+  }
+
+  /**
+   * Update an existing entity definition in the storage.
+   *
+   * @param {Entity} entity - The updated entity definition.
+   * @param {EntityUpdateOptions} [options] - Optional notification settings (defaults to `{ notify: true }`).
+   * @returns {boolean} true if entity was updated, false if entity does not exist.
+   */
+  updateEntity(entity: Entity, options?: EntityUpdateOptions): boolean {
+    if (!this.#storage[entity.id]) {
+      log.debug(`ENTITIES(${this.id}): Entity does not exist: ${entity.id}`);
+      return false;
+    }
+    this.#storage[entity.id] = entity;
+
+    log.debug(`ENTITIES(${this.id}): Entity updated: ${entity.id}`);
+    if (options?.notify !== false) {
+      this.emit(Events.EntityAvailable, entity);
+    }
     return true;
   }
 
@@ -66,17 +102,22 @@ export class Entities extends EventEmitter {
    * Remove an entity from the storage.
    *
    * @param {string} id - The entity identifier.
+   * @param {EntityUpdateOptions} [options] - Optional notification settings (defaults to `{ notify: false }`).
    * @returns {boolean} true if entity was removed, false if entity does not exist.
    */
-  removeEntity(id: string): boolean {
+  removeEntity(id: string, options?: EntityUpdateOptions): boolean {
     if (!this.#storage[id]) {
       log.debug(`ENTITIES(${this.id}): Entity does not exist: ${id}`);
       return false;
     }
 
+    const entity = this.#storage[id];
     delete this.#storage[id];
 
     log.debug(`ENTITIES(${this.id}): Entity removed: ${id}`);
+    if (options?.notify) {
+      this.emit(Events.EntityRemoved, entity);
+    }
     return true;
   }
 
@@ -115,6 +156,29 @@ export class Entities extends EventEmitter {
   }
 
   /**
+   * Serialize an entity into the Integration-API entity definition object.
+   *
+   * Attributes are not included.
+   *
+   * @param {Entity} entity - The entity to serialize.
+   * @returns {Record<string, object | string | null | undefined>} Serialized entity definition.
+   */
+  static toEntityData(entity: Entity): Record<string, object | string | null | undefined> {
+    return {
+      entity_id: entity.id,
+      entity_type: entity.entity_type,
+      icon: entity.icon,
+      description: entity.description,
+      device_id: entity.device_id,
+      features: entity.features,
+      name: entity.name,
+      area: entity.area,
+      device_class: entity.device_class,
+      options: entity.options
+    };
+  }
+
+  /**
    * Retrieves a list of entities stored in the system.
    *
    * Returned properties are:
@@ -137,20 +201,7 @@ export class Entities extends EventEmitter {
     const entities: Array<Record<string, object | string | null | undefined>> = [];
 
     Object.entries(this.#storage).forEach(([, value]) => {
-      const entity = {
-        entity_id: value.id,
-        entity_type: value.entity_type,
-        icon: value.icon,
-        description: value.description,
-        device_id: value.device_id,
-        features: value.features,
-        name: value.name,
-        area: value.area,
-        device_class: value.device_class,
-        options: value.options
-      };
-
-      entities.push(entity);
+      entities.push(Entities.toEntityData(value));
     });
 
     return entities;

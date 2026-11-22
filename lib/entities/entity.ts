@@ -34,7 +34,9 @@ export enum EntityType {
   /** A select entity can choose an option from a list of options. */
   Select = "select",
   /** A number entity holds a single numeric value which can be read and set. */
-  Number = "number"
+  Number = "number",
+  /** A web view entity shows a web page on the Remote. */
+  Webview = "webview"
 }
 
 export type EntityName = string | { [key: string]: string };

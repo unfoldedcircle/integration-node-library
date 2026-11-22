@@ -41,7 +41,9 @@ export enum Messages {
   SetupDriver = "setup_driver",
   SetDriverUserData = "set_driver_user_data",
   BrowseMedia = "browse_media",
-  SearchMedia = "search_media"
+  SearchMedia = "search_media",
+  GetVersion = "get_version",
+  GetSupportedEntityTypes = "get_supported_entity_types"
 }
 
 // Define event messages
@@ -51,10 +53,14 @@ export enum MsgEvents {
   EnterStandby = "enter_standby",
   ExitStandby = "exit_standby",
   DriverVersion = "driver_version",
+  Version = "version",
+  SupportedEntityTypes = "supported_entity_types",
   DeviceState = "device_state",
   AvailableEntities = "available_entities",
   EntityStates = "entity_states",
   EntityChange = "entity_change",
+  EntityAvailable = "entity_available",
+  EntityRemoved = "entity_removed",
   DriverMetadata = "driver_metadata",
   MediaBrowse = "media_browse",
   MediaSearch = "media_search",
@@ -72,6 +78,8 @@ export enum MsgEvents {
 
 export enum Events {
   EntityAttributesUpdated = "entity_attributes_updated",
+  EntityAvailable = "entity_available",
+  EntityRemoved = "entity_removed",
   SubscribeEntities = "subscribe_entities",
   UnsubscribeEntities = "unsubscribe_entities",
   SetupDriver = "setup_driver",
@@ -280,6 +288,21 @@ export interface Oauth2Token {
   refresh_token?: string;
   expires_in?: number;
   token_type?: string;
+}
+
+/**
+ * Remote version information returned by `get_version`.
+ */
+export interface RemoteVersionInfo {
+  model?: string;
+  device_name?: string;
+  hostname?: string;
+  address?: string;
+  api?: string;
+  core?: string;
+  ui?: string;
+  os?: string;
+  integrations?: Record<string, string>;
 }
 
 /**
