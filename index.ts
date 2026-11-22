@@ -58,7 +58,10 @@ class IntegrationAPI extends EventEmitter {
   readonly #requestTimeout: number;
 
   // store requests sent via WebSocket that need to wait for a response
-  readonly #pendingRequests: Map<number, { resolve: (value: unknown) => void; reject: (reason?: unknown) => void }>;
+  readonly #pendingRequests: Map<
+    number,
+    { conn: WebSocket; resolve: (value: unknown) => void; reject: (reason?: unknown) => void }
+  >;
   #reqId = 1;
 
   constructor() {
@@ -88,6 +91,7 @@ class IntegrationAPI extends EventEmitter {
 
     // connect to entity lifecycle events for available entities
     this.#availableEntities.on(api.Events.EntityAvailable, async (entity: Entity) => {
+      this.#syncConfiguredEntity(entity);
       await this.#broadcastEntityLifecycleEvent(api.MsgEvents.EntityAvailable, Entities.toEntityData(entity));
     });
 
@@ -209,11 +213,13 @@ class IntegrationAPI extends EventEmitter {
       connection.on("close", () => {
         log.info(`[${wsId}] WS: Connection closed`);
         this.#clients.delete(connection);
+        this.#rejectPendingRequests(connection, new Error("WebSocket disconnected"));
       });
 
-      connection.on("error", () => {
+      connection.on("error", (err) => {
         log.warn(`[${wsId}] WS: Connection error`);
         this.#clients.delete(connection);
+        this.#rejectPendingRequests(connection, err instanceof Error ? err : new Error("WebSocket connection error"));
       });
     });
 
@@ -231,9 +237,15 @@ class IntegrationAPI extends EventEmitter {
    */
   public async close(): Promise<void> {
     for (const client of this.#clients.keys()) {
+      this.#rejectPendingRequests(client, new Error("WebSocket server closed"));
       client.close();
     }
     this.#clients.clear();
+
+    for (const [id, pending] of this.#pendingRequests.entries()) {
+      this.#pendingRequests.delete(id);
+      pending.reject(new Error("WebSocket server closed"));
+    }
 
     if (this.#server) {
       const server = this.#server;
@@ -435,6 +447,24 @@ class IntegrationAPI extends EventEmitter {
     return promise;
   }
 
+  #syncConfiguredEntity(entity: Entity): void {
+    const configured = this.#configuredEntities.getEntity(entity.id);
+    if (configured && configured !== entity) {
+      // Preserve live runtime attributes on configured entities when updating definitions
+      entity.attributes = { ...entity.attributes, ...configured.attributes };
+      this.#configuredEntities.updateEntity(entity, { notify: false });
+    }
+  }
+
+  #rejectPendingRequests(conn: WebSocket, reason: Error): void {
+    for (const [id, pending] of this.#pendingRequests.entries()) {
+      if (pending.conn === conn) {
+        this.#pendingRequests.delete(id);
+        pending.reject(reason);
+      }
+    }
+  }
+
   async #sendRequest(
     conn: WebSocket,
     id: number,
@@ -442,6 +472,11 @@ class IntegrationAPI extends EventEmitter {
     msgData?: object
   ): Promise<unknown> {
     return new Promise((resolve, reject) => {
+      if (conn.readyState !== WebSocket.OPEN) {
+        reject(new Error("WebSocket is not open"));
+        return;
+      }
+
       const payload = {
         kind: "req",
         msg: msgType,
@@ -455,6 +490,7 @@ class IntegrationAPI extends EventEmitter {
       }, this.#requestTimeout);
 
       this.#pendingRequests.set(id, {
+        conn,
         resolve: (value: unknown) => {
           clearTimeout(timeoutId);
           resolve(value);
@@ -1238,7 +1274,8 @@ class IntegrationAPI extends EventEmitter {
   /**
    * Update an existing available entity definition (e.g. rotated webview credentials or updated number bounds).
    *
-   * If the entity is also configured, its stored definition in the configured entities pool is updated as well.
+   * If the entity is also configured, its stored definition in the configured entities pool is updated as well
+   * while preserving its live runtime attributes.
    * By default, emits an `entity_available` event to connected Remotes supporting Integration-API >= 0.18.0.
    *
    * @param {Entity} entity - The updated entity definition.
@@ -1247,8 +1284,8 @@ class IntegrationAPI extends EventEmitter {
    */
   public updateAvailableEntity(entity: Entity, options?: EntityUpdateOptions): boolean {
     const updated = this.#availableEntities.updateEntity(entity, options);
-    if (updated && this.#configuredEntities.contains(entity.id)) {
-      this.#configuredEntities.updateEntity(entity, { notify: false });
+    if (updated) {
+      this.#syncConfiguredEntity(entity);
     }
     return updated;
   }
@@ -1256,13 +1293,14 @@ class IntegrationAPI extends EventEmitter {
   /**
    * Remove an entity from the available entities pool.
    *
-   * By default, emits an `entity_removed` event to connected Remotes supporting Integration-API >= 0.18.0.
+   * By default, no `entity_removed` event is emitted (safe for cleanup and setup flows).
+   * Pass `{ notify: true }` to emit an `entity_removed` event to connected Remotes supporting Integration-API >= 0.18.0.
    *
    * @param {string} entityId - The entity identifier to remove.
-   * @param {EntityUpdateOptions} [options] - Optional notification settings (defaults to `{ notify: true }`).
+   * @param {EntityUpdateOptions} [options] - Optional notification settings (defaults to `{ notify: false }`).
    * @returns {boolean} true if entity was removed, false if entity does not exist.
    */
-  public removeAvailableEntity(entityId: string, options: EntityUpdateOptions = { notify: true }): boolean {
+  public removeAvailableEntity(entityId: string, options?: EntityUpdateOptions): boolean {
     return this.#availableEntities.removeEntity(entityId, options);
   }
 

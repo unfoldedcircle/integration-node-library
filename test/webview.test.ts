@@ -17,8 +17,10 @@ import {
   WebviewButtonKey
 } from "../lib/entities/webview.js";
 
-test("Webview constructor without parameter object creates default Webview class", (t) => {
-  const entity = new Webview("test", "Test Webview");
+test("Webview constructor with minimal options creates default Webview class", (t) => {
+  const entity = new Webview("test", "Test Webview", {
+    options: { [WebviewOptions.Url]: "https://www.unfoldedcircle.com" }
+  });
 
   t.is(entity.id, "test");
   t.deepEqual(entity.name, { en: "Test Webview" });
@@ -29,9 +31,16 @@ test("Webview constructor without parameter object creates default Webview class
   t.deepEqual(entity.features, []);
   t.deepEqual(entity.attributes, { [WebviewAttributes.State]: WebviewStates.Unknown });
   t.is(entity.device_class, undefined);
-  t.is(entity.options, undefined);
+  t.deepEqual(entity.options, { url: "https://www.unfoldedcircle.com" });
   t.is(entity.area, undefined);
   t.is(entity.hasCmdHandler, false);
+});
+
+test("Webview constructor rejects missing or empty options.url", (t) => {
+  t.throws(() => new Webview("bad", "Bad", {} as unknown as { options: { url: string } }), { name: "AssertionError" });
+  t.throws(() => new Webview("bad", "Bad", { options: {} as { url: string } }), { name: "AssertionError" });
+  t.throws(() => new Webview("bad", "Bad", { options: { url: "" } }), { name: "AssertionError" });
+  t.throws(() => new Webview("bad", "Bad", { options: { url: "   " } }), { name: "AssertionError" });
 });
 
 test("Webview constructor with simple URL option", (t) => {
@@ -354,14 +363,16 @@ test.serial(
       t.is(availList[0].entity_id, "dash");
       t.is(availList[0].entity_type, EntityType.Webview);
 
-      // Subscribe to dash so it's also in configured entities
+      // Subscribe to dash so it's also in configured entities, and set a runtime attribute
       ws.send(
         JSON.stringify({ kind: "req", id: 11, msg: Messages.SubscribeEvents, msg_data: { entity_ids: ["dash"] } })
       );
       await waitForMsg("result");
       t.true(driver.getConfiguredEntities().contains("dash"));
+      t.true(driver.updateEntityAttributes("dash", { [WebviewAttributes.State]: WebviewStates.Unavailable }));
+      await waitForMsg(MsgEvents.EntityChange);
 
-      // Update webview credentials -> emits entity_available & syncs configured entity
+      // Update webview credentials -> emits entity_available & syncs configured entity while preserving runtime attributes
       const updatedWebview = new Webview("dash", "Dashboard", {
         options: {
           url: "https://dashboard.example.com",
@@ -379,15 +390,22 @@ test.serial(
         url: "https://dashboard.example.com",
         auth: { type: "bearer", token: "rotated-token" }
       });
-      // Configured entity should also be updated
+      // Configured entity should be updated and still preserve its live runtime attributes
       t.deepEqual(driver.getConfiguredEntities().getEntity("dash")?.options, {
         url: "https://dashboard.example.com",
         auth: { type: "bearer", token: "rotated-token" }
       });
+      t.deepEqual(driver.getConfiguredEntities().getEntity("dash")?.attributes, {
+        [WebviewAttributes.State]: WebviewStates.Unavailable
+      });
 
-      // Remove entity -> emits entity_removed
+      // Remove another entity with default options -> does NOT emit entity_removed
+      driver.addAvailableEntity(new Webview("temp", "Temp", { options: { url: "https://temp.example.com" } }));
+      t.true(driver.removeAvailableEntity("temp"));
+
+      // Remove entity with notify: true -> emits entity_removed
       const removedEventPromise = waitForMsg(MsgEvents.EntityRemoved);
-      t.true(driver.removeAvailableEntity("dash"));
+      t.true(driver.removeAvailableEntity("dash", { notify: true }));
 
       const removedEvent = await removedEventPromise;
       t.is(removedEvent.kind, "event");
@@ -438,7 +456,7 @@ test.serial("IntegrationAPI omits webview entities and skips lifecycle events fo
         new Webview("dash", "Dashboard", { options: { url: "https://dashboard.example.com/v2" } })
       )
     );
-    t.true(driver.removeAvailableEntity("dash"));
+    t.true(driver.removeAvailableEntity("dash", { notify: true }));
 
     // Send a round-trip request to flush any pending messages on the socket
     ws.send(JSON.stringify({ kind: "req", id: 21, msg: Messages.GetDeviceState }));
@@ -483,3 +501,27 @@ test.serial(
     }
   }
 );
+
+test.serial("IntegrationAPI rejects pending requests immediately when client disconnects", async (t) => {
+  const port = 19189;
+  const driver = createTestDriver(port);
+
+  // Connect a raw client that does not answer get_version
+  const ws = new WebSocket(`ws://127.0.0.1:${port}`);
+  const firstMessage = new Promise<void>((resolve, reject) => {
+    ws.once("message", () => resolve());
+    ws.once("error", reject);
+  });
+  await firstMessage;
+
+  try {
+    const start = Date.now();
+    const pendingReq = driver.getRemoteVersion();
+    ws.close();
+
+    await t.throwsAsync(pendingReq, { message: "WebSocket disconnected" });
+    t.true(Date.now() - start < 2000, "Pending request should reject immediately on disconnect, not wait for timeout");
+  } finally {
+    await driver.close();
+  }
+});

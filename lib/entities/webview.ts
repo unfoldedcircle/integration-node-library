@@ -6,6 +6,7 @@
  * @license Apache License 2.0, see LICENSE for more details.
  */
 
+import assert from "node:assert";
 import { Entity, EntityType, EntityName, EntityDescription, EntityOptions } from "./entity.js";
 import log from "../loggers.js";
 
@@ -419,7 +420,7 @@ export interface WebviewParams {
   icon?: string;
   description?: EntityDescription;
   attributes?: Partial<Record<WebviewAttributes, WebviewStates | string>>;
-  options?: WebviewEntityOptions | EntityOptions;
+  options: WebviewEntityOptions;
   area?: string;
 }
 
@@ -438,15 +439,20 @@ export class Webview extends Entity {
    *
    * @param id The entity identifier. Must be unique inside the integration driver.
    * @param name The human-readable name of the entity.
-   * @param params Webview-entity parameters.
-   * @throws AssertionError if invalid parameters are specified.
+   * @param params Webview-entity parameters. Must include `options.url`.
+   * @throws AssertionError if invalid parameters are specified (e.g. missing or empty `options.url`).
    */
-  constructor(id: string, name: EntityName, { icon, description, attributes, options, area }: WebviewParams = {}) {
+  constructor(id: string, name: EntityName, { icon, description, attributes, options, area }: WebviewParams) {
+    assert(
+      options && typeof options.url === "string" && options.url.trim().length > 0,
+      "Webview entity requires a non-empty options.url string"
+    );
+
     super(id, name, EntityType.Webview, {
       icon,
       description,
       attributes: attributes as Record<string, string | number | boolean | string[] | null>,
-      options: options as EntityOptions,
+      options: options as unknown as EntityOptions,
       area
     });
 
