@@ -16,7 +16,7 @@ import { filterBase64Images, getDefaultLanguageString, toLanguageObject } from "
 import * as ui from "./lib/entities/ui.js";
 import * as api from "./lib/api_definitions.js";
 import * as msg from "./lib/msg_definitions.js";
-import { Entities } from "./lib/entities/entities.js";
+import { Entities, EntityUpdateOptions } from "./lib/entities/entities.js";
 import { Entity, EntityType } from "./lib/entities/entity.js";
 import { MediaPlayer } from "./lib/entities/media_player.js";
 import { BrowseMediaMsgData, SearchMediaMsgData } from "./lib/msg_definitions.js";
@@ -40,6 +40,9 @@ type WsClientMetadata = {
   // unique client identifier
   id: string;
   authenticated: boolean;
+  // supported entity types reported by the Remote via `get_supported_entity_types`
+  supportedEntityTypes?: Set<string>;
+  supportedEntityTypesPromise?: Promise<Set<string> | undefined>;
 };
 
 class IntegrationAPI extends EventEmitter {
@@ -81,6 +84,23 @@ class IntegrationAPI extends EventEmitter {
       };
 
       await this.#broadcastEvent(api.MsgEvents.EntityChange, data, api.EventCategory.Entity);
+    });
+
+    // connect to entity lifecycle events for available entities
+    this.#availableEntities.on(api.Events.EntityAvailable, async (entity: Entity) => {
+      await this.#broadcastEntityLifecycleEvent(api.MsgEvents.EntityAvailable, Entities.toEntityData(entity));
+    });
+
+    this.#availableEntities.on(api.Events.EntityRemoved, async (entity: Entity) => {
+      const data: Record<string, string> = {
+        entity_id: entity.id,
+        entity_type: entity.entity_type
+      };
+      if (entity.device_id) {
+        data.device_id = entity.device_id;
+      }
+
+      await this.#broadcastEntityLifecycleEvent(api.MsgEvents.EntityRemoved, data);
     });
 
     this.#pendingRequests = new Map();
@@ -180,6 +200,7 @@ class IntegrationAPI extends EventEmitter {
       this.#clients.set(connection, metadata);
 
       this.#authentication(wsId, true);
+      this.#fetchSupportedEntityTypes(connection, metadata);
 
       connection.on("message", async (message) => {
         await this.#messageReceived(wsId, message.toString());
@@ -203,6 +224,24 @@ class IntegrationAPI extends EventEmitter {
       integrationInterface || "0.0.0.0",
       port
     );
+  }
+
+  /**
+   * Close all client connections and shut down the WebSocket server.
+   */
+  public async close(): Promise<void> {
+    for (const client of this.#clients.keys()) {
+      client.close();
+    }
+    this.#clients.clear();
+
+    if (this.#server) {
+      const server = this.#server;
+      this.#server = undefined;
+      await new Promise<void>((resolve, reject) => {
+        server.close((err) => (err ? reject(err) : resolve()));
+      });
+    }
   }
 
   /**
@@ -332,7 +371,76 @@ class IntegrationAPI extends EventEmitter {
     }
   }
 
-  async #sendRequest(conn: WebSocket, id: number, msgType: api.MsgEvents, msgData?: object): Promise<unknown> {
+  /**
+   * Broadcast an entity lifecycle event (`entity_available` or `entity_removed`) to connected clients
+   * that support Integration-API >= 0.18.0 (indicated by `webview` in `supported_entity_types`).
+   */
+  async #broadcastEntityLifecycleEvent(msg: api.MsgEvents, msgData: object) {
+    const json = {
+      kind: "event",
+      msg,
+      msg_data: msgData,
+      cat: api.EventCategory.Entity
+    };
+    const response = JSON.stringify(json);
+
+    const entries = [...this.#clients.entries()];
+    let logged = false;
+
+    for (const [client, metadata] of entries) {
+      if (!metadata.supportedEntityTypes && metadata.supportedEntityTypesPromise) {
+        await metadata.supportedEntityTypesPromise;
+      }
+
+      if (!metadata.supportedEntityTypes?.has(EntityType.Webview)) {
+        log.debug(`[${metadata.id}] Skipping ${msg} event: Remote does not support Integration-API >= 0.18.0`);
+        continue;
+      }
+
+      const entityType = (msgData as { entity_type?: string }).entity_type;
+      if (entityType && !metadata.supportedEntityTypes.has(entityType)) {
+        log.info(`[${metadata.id}] Skipping ${msg} event: entity type '${entityType}' not supported by Remote`);
+        continue;
+      }
+
+      if (!logged) {
+        this.#log_json_message(json, "<<- ", msg);
+        logged = true;
+      }
+
+      if (this.#clients.has(client)) {
+        client.send(response);
+      }
+    }
+  }
+
+  #fetchSupportedEntityTypes(connection: WebSocket, metadata: WsClientMetadata): Promise<Set<string> | undefined> {
+    const promise = (
+      this.#sendRequest(connection, this.#reqId++, api.Messages.GetSupportedEntityTypes) as Promise<string[]>
+    )
+      .then((types) => {
+        if (Array.isArray(types)) {
+          metadata.supportedEntityTypes = new Set(types);
+          log.debug(`[${metadata.id}] Remote supported entity types: ${types.join(", ")}`);
+          return metadata.supportedEntityTypes;
+        }
+        return undefined;
+      })
+      .catch((err) => {
+        log.debug(`[${metadata.id}] Failed to query supported entity types: ${err}`);
+        return undefined;
+      });
+
+    metadata.supportedEntityTypesPromise = promise;
+    return promise;
+  }
+
+  async #sendRequest(
+    conn: WebSocket,
+    id: number,
+    msgType: api.MsgEvents | api.Messages,
+    msgData?: object
+  ): Promise<unknown> {
     return new Promise((resolve, reject) => {
       const payload = {
         kind: "req",
@@ -356,7 +464,7 @@ class IntegrationAPI extends EventEmitter {
           reject(reason);
         }
       });
-      this.#log_json_message(payload, `[${id}] <- `, msgType);
+      this.#log_json_message(payload, `[${id}] <- `, msgType as api.MsgEvents);
       conn.send(JSON.stringify(payload));
     });
   }
@@ -391,11 +499,13 @@ class IntegrationAPI extends EventEmitter {
           await this.#sendResponse(wsHandle, api.MsgEvents.DeviceState, this.#getDeviceState());
           break;
 
-        case api.Messages.GetAvailableEntities:
+        case api.Messages.GetAvailableEntities: {
+          const availableEntities = await this.#getAvailableEntitiesForClient(wsId);
           await this.#sendResponse(wsHandle, api.MsgEvents.AvailableEntities, {
-            available_entities: this.#getAvailableEntities()
+            available_entities: availableEntities
           });
           break;
+        }
 
         case api.Messages.GetEntityStates:
           await this.#sendResponse(wsHandle, api.MsgEvents.EntityStates, this.#getEntityStates());
@@ -489,9 +599,10 @@ class IntegrationAPI extends EventEmitter {
       }
     } else if (kind === "resp") {
       const statusCode = json.code;
-      const pendingRequest = this.#pendingRequests.get(json.req_id);
+      const reqId = json.req_id;
+      const pendingRequest = this.#pendingRequests.get(reqId);
       if (!pendingRequest) {
-        log.warn(`[${wsId}] No pending request found for id ${id}`);
+        log.warn(`[${wsId}] No pending request found for id ${reqId}`);
         return;
       }
       if (statusCode >= 200 && statusCode < 300) {
@@ -499,7 +610,7 @@ class IntegrationAPI extends EventEmitter {
       } else {
         pendingRequest.reject(new Error(`Request failed with status code ${statusCode}`));
       }
-      this.#pendingRequests.delete(id);
+      this.#pendingRequests.delete(reqId);
     }
   }
 
@@ -563,12 +674,24 @@ class IntegrationAPI extends EventEmitter {
           "secret",
           "auth_url",
           "client_data",
-          "password"
+          "password",
+          "header_value"
         ]);
 
         for (const [k, v] of Object.entries(obj)) {
           if (SENSITIVE_KEYS.has(k)) {
             obj[k] = REDACTED_VALUE;
+          } else if (k === "cookies" && Array.isArray(v)) {
+            obj[k] = v.map((cookie: unknown) => {
+              if (cookie && typeof cookie === "object" && !Array.isArray(cookie)) {
+                const sanitizedCookie = sanitizeForLogging(cookie) as Record<string, unknown>;
+                if ("value" in sanitizedCookie) {
+                  sanitizedCookie.value = REDACTED_VALUE;
+                }
+                return sanitizedCookie;
+              }
+              return sanitizeForLogging(cookie);
+            });
           } else {
             obj[k] = sanitizeForLogging(v);
           }
@@ -644,6 +767,42 @@ class IntegrationAPI extends EventEmitter {
   #getAvailableEntities() {
     // return list of entities
     return this.#availableEntities.getEntities();
+  }
+
+  async #getAvailableEntitiesForClient(wsId: string) {
+    const entities = this.#getAvailableEntities();
+    if (entities.length === 0) {
+      return entities;
+    }
+
+    let metadata: WsClientMetadata | undefined;
+    for (const value of this.#clients.values()) {
+      if (value.id === wsId) {
+        metadata = value;
+        break;
+      }
+    }
+
+    if (metadata && !metadata.supportedEntityTypes && metadata.supportedEntityTypesPromise) {
+      await metadata.supportedEntityTypesPromise;
+    }
+
+    if (metadata?.supportedEntityTypes) {
+      const supported = metadata.supportedEntityTypes;
+      return entities.filter((entity) => {
+        const isSupported = typeof entity.entity_type === "string" && supported.has(entity.entity_type);
+        if (!isSupported) {
+          log.info(
+            `[${wsId}] Omitting entity '${entity.entity_id}' (${entity.entity_type}): entity type not supported by Remote`
+          );
+        }
+        return isSupported;
+      });
+    }
+
+    log.warn(`[${wsId}] Remote supported entity types unknown: returning all entities`);
+
+    return entities;
   }
 
   async #subscribeEvents(entities: { entity_ids: string[] }) {
@@ -1062,8 +1221,49 @@ class IntegrationAPI extends EventEmitter {
     return this.#driverInfo?.driver_url;
   }
 
-  public addAvailableEntity(entity: Entity) {
-    this.#availableEntities.addAvailableEntity(entity);
+  /**
+   * Add an available entity.
+   *
+   * By default, no `entity_available` event is emitted (safe for startup and setup flows).
+   * Pass `{ notify: true }` to emit an `entity_available` event to connected Remotes supporting Integration-API >= 0.18.0.
+   *
+   * @param {Entity} entity - The entity to add.
+   * @param {EntityUpdateOptions} [options] - Optional notification settings (defaults to `{ notify: false }`).
+   * @returns {boolean} true if entity was added, false if an entity with the same ID already exists.
+   */
+  public addAvailableEntity(entity: Entity, options?: EntityUpdateOptions): boolean {
+    return this.#availableEntities.addAvailableEntity(entity, options);
+  }
+
+  /**
+   * Update an existing available entity definition (e.g. rotated webview credentials or updated number bounds).
+   *
+   * If the entity is also configured, its stored definition in the configured entities pool is updated as well.
+   * By default, emits an `entity_available` event to connected Remotes supporting Integration-API >= 0.18.0.
+   *
+   * @param {Entity} entity - The updated entity definition.
+   * @param {EntityUpdateOptions} [options] - Optional notification settings (defaults to `{ notify: true }`).
+   * @returns {boolean} true if entity was updated, false if entity does not exist.
+   */
+  public updateAvailableEntity(entity: Entity, options?: EntityUpdateOptions): boolean {
+    const updated = this.#availableEntities.updateEntity(entity, options);
+    if (updated && this.#configuredEntities.contains(entity.id)) {
+      this.#configuredEntities.updateEntity(entity, { notify: false });
+    }
+    return updated;
+  }
+
+  /**
+   * Remove an entity from the available entities pool.
+   *
+   * By default, emits an `entity_removed` event to connected Remotes supporting Integration-API >= 0.18.0.
+   *
+   * @param {string} entityId - The entity identifier to remove.
+   * @param {EntityUpdateOptions} [options] - Optional notification settings (defaults to `{ notify: true }`).
+   * @returns {boolean} true if entity was removed, false if entity does not exist.
+   */
+  public removeAvailableEntity(entityId: string, options: EntityUpdateOptions = { notify: true }): boolean {
+    return this.#availableEntities.removeEntity(entityId, options);
   }
 
   public clearAvailableEntities(): void {
@@ -1076,6 +1276,32 @@ class IntegrationAPI extends EventEmitter {
 
   public updateEntityAttributes(entityId: string, attributes: { [key: string]: string | number | boolean }): boolean {
     return this.#configuredEntities.updateEntityAttributes(entityId, attributes);
+  }
+
+  /**
+   * Request version information from the connected Remote (`get_version`).
+   */
+  public async getRemoteVersion(): Promise<api.RemoteVersionInfo> {
+    const conn = this.#getCoreClient();
+    if (!conn) {
+      log.warn("getRemoteVersion: expected 1 client connected");
+      return Promise.reject("expected 1 client connected");
+    }
+
+    return this.#sendRequest(conn, this.#reqId++, api.Messages.GetVersion) as Promise<api.RemoteVersionInfo>;
+  }
+
+  /**
+   * Request supported entity types from the connected Remote (`get_supported_entity_types`).
+   */
+  public async getSupportedEntityTypes(): Promise<string[]> {
+    const conn = this.#getCoreClient();
+    if (!conn) {
+      log.warn("getSupportedEntityTypes: expected 1 client connected");
+      return Promise.reject("expected 1 client connected");
+    }
+
+    return this.#sendRequest(conn, this.#reqId++, api.Messages.GetSupportedEntityTypes) as Promise<string[]>;
   }
 
   public async generateOauth2AuthUrl(state?: Record<string, unknown>): Promise<{ auth_url: string }> {
@@ -1132,7 +1358,7 @@ class IntegrationAPI extends EventEmitter {
   }
 }
 
-export { api, ui, IntegrationAPI };
+export { api, ui, IntegrationAPI, EntityUpdateOptions };
 
 export * from "./lib/entities/ui.js";
 export * from "./lib/api_definitions.js";
@@ -1148,3 +1374,4 @@ export * from "./lib/entities/sensor.js";
 export * from "./lib/entities/switch.js";
 export * from "./lib/entities/select.js";
 export * from "./lib/entities/number.js";
+export * from "./lib/entities/webview.js";

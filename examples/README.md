@@ -69,6 +69,19 @@ The [media-player](media-player/media_player.js) example shows how to implement 
 browsing and searching capabilities.
 It extends the `MediaPlayer` entity to override the command handler and the media callback methods.
 
+## webview
+
+The [webview](webview/webview.js) example shows how to provide web view entities:
+
+- A simple URL-only web view entity.
+- A complex web view entity with login credentials (`auth`), `tls`, `cookies`, `user_agent`, `zoom`, `background_color`, `show_navigation`, `reload_interval`, `buttons`, and `device_api` options.
+- Updating credentials after connect via `driver.updateAvailableEntity()`, which emits the `entity_available` event.
+
+```shell
+cd webview
+DEBUG=* node webview.js
+```
+
 ## Driver configuration
 
 Edit `driver.json` if you'd like to change the port or any other information.

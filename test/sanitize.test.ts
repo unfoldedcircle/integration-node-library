@@ -180,3 +180,48 @@ test("sanitize_json_message - edge cases", (t) => {
   t.is(sanitizedArray[0], "token");
   t.is(sanitizedArray[1].secret, "***REDACTED***");
 });
+
+test("sanitize_json_message - webview secrets redaction", (t) => {
+  const integrationApi = new IntegrationAPI();
+  const msg = {
+    kind: "event",
+    msg: api.MsgEvents.EntityAvailable,
+    msg_data: {
+      entity_id: "dashboard",
+      entity_type: "webview",
+      options: {
+        url: "https://dashboard.example.com",
+        auth: {
+          type: "header",
+          username: "alice",
+          password: "my-password",
+          token: "my-bearer-token",
+          header_name: "X-API-Key",
+          header_value: "super-secret-api-key"
+        },
+        cookies: [
+          { name: "session", value: "secret-cookie-value", domain: "dashboard.example.com", http_only: true },
+          { name: "theme", value: "dark" }
+        ]
+      },
+      attributes: {
+        value: 42
+      }
+    }
+  };
+
+  const sanitized: any = sanitize_json_message(integrationApi, msg, api.MsgEvents.EntityAvailable);
+  t.is(sanitized.msg_data.options.url, "https://dashboard.example.com");
+  t.is(sanitized.msg_data.options.auth.username, "alice");
+  t.is(sanitized.msg_data.options.auth.header_name, "X-API-Key");
+  t.is(sanitized.msg_data.options.auth.password, "***REDACTED***");
+  t.is(sanitized.msg_data.options.auth.token, "***REDACTED***");
+  t.is(sanitized.msg_data.options.auth.header_value, "***REDACTED***");
+  t.is(sanitized.msg_data.options.cookies[0].name, "session");
+  t.is(sanitized.msg_data.options.cookies[0].value, "***REDACTED***");
+  t.is(sanitized.msg_data.options.cookies[0].domain, "dashboard.example.com");
+  t.is(sanitized.msg_data.options.cookies[1].name, "theme");
+  t.is(sanitized.msg_data.options.cookies[1].value, "***REDACTED***");
+  // Non-cookie `value` fields (like sensor/number attributes) must not be redacted
+  t.is(sanitized.msg_data.attributes.value, 42);
+});
